@@ -1,0 +1,3681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=375, initial-scale=1.0, maximum-scale=1.0" />
+<title>Micro Drama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── ReelShort-style design tokens ──
+   Primary accent : #FF4418  (vibrant orange-red)
+   Background     : #0A0A0A  (near-black)
+   Surface        : #141414
+   Surface 2      : #1E1E1E
+   Border         : #2A2A2A
+   Text muted     : rgba(255,255,255,.45)
+   Gold (VIP/coin): #FFD700
+*/
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+body {
+  background:#000;
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color:#fff;
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; overflow:hidden;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width:375px; height:812px;
+  background:#0A0A0A; border-radius:44px; overflow:hidden; position:relative;
+  box-shadow:0 0 0 10px #1a1a1a, 0 0 0 12px #2a2a2a, 0 50px 120px rgba(0,0,0,.9);
+}
+
+/* ── Screens ── */
+.screen { position:absolute; inset:0; transition:transform .35s cubic-bezier(.4,0,.2,1); }
+.screen.hidden { transform:translateX(105%); pointer-events:none; }
+#player.hidden { transform:translateY(105%); }
+
+/* ══════════════════════════════
+   HOME SCREEN
+══════════════════════════════ */
+#home { display:flex; flex-direction:column; background:#0A0A0A; overflow:hidden; }
+
+.top-bar {
+  position:absolute; top:0; left:0; right:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:48px 18px 16px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.92) 60%,transparent);
+}
+.logo {
+  font-size:18px; font-weight:900; letter-spacing:.3px; color:#fff;
+  display:flex; align-items:center; gap:0;
+}
+.logo-box {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#FF4418; border-radius:5px;
+  width:26px; height:26px; font-size:16px; font-weight:900; color:#fff;
+  margin-right:4px; flex-shrink:0; line-height:1; letter-spacing:0;
+  padding-bottom:1px;
+}
+.logo-accent { color:#FF4418; }
+
+/* ── Hero / Poster ── */
+.hero {
+  position:relative; width:100%; height:370px;
+  flex-shrink:0; overflow:hidden; background:#111;
+}
+.hero-poster {
+  position:absolute; top:0; left:0; right:0; height:260px;
+  width:100%; object-fit:cover; object-position:center top; display:block;
+}
+.hero-poster-overlay {
+  position:absolute; top:0; left:0; right:0; height:260px;
+  background:linear-gradient(to bottom,
+    rgba(0,0,0,.15) 0%,
+    rgba(0,0,0,0)   38%,
+    rgba(0,0,0,.72) 80%,
+    rgba(0,0,0,1)   100%);
+}
+.hero-info { position:absolute; bottom:0; left:0; right:0; padding:0 16px 16px; }
+.hero-title {
+  font-size:23px; font-weight:800; line-height:1.15;
+  text-shadow:0 2px 10px rgba(0,0,0,.8); margin-bottom:5px;
+}
+.hero-meta {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; color:rgba(255,255,255,.7); margin-bottom:13px; flex-wrap:wrap;
+}
+.rating-badge {
+  display:inline-block; border:1px solid rgba(255,255,255,.35);
+  border-radius:3px; padding:1px 5px; font-size:10px; font-weight:700;
+  background:rgba(255,255,255,.1); letter-spacing:.4px; flex-shrink:0;
+}
+.hero-buttons { display:flex; gap:9px; align-items:center; }
+.hero-play-btn {
+  display:flex; align-items:center; gap:6px;
+  background:#FF4418; border:none; cursor:pointer;
+  border-radius:22px; padding:10px 20px;
+  font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:#fff;
+  box-shadow:0 4px 18px rgba(255,68,24,.45);
+  transition:transform .12s, opacity .12s;
+}
+.hero-play-btn:active { transform:scale(.95); opacity:.9; }
+.hero-play-btn svg { width:14px; height:14px; fill:#fff; flex-shrink:0; }
+.hero-info-btn {
+  width:40px; height:40px; border-radius:50%;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(4px); transition:transform .12s;
+}
+.hero-info-btn:active { transform:scale(.92); }
+.hero-info-btn svg { width:18px; height:18px; fill:none; stroke:#fff; stroke-width:2; }
+
+/* ── Rails ── */
+.rails { flex:1; overflow-y:auto; overflow-x:hidden; padding-top:20px; padding-bottom:76px; scrollbar-width:none; }
+.rails::-webkit-scrollbar { display:none; }
+.rail { margin-bottom:24px; }
+.rail-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 15px; margin-bottom:10px;
+  font-size:14px; font-weight:700;
+}
+.rail-see-all { font-size:12px; font-weight:500; color:#FF4418; }
+.rail-scroll { display:flex; gap:8px; overflow-x:auto; padding:0 15px; scrollbar-width:none; }
+.rail-scroll::-webkit-scrollbar { display:none; }
+
+/* ── Cards ── */
+.card {
+  flex-shrink:0; cursor:pointer; border-radius:8px; overflow:hidden;
+  position:relative; background:#161616; transition:transform .12s;
+}
+.card:active { transform:scale(.95); }
+.card.landscape { width:146px; }
+.card.portrait  { width:100px; }
+.card-img { width:100%; display:block; }
+.card.landscape .card-img { height:83px; object-fit:cover; }
+.card.portrait  .card-img { height:152px; object-fit:cover; }
+.card-progress {
+  position:absolute; bottom:27px; left:8px; right:8px;
+  height:2px; background:rgba(255,255,255,.18); border-radius:2px;
+}
+.card-progress-fill { height:100%; border-radius:2px; background:#FF4418; }
+.card-label {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top,rgba(0,0,0,.92),transparent);
+  padding:18px 7px 5px;
+}
+.card-title { font-size:11px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-ep    { font-size:10px; color:rgba(255,255,255,.48); margin-top:1px; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position:absolute; bottom:0; left:0; right:0;
+  display:flex; background:#0A0A0A; border-top:1px solid #1E1E1E;
+  padding:10px 0 22px;
+}
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+.nav-item svg { width:22px; height:22px; fill:none; stroke:rgba(255,255,255,.32); stroke-width:1.8; }
+.nav-item.active svg { stroke:#FF4418; }
+.nav-item span { font-size:10px; color:rgba(255,255,255,.32); }
+.nav-item.active span { color:#FF4418; font-weight:700; }
+/* Reward tab: semi-transparent gold by default, full gold when active */
+#home-reward-btn .reward-nav-icon-wrap svg,
+#shorts-reward-btn .reward-nav-icon-wrap svg { stroke:rgba(212,175,55,.38) !important; }
+#home-reward-btn span, #shorts-reward-btn span { color:rgba(212,175,55,.38) !important; }
+#home-reward-btn.active .reward-nav-icon-wrap svg,
+#shorts-reward-btn.active .reward-nav-icon-wrap svg,
+#rewards .bottom-nav .nav-item.active svg { stroke:#d4af37 !important; }
+#home-reward-btn.active span, #shorts-reward-btn.active span,
+#rewards .bottom-nav .nav-item.active span { color:#d4af37 !important; font-weight:700; }
+/* Reward icon shine animation */
+.reward-nav-icon-wrap {
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  overflow:hidden; border-radius:4px; width:22px; height:22px;
+}
+.reward-nav-icon-wrap::after {
+  content:''; position:absolute; top:0; left:-100%; width:50%; height:100%;
+  background:linear-gradient(90deg, transparent, rgba(212,175,55,.55), transparent);
+  transform:skewX(-20deg);
+  animation:reward-nav-shine 2.8s ease-in-out infinite;
+}
+@keyframes reward-nav-shine {
+  0%,100%{ left:-100%; opacity:0; }
+  40%{ opacity:1; }
+  60%{ left:150%; opacity:0; }
+}
+
+/* ══════════════════════════════
+   PLAYER SCREEN
+══════════════════════════════ */
+#player { background:#000; }
+
+.player-video-wrap { position:absolute; inset:0; overflow:hidden; background:#000; }
+#player-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.video-poster { position:absolute; inset:0; background-size:cover; background-position:center top; transition:opacity .4s; }
+@keyframes subtle-zoom { 0%,100%{transform:scale(1.04)} 50%{transform:scale(1.07)} }
+.video-poster { animation:subtle-zoom 9s ease-in-out infinite; }
+
+.swipe-hint {
+  position:absolute; left:50%; transform:translateX(-50%) translateY(30px);
+  top:50%; background:rgba(0,0,0,.75); border-radius:20px;
+  padding:8px 18px; font-size:12px; font-weight:600;
+  opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; z-index:60; white-space:nowrap;
+}
+.swipe-hint.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.tap-zone { position:absolute; inset:0; z-index:5; cursor:pointer; }
+
+.center-play {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:20; pointer-events:all;
+  width:58px; height:58px; border-radius:50%;
+  background:rgba(0,0,0,.5); border:2px solid rgba(255,255,255,.5);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; backdrop-filter:blur(4px);
+  transition:opacity .25s, transform .15s;
+}
+.center-play:active { transform:translate(-50%,-50%) scale(.9); }
+.center-play svg { width:24px; height:24px; fill:#fff; }
+.center-play.play-offset svg { margin-left:3px; }
+
+.player-overlay { position:absolute; inset:0; pointer-events:none; z-index:10; }
+
+.player-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:50px 14px 14px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.72) 0%,transparent 100%);
+  pointer-events:all; transition:opacity .22s; gap:8px;
+}
+.player-top-center {
+  flex:1; text-align:center; min-width:0;
+  font-size:13px; font-weight:700; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  padding:0 4px; letter-spacing:.2px;
+  text-shadow:0 1px 6px rgba(0,0,0,.8);
+}
+.back-btn {
+  width:36px; height:36px; border:none; background:rgba(0,0,0,.4);
+  backdrop-filter:blur(6px); border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.back-btn svg { width:20px; height:20px; fill:none; stroke:#fff; stroke-width:2.3; }
+.mute-btn {
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(0,0,0,.45); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px); flex-shrink:0;
+}
+.mute-btn svg { width:15px; height:15px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* ── Right actions ── */
+.player-right {
+  position:absolute; right:12px; bottom:150px;
+  display:flex; flex-direction:column; align-items:center;
+  pointer-events:all; transition:opacity .22s; z-index:15;
+}
+.action-btn {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  margin-bottom:22px; background:none; border:none; cursor:pointer; color:#fff;
+}
+.action-btn svg {
+  width:28px; height:28px; fill:none; stroke:#fff; stroke-width:1.8;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.8));
+}
+.action-btn svg.liked { fill:#FF4418; stroke:#FF4418; }
+.action-btn span { font-size:11px; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.9); }
+
+/* Gold Coin Timer */
+.coin-btn-wrap { display:flex; flex-direction:column; align-items:center; gap:0; margin-bottom:20px; cursor:pointer; }
+.coin-timer-wrap { position:relative; width:34px; height:34px; display:flex; align-items:center; justify-content:center; }
+.coin-timer-svg { position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
+.coin-timer-bg  { fill:none; stroke:rgba(255,200,0,.2); stroke-width:2.2; }
+.coin-timer-arc { fill:none; stroke:#ffd700; stroke-width:2.2; stroke-linecap:round; filter:drop-shadow(0 0 2px rgba(255,215,0,.7)); }
+.coin-inner {
+  position:relative; z-index:2; width:24px; height:24px; border-radius:50%;
+  background:linear-gradient(145deg,#f5c842,#c8860a,#f0a500);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 5px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.coin-inner svg { width:13px; height:13px; }
+.coin-counter {
+  font-size:12px; font-weight:800; color:#d4af37;
+  text-shadow:0 1px 4px rgba(0,0,0,.95), 0 0 8px rgba(212,175,55,.4); line-height:1; margin-top:3px;
+}
+@keyframes coin-pop { 0%{transform:scale(1)} 40%{transform:scale(1.35)} 100%{transform:scale(1)} }
+.coin-counter.pop { animation:coin-pop .35s ease-out; }
+
+/* ── Bottom bar ── */
+.player-bottom {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top,rgba(0,0,0,.95) 60%,transparent);
+  padding:0 15px 10px; pointer-events:all;
+  display:flex; flex-direction:column;
+}
+.progress-bar-wrap {
+  cursor:pointer; position:relative; padding:8px 0 6px; margin:0;
+  order:-1; /* renders first = visually at top of player-bottom */
+}
+.title-row { padding:12px 0 4px; transition:opacity .22s; overflow:hidden; }
+.title-info { min-width:0; }
+.show-title { font-size:15px; font-weight:800; letter-spacing:.1px; }
+.show-genre { font-size:11px; color:rgba(255,255,255,.45); margin-top:2px; }
+
+.ep-info-row { display:flex; align-items:center; gap:7px; cursor:pointer; padding:6px 0 8px; }
+.ep-info-row:hover .ep-season { color:rgba(255,255,255,.85); }
+.all-eps-icon { width:16px; height:16px; flex-shrink:0; fill:none; stroke:rgba(255,255,255,.55); stroke-width:1.6; cursor:pointer; }
+.ep-season { font-size:10px; color:rgba(255,255,255,.45); transition:color .15s; }
+.ep-name   { font-size:10px; font-weight:600; color:rgba(255,255,255,.85); }
+
+.progress-track { height:2.5px; border-radius:2px; background:rgba(255,255,255,.2); overflow:visible; position:relative; }
+.progress-fill { height:100%; border-radius:2px; background:#FF4418; transition:width .1s linear; }
+
+.overlay-hidden .player-top,
+.overlay-hidden .player-right,
+.overlay-hidden .center-play,
+.overlay-hidden .title-row { opacity:0; pointer-events:none; }
+
+/* ══════════════════════════════
+   EPISODES PANEL
+══════════════════════════════ */
+.episodes-panel {
+  position:absolute; bottom:0; left:0; right:0; z-index:50;
+  background:#0F0F0F; border-radius:20px 20px 0 0; max-height:80%;
+  display:flex; flex-direction:column;
+  transform:translateY(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 -4px 30px rgba(0,0,0,.8);
+}
+.episodes-panel.open { transform:translateY(0); }
+
+.eps-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px 12px; border-bottom:1px solid #1E1E1E; flex-shrink:0;
+}
+.eps-title { font-size:15px; font-weight:700; }
+.eps-total { font-size:11px; color:rgba(255,255,255,.38); margin-left:6px; }
+.eps-close {
+  width:30px; height:30px; border-radius:50%;
+  background:#1E1E1E; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.eps-close svg { width:14px; height:14px; fill:none; stroke:rgba(255,255,255,.7); stroke-width:2.2; }
+
+.eps-grid { padding:14px 12px 18px; display:grid; grid-template-columns:repeat(5,1fr); gap:8px; overflow:hidden; }
+
+.ep-square {
+  height:58px; border-radius:8px; overflow:hidden; position:relative;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; background:#1A1A1A; transition:transform .12s;
+}
+.ep-square:active { transform:scale(.93); }
+.ep-square.ep-unlocked { background:#1A1A1A; border:1px solid #2A2A2A; }
+.ep-square.ep-locked   { background:#111; border:1px solid rgba(255,255,255,.04); cursor:default; }
+.ep-square.ep-active   { border:2px solid #FF4418 !important; }
+
+.ep-num { font-size:13px; font-weight:700; color:#fff; }
+.ep-square.ep-locked .ep-num { color:rgba(255,255,255,.22); font-size:11px; margin-top:2px; }
+
+.lock-icon { width:14px; height:14px; fill:none; stroke:rgba(255,255,255,.28); stroke-width:2; margin-bottom:2px; }
+
+.ep-square.ep-streaming {
+  border:2px solid #FF4418 !important;
+  box-shadow:0 0 10px rgba(255,68,24,.45);
+  animation:stream-border 1.6s ease-in-out infinite;
+}
+@keyframes stream-border { 0%,100%{box-shadow:0 0 8px rgba(255,68,24,.3)} 50%{box-shadow:0 0 18px rgba(255,68,24,.7)} }
+.streaming-bars { display:flex; align-items:flex-end; gap:2px; height:14px; margin-top:4px; }
+.streaming-bars span {
+  display:block; width:3px; background:#FF4418; border-radius:2px;
+  animation:bar-wave .7s ease-in-out infinite;
+}
+.streaming-bars span:nth-child(2) { animation-delay:.18s; }
+.streaming-bars span:nth-child(3) { animation-delay:.36s; }
+@keyframes bar-wave { 0%,100%{height:4px} 50%{height:13px} }
+.ep-streaming-label {
+  font-size:8px; font-weight:700; color:#FF4418; letter-spacing:.5px; margin-top:2px;
+  animation:blink-label 1.2s ease-in-out infinite;
+}
+@keyframes blink-label { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+.eps-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:49; opacity:0; pointer-events:none; transition:opacity .3s; }
+.eps-backdrop.open { opacity:1; pointer-events:all; }
+
+.season-tabs {
+  display:flex; gap:6px; padding:8px 12px 10px;
+  border-bottom:1px solid #1E1E1E; flex-shrink:0;
+  overflow-x:auto; scrollbar-width:none;
+}
+.season-tabs::-webkit-scrollbar { display:none; }
+.season-tab {
+  padding:5px 14px; border-radius:16px; font-size:12px; font-weight:600;
+  border:1px solid #2A2A2A; background:transparent;
+  color:rgba(255,255,255,.4); cursor:pointer; white-space:nowrap; flex-shrink:0;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.season-tab.active { background:#FF4418; color:#fff; border-color:#FF4418; }
+
+/* ── VIP Crown Button ── */
+.vip-btn {
+  display:flex; align-items:center; gap:5px; border:none; border-radius:20px;
+  background:linear-gradient(135deg,#ffe566 0%,#d4af37 35%,#c8860a 65%,#f5e070 80%,#d4af37 100%);
+  padding:6px 13px; cursor:pointer; flex-shrink:0;
+  box-shadow:0 2px 14px rgba(212,175,55,.65), 0 0 0 1px rgba(255,230,100,.3) inset;
+  position:relative; overflow:hidden;
+}
+.vip-btn::after {
+  content:''; position:absolute; top:0; left:-60%; width:35%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+  transform:skewX(-20deg); animation:vip-shine 3s ease-in-out infinite;
+}
+@keyframes vip-shine { 0%,100%{left:-60%} 50%{left:120%} }
+.vip-btn svg { width:15px; height:15px; fill:#3a1f00; }
+.vip-btn span { font-size:12px; font-weight:900; color:#3a1f00; letter-spacing:.8px; text-shadow:0 1px 1px rgba(255,220,50,.5); }
+
+/* ── VIP Screen (ReelShort dashboard style) ── */
+#vip { background:#0A0A0A; overflow-y:auto; overflow-x:hidden; }
+
+.vip-banner { position:relative; width:100%; height:300px; overflow:hidden; flex-shrink:0; }
+.vip-banner-img { width:100%; height:100%; object-fit:cover; object-position:center 20%; display:block; }
+.vip-banner-grad {
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.1) 35%, rgba(10,10,10,.85) 75%, #0A0A0A 100%);
+}
+.vip-back-btn-abs {
+  position:absolute; top:50px; left:16px; z-index:10;
+  width:34px; height:34px; border-radius:50%; border:none;
+  background:rgba(0,0,0,.55); backdrop-filter:blur(8px);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(255,255,255,.12);
+}
+.vip-back-btn-abs svg { width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2.2; }
+
+.vip-banner-text {
+  position:absolute; bottom:14px; left:0; right:0; text-align:center;
+}
+.vip-crown-pill {
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#f5c842,#c8860a);
+  border-radius:20px; padding:5px 14px; margin-bottom:8px;
+}
+.vip-crown-pill svg { width:13px; height:13px; fill:#3a1f00; }
+.vip-crown-pill span { font-size:11px; font-weight:900; color:#3a1f00; letter-spacing:.8px; text-transform:uppercase; }
+.vip-banner-title { font-size:26px; font-weight:900; color:#fff; line-height:1.1; }
+.vip-banner-sub { font-size:13px; color:rgba(255,255,255,.5); margin-top:4px; }
+
+.vip-feat-chips { display:flex; gap:8px; justify-content:center; padding:14px 16px 0; flex-wrap:wrap; }
+.vip-feat-chip {
+  display:flex; align-items:center; gap:5px;
+  background:#1A1A1A; border:1px solid #2A2A2A; border-radius:20px;
+  padding:5px 12px; font-size:11px; font-weight:600; color:rgba(255,255,255,.72);
+}
+.vip-feat-chip svg { width:12px; height:12px; fill:none; stroke:#FF4418; stroke-width:2.2; flex-shrink:0; }
+
+.vip-plans-wrap { padding:18px 16px 0; }
+.vip-plans-label { font-size:10px; font-weight:700; color:rgba(255,255,255,.3); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+
+.vip-plan {
+  border-radius:14px; padding:15px 16px; position:relative;
+  border:2px solid #232323; background:#141414;
+  cursor:pointer; transition:border-color .15s, background .15s;
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.vip-plan.active { border-color:#FF4418; background:rgba(255,68,24,.06); }
+.vip-plan-left { display:flex; flex-direction:column; gap:3px; }
+.vip-plan-name { font-size:14px; font-weight:700; color:#fff; }
+.vip-plan-desc { font-size:11px; color:rgba(255,255,255,.4); }
+.vip-plan-right { display:flex; align-items:center; gap:12px; }
+.vip-plan-price-block { text-align:right; }
+.vip-plan-amount { font-size:22px; font-weight:900; color:#fff; line-height:1; }
+.vip-plan-period { font-size:10px; color:rgba(255,255,255,.35); }
+.vip-plan-save {
+  font-size:9px; font-weight:700; color:#2dc653;
+  background:rgba(45,198,83,.12); border:1px solid rgba(45,198,83,.25);
+  border-radius:6px; padding:2px 7px; white-space:nowrap;
+}
+.vip-radio {
+  width:20px; height:20px; border-radius:50%;
+  border:2px solid #333; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .15s, background .15s;
+}
+.vip-plan.active .vip-radio { border-color:#FF4418; background:#FF4418; }
+.vip-radio-dot { width:8px; height:8px; border-radius:50%; background:#fff; display:none; }
+.vip-plan.active .vip-radio-dot { display:block; }
+.vip-hot-badge {
+  position:absolute; top:-8px; left:14px;
+  background:#FF4418; border-radius:6px; padding:2px 9px;
+  font-size:9px; font-weight:800; color:#fff; letter-spacing:.4px; text-transform:uppercase;
+}
+
+.vip-cta-wrap { padding:20px 16px 10px; }
+.vip-sub-btn {
+  width:100%; padding:15px; border-radius:14px; border:none;
+  background:#FF4418; font-family:'Inter',sans-serif;
+  font-size:15px; font-weight:800; color:#fff; cursor:pointer;
+  box-shadow:0 6px 24px rgba(255,68,24,.38); transition:opacity .15s;
+  letter-spacing:.2px;
+}
+.vip-sub-btn:active { opacity:.85; }
+.vip-terms-txt { text-align:center; font-size:10px; color:rgba(255,255,255,.22); padding:10px 16px 30px; line-height:1.6; }
+
+/* ── Ad Popup ── */
+.ad-popup {
+  position:absolute; inset:0; z-index:80;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.72); pointer-events:none; opacity:0; transition:opacity .3s;
+}
+.ad-popup.open { opacity:1; pointer-events:all; }
+.ad-card {
+  background:#141414; border:1px solid #2A2A2A; border-radius:16px;
+  padding:22px 20px 18px; width:278px; text-align:center; position:relative;
+}
+.ad-close-btn {
+  position:absolute; top:11px; right:11px;
+  width:26px; height:26px; border-radius:50%; border:none;
+  background:#1E1E1E; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.ad-close-btn svg { width:11px; height:11px; stroke:rgba(255,255,255,.55); fill:none; stroke-width:2.5; }
+.ad-coin-img {
+  width:58px; height:58px; object-fit:contain; display:block; margin:0 auto 10px;
+  filter:drop-shadow(0 3px 10px rgba(245,200,66,.5));
+}
+.ad-offer-text { font-size:13px; font-weight:400; color:rgba(255,255,255,.72); line-height:1.55; margin-bottom:16px; }
+.ad-play-btn {
+  width:100%; padding:12px; border-radius:10px; border:none;
+  background:#FF4418; font-family:'Inter',sans-serif;
+  font-size:13px; font-weight:700; color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:opacity .15s; box-shadow:0 4px 16px rgba(255,68,24,.38);
+}
+.ad-play-btn svg { width:13px; height:13px; fill:#fff; }
+.ad-play-btn:active { opacity:.85; }
+.ad-playing-wrap {
+  border-radius:10px; overflow:hidden; position:relative; height:148px;
+  background:linear-gradient(145deg,#111,#1a1a1a,#222);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+}
+.ad-playing-countdown {
+  position:absolute; top:8px; right:9px;
+  width:26px; height:26px; border-radius:50%;
+  background:rgba(0,0,0,.7); border:1.5px solid rgba(255,255,255,.28);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:#fff;
+}
+.ad-playing-logo { font-size:38px; line-height:1; }
+.ad-playing-brand { font-size:13px; font-weight:800; letter-spacing:2px; color:#fff; }
+.ad-playing-tag   { font-size:11px; color:rgba(255,255,255,.42); }
+.ad-playing-offer {
+  margin-top:4px; background:#FF4418; border-radius:20px; padding:5px 14px;
+  font-size:11px; font-weight:700; color:#fff;
+}
+.ad-sponsored { font-size:9px; color:rgba(255,255,255,.2); margin-top:8px; letter-spacing:.4px; }
+
+/* Coin reward count-up pop */
+@keyframes coin-count-pop {
+  0%   { transform:scale(1);   color:#ffd700; }
+  35%  { transform:scale(2.1); color:#fff; text-shadow:0 0 12px #ffd700, 0 0 24px rgba(255,215,0,.6); }
+  70%  { transform:scale(1.4); color:#ffd700; }
+  100% { transform:scale(1);   color:#ffd700; }
+}
+.coin-counter.counting { animation:coin-count-pop .45s ease-out forwards; }
+
+/* Episode-change color flash */
+.nav-flash { position:absolute; inset:0; pointer-events:none; z-index:8; opacity:0; }
+@keyframes ep-flash { 0%{opacity:.45} 100%{opacity:0} }
+.nav-flash.flash { animation:ep-flash .65s ease-out forwards; }
+
+/* ══════════════════════════════
+   SHORTS SCREEN
+══════════════════════════════ */
+#shorts { background:#000; }
+
+#shorts-feed {
+  position:absolute; inset:0; bottom:0;
+  overflow-y:scroll; scroll-snap-type:y mandatory;
+  scrollbar-width:none;
+}
+#shorts-feed::-webkit-scrollbar { display:none; }
+
+.shorts-item {
+  position:relative; width:100%; height:100vh;
+  min-height:812px; scroll-snap-align:start; overflow:hidden;
+  cursor:pointer; user-select:none; flex-shrink:0;
+}
+
+.shorts-item-grad {
+  position:absolute; bottom:0; left:0; right:0; height:65%;
+  background:linear-gradient(to top,rgba(0,0,0,.97) 0%,rgba(0,0,0,.6) 45%,transparent 100%);
+  pointer-events:none;
+}
+
+/* New Shorts bottom info bar */
+.shorts-bottom {
+  position:absolute; bottom:64px; left:0; right:0;
+  z-index:20; pointer-events:all;
+}
+.shorts-bottom-progress {
+  width:100%; height:2.5px;
+  background:rgba(255,255,255,.2); overflow:hidden;
+  margin-bottom:10px;
+}
+.shorts-progress-fill { height:100%; background:#FF4418; width:0%; }
+.shorts-bottom-row {
+  display:flex; align-items:center; gap:10px; padding:0 14px 14px;
+}
+.shorts-thumb-sq {
+  width:44px; height:44px; border-radius:6px; flex-shrink:0;
+  overflow:hidden; background:#1a1a1a;
+}
+.shorts-thumb-sq img { width:100%; height:100%; object-fit:cover; display:block; }
+.shorts-bottom-text { flex:1; min-width:0; }
+.shorts-bottom-title {
+  font-size:14px; font-weight:700; color:#fff; line-height:1.3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px;
+}
+.shorts-bottom-meta {
+  font-size:10px; color:rgba(255,255,255,.55);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  display:flex; align-items:center; gap:4px;
+}
+.shorts-bottom-age {
+  display:inline-flex; align-items:center;
+  border:1px solid rgba(255,255,255,.5); border-radius:3px;
+  padding:0 3px; font-size:9px; line-height:13px; font-weight:600; flex-shrink:0;
+}
+
+.shorts-back-btn {
+  position:absolute; top:52px; left:12px; z-index:200;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,.48); backdrop-filter:blur(10px);
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.shorts-back-btn svg { width:20px; height:20px; fill:none; stroke:#fff; stroke-width:2.3; }
+
+.shorts-mute-btn {
+  position:absolute; top:52px; right:12px; z-index:200;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,.48); backdrop-filter:blur(10px);
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.shorts-mute-btn svg { width:15px; height:15px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+
+.shorts-info-btn {
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(0,0,0,.4); backdrop-filter:blur(6px);
+  border:none; cursor:pointer; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.shorts-info-btn svg { width:18px; height:18px; fill:none; stroke:#fff; stroke-width:2; pointer-events:none; }
+
+.shorts-play-overlay {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:72px; height:72px; border-radius:50%;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; opacity:0; transition:opacity .25s; z-index:10;
+}
+.shorts-play-overlay.show { opacity:1; }
+.shorts-play-overlay svg { width:32px; height:32px; fill:#fff; margin-left:3px; }
+
+
+/* Shorts bottom nav row */
+.shorts-bot-nav {
+  position:absolute; bottom:0; left:0; right:0;
+  background:#0A0A0A; border-top:1px solid #1E1E1E;
+  display:flex; padding:10px 0 22px; z-index:50;
+}
+
+/* Shorts Details overlay */
+#shorts-details {
+  position:absolute; inset:0; background:#000; z-index:60;
+  transform:translateY(100%); transition:transform .36s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto; overflow-x:hidden;
+}
+#shorts-details.open { transform:translateY(0); }
+
+.sd-poster {
+  position:relative; width:100%; padding-top:62%;
+  background:#111 center / cover no-repeat; overflow:hidden; flex-shrink:0;
+}
+.sd-poster-grad {
+  position:absolute; bottom:0; left:0; right:0; height:42%;
+  background:linear-gradient(to top,rgba(0,0,0,.85),transparent);
+  pointer-events:none;
+}
+.sd-back-btn {
+  position:absolute; top:12px; left:12px; z-index:10;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(0,0,0,.48); backdrop-filter:blur(8px);
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.sd-back-btn svg { width:20px; height:20px; fill:none; stroke:#fff; stroke-width:2.3; }
+
+.sd-body { padding:0 16px 30px; }
+.sd-progress-wrap { height:3px; background:rgba(255,255,255,.2); margin:14px 0 16px; border-radius:2px; overflow:hidden; }
+.sd-progress-fill { height:100%; background:#FF4418; border-radius:2px; }
+.sd-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:6px; }
+.sd-meta { font-size:12px; color:rgba(255,255,255,.75); display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
+.sd-series-meta { font-size:12px; color:rgba(255,255,255,.55); margin-bottom:16px; }
+.sd-watch-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:#FF4418; border:none; border-radius:50px;
+  color:#fff; font-family:'Inter',sans-serif;
+  font-size:16px; font-weight:700; height:48px; width:100%;
+  cursor:pointer; margin-bottom:18px; transition:opacity .15s;
+  box-shadow:0 6px 20px rgba(255,68,24,.35);
+}
+.sd-watch-btn:active { opacity:.85; }
+.sd-watch-btn svg { width:20px; height:20px; fill:#fff; }
+.sd-description { font-size:12px; color:rgba(255,255,255,.8); line-height:1.65; margin-bottom:10px; }
+.sd-credits { font-size:11px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:20px; }
+.sd-credits strong { font-weight:700; color:rgba(255,255,255,.8); }
+.sd-actions { display:flex; gap:14px; align-items:flex-start; padding-bottom:20px; }
+.sd-action { display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; }
+.sd-action-circle {
+  width:50px; height:50px; border-radius:50%;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; justify-content:center; transition:background .15s;
+}
+.sd-action-circle:active { background:rgba(255,255,255,.18); }
+.sd-action-circle.active { background:rgba(255,68,24,.18); border-color:rgba(255,68,24,.35); }
+.sd-action-circle svg { width:22px; height:22px; fill:#fff; }
+.sd-action-circle.active svg { fill:#FF4418; }
+.sd-action span { font-size:10px; color:rgba(255,255,255,.45); }
+
+/* ══════════════════════════════
+   SHARE POPUP
+══════════════════════════════ */
+.share-popup {
+  position:absolute; inset:0; z-index:300;
+  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+  display:flex; align-items:flex-end;
+  opacity:0; pointer-events:none; transition:opacity .22s;
+}
+.share-popup.open { opacity:1; pointer-events:all; }
+.share-card {
+  width:100%; background:#1C1C1C; border-radius:20px 20px 0 0;
+  padding:8px 18px 36px; transform:translateY(100%); transition:transform .28s cubic-bezier(.4,0,.2,1);
+}
+.share-popup.open .share-card { transform:translateY(0); }
+.share-drag { width:36px; height:4px; background:rgba(255,255,255,.2); border-radius:2px; margin:0 auto 16px; }
+.share-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.share-hdr-title { font-size:15px; font-weight:700; color:#fff; }
+.share-close {
+  width:28px; height:28px; border-radius:50%; background:#2A2A2A;
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.share-close svg { width:14px; height:14px; fill:none; stroke:#fff; stroke-width:2.2; }
+.share-url-row {
+  display:flex; align-items:center; gap:10px; background:#111;
+  border-radius:10px; padding:10px 12px; margin-bottom:22px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.share-url-text {
+  flex:1; font-size:11px; color:rgba(255,255,255,.5);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.share-copy-btn {
+  padding:5px 14px; background:#FF4418; border:none; border-radius:6px;
+  color:#fff; font-size:11px; font-weight:700; cursor:pointer; flex-shrink:0;
+  font-family:'Inter',sans-serif; transition:opacity .15s;
+}
+.share-copy-btn:active { opacity:.8; }
+.share-methods { display:flex; gap:20px; justify-content:center; }
+.share-method { display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; }
+.share-method-icon {
+  width:46px; height:46px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+}
+.share-method span { font-size:10px; color:rgba(255,255,255,.6); white-space:nowrap; }
+
+/* ══════════════════════════════
+   PAYMENT SCREEN (Stripe style)
+══════════════════════════════ */
+#payment { background:#f6f8fa; overflow-y:auto; display:flex; flex-direction:column; }
+.pay-header {
+  background:#fff; padding:50px 18px 14px;
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+  border-bottom:1px solid #e5e7eb;
+}
+.pay-back-btn {
+  width:32px; height:32px; border-radius:50%;
+  background:#f3f4f6; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.pay-back-btn svg { width:18px; height:18px; fill:none; stroke:#374151; stroke-width:2.2; }
+.pay-header-title { font-size:16px; font-weight:700; color:#111827; flex:1; text-align:center; }
+.pay-header-spacer { width:32px; flex-shrink:0; }
+.pay-order-card {
+  background:#fff; margin:12px 16px 0;
+  border-radius:12px; padding:16px;
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.pay-order-logo {
+  width:44px; height:44px; border-radius:10px; background:#FF4418;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:900; color:#fff; flex-shrink:0;
+}
+.pay-order-info { flex:1; min-width:0; }
+.pay-order-name { font-size:14px; font-weight:700; color:#111827; }
+.pay-order-plan { font-size:12px; color:#6b7280; margin-top:2px; }
+.pay-order-amount { font-size:20px; font-weight:800; color:#111827; flex-shrink:0; }
+.pay-section {
+  background:#fff; margin:12px 16px 0;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.pay-section-hdr {
+  padding:12px 16px 6px;
+  font-size:11px; font-weight:700; color:#6b7280;
+  letter-spacing:.6px; text-transform:uppercase;
+}
+.stripe-field {
+  padding:12px 16px; width:100%; background:transparent;
+  border:none; border-bottom:1px solid #f3f4f6; outline:none;
+  font-family:'Inter',sans-serif; font-size:14px; color:#111827;
+}
+.stripe-field:last-child { border-bottom:none; }
+.stripe-field::placeholder { color:#9ca3af; }
+.stripe-field:focus { background:#fafafa; }
+.stripe-row { display:flex; }
+.stripe-row .stripe-field { border-bottom:none; }
+.stripe-row .stripe-field:first-child { border-right:1px solid #f3f4f6; }
+.stripe-card-num-wrap { position:relative; display:flex; align-items:center; }
+.stripe-card-num-wrap input { flex:1; padding-right:72px; }
+.stripe-card-icons {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  display:flex; gap:3px; align-items:center; pointer-events:none;
+}
+.stripe-card-icon {
+  width:28px; height:18px; border-radius:3px; background:#e5e7eb;
+  display:flex; align-items:center; justify-content:center;
+  font-size:7px; font-weight:800; color:#6b7280; letter-spacing:.3px;
+}
+.stripe-country-wrap { position:relative; }
+.stripe-country-field {
+  padding:12px 36px 12px 16px; width:100%; background:transparent;
+  border:none; outline:none;
+  font-family:'Inter',sans-serif; font-size:14px; color:#111827;
+  -webkit-appearance:none; appearance:none; cursor:pointer;
+}
+.stripe-country-chevron {
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  pointer-events:none; width:16px; height:16px;
+  fill:none; stroke:#9ca3af; stroke-width:2;
+}
+.pay-cta-section { padding:16px 16px 4px; flex-shrink:0; }
+.stripe-submit-btn {
+  width:100%; padding:14px; border-radius:8px; border:none;
+  background:#635bff;
+  font-family:'Inter',sans-serif; font-size:15px; font-weight:700;
+  color:#fff; cursor:pointer; transition:opacity .15s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.stripe-submit-btn:active { opacity:.88; }
+.stripe-submit-btn svg { width:14px; height:14px; fill:none; stroke:#fff; stroke-width:2.5; flex-shrink:0; }
+.stripe-footer {
+  text-align:center; padding:10px 16px 6px;
+  display:flex; align-items:center; justify-content:center; gap:5px; flex-shrink:0;
+}
+.stripe-footer-lock { width:11px; height:11px; fill:none; stroke:#9ca3af; stroke-width:2; flex-shrink:0; }
+.stripe-footer-text { font-size:11px; color:#9ca3af; }
+.stripe-brand { font-size:13px; font-weight:800; color:#635bff; letter-spacing:.3px; }
+.stripe-terms { font-size:10px; color:#9ca3af; text-align:center; padding:0 20px 32px; line-height:1.6; }
+
+/* ══════════════════════════════
+   ONBOARDING POPUPS
+══════════════════════════════ */
+.onboarding-popup {
+  position:absolute; inset:0; z-index:90;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.72); pointer-events:none; opacity:0; transition:opacity .3s;
+}
+.onboarding-popup.open { opacity:1; pointer-events:all; }
+.onboard-card {
+  background:#141414; border:1px solid #2A2A2A; border-radius:20px;
+  padding:28px 24px 24px; width:300px; text-align:center; position:relative;
+}
+.onboard-close {
+  position:absolute; top:12px; right:12px;
+  width:28px; height:28px; border-radius:50%; border:none;
+  background:#1E1E1E; cursor:pointer; color:rgba(255,255,255,.55);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.onboard-icon { font-size:48px; margin-bottom:14px; line-height:1; }
+.onboard-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:8px; }
+.onboard-desc { font-size:13px; color:rgba(255,255,255,.65); line-height:1.55; margin-bottom:16px; }
+.onboard-coin-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,215,0,.12); border:1px solid rgba(255,215,0,.35);
+  border-radius:20px; padding:6px 16px; margin-bottom:18px;
+  font-size:16px; font-weight:800; color:#ffd700;
+}
+.onboard-cta {
+  width:100%; padding:13px; border-radius:12px; border:none;
+  background:#FF4418; font-family:'Inter',sans-serif;
+  font-size:14px; font-weight:700; color:#fff; cursor:pointer;
+  transition:opacity .15s; box-shadow:0 4px 16px rgba(255,68,24,.38);
+}
+.onboard-cta:active { opacity:.85; }
+
+/* ══════════════════════════════
+   DAILY LOGIN TOAST
+══════════════════════════════ */
+.daily-toast {
+  position:absolute; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:rgba(14,14,14,.97); border:1px solid rgba(255,215,0,.3);
+  border-radius:30px; padding:10px 20px; white-space:nowrap;
+  font-size:13px; font-weight:700; color:#ffd700;
+  z-index:400; pointer-events:none;
+  opacity:0; transition:opacity .3s, transform .3s;
+}
+.daily-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ══════════════════════════════
+   REWARDS SCREEN
+══════════════════════════════ */
+#rewards { background:#0A0A0A; display:flex; flex-direction:column; overflow:hidden; }
+.rewards-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:48px 18px 14px; flex-shrink:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,.92) 60%,transparent);
+}
+.rewards-coin-topbar {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.25);
+  border-radius:20px; padding:5px 12px;
+}
+.rewards-coin-topbar-icon { width:16px; height:16px; fill:#ffd700; }
+.rewards-coin-topbar span { font-size:13px; font-weight:800; color:#ffd700; }
+.rewards-hero {
+  padding:20px 20px 10px; text-align:center; flex-shrink:0;
+}
+.rewards-hero-label { font-size:11px; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:6px; }
+.rewards-hero-num { font-size:54px; font-weight:900; color:#d4af37; line-height:1; margin-bottom:4px; }
+@keyframes reward-num-pop { 0%{transform:scale(1)} 40%{transform:scale(1.12)} 100%{transform:scale(1)} }
+.rewards-hero-num.pop { animation:reward-num-pop .35s ease-out; }
+.rewards-hero-sub { font-size:12px; color:rgba(255,255,255,.3); }
+.rewards-list { flex:1; overflow-y:auto; padding:6px 16px 90px; scrollbar-width:none; }
+.rewards-list::-webkit-scrollbar { display:none; }
+.reward-row {
+  display:flex; align-items:center; gap:12px;
+  background:#141414; border:1px solid #1E1E1E; border-radius:14px;
+  padding:14px 14px; margin-bottom:10px;
+}
+.reward-icon-wrap {
+  width:42px; height:42px; border-radius:11px;
+  background:#1E1E1E; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0;
+}
+.reward-icon-wrap svg { width:20px; height:20px; }
+.reward-info { flex:1; min-width:0; }
+.reward-name { font-size:13px; font-weight:700; color:#fff; }
+.reward-desc { font-size:11px; color:rgba(255,255,255,.38); margin-top:2px; line-height:1.4; }
+.reward-badge {
+  background:rgba(212,175,55,.12); border:1px solid rgba(212,175,55,.3);
+  border-radius:10px; padding:5px 10px;
+  font-size:12px; font-weight:800; color:#d4af37; white-space:nowrap; flex-shrink:0;
+}
+.reward-action-btn {
+  padding:8px 12px; border-radius:10px; border:none;
+  background:#FF4418; font-family:'Inter',sans-serif;
+  font-size:11px; font-weight:700; color:#fff; cursor:pointer;
+  white-space:nowrap; flex-shrink:0; transition:opacity .15s;
+}
+.reward-action-btn:active { opacity:.8; }
+.reward-action-btn.done { background:#1E1E1E; color:rgba(255,255,255,.35); cursor:default; pointer-events:none; }
+.reward-action-btn.counting { background:#333; cursor:default; }
+
+/* ── Home top-bar coin chip ── */
+.home-coin-chip {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(255,215,0,.12); border:1px solid rgba(255,215,0,.28);
+  border-radius:20px; padding:5px 11px; cursor:default;
+}
+.home-coin-chip-icon { width:15px; height:15px; flex-shrink:0; }
+.home-coin-chip span { font-size:12px; font-weight:800; color:#ffd700; }
+@keyframes chip-pop { 0%{transform:scale(1)} 40%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.home-coin-chip.pop { animation:chip-pop .35s ease-out; }
+
+/* ── Progress bar scrubbing ── */
+.progress-fill-wrap { position:relative; width:100%; }
+.scrub-thumb {
+  position:absolute; top:50%; transform:translateY(-50%) scale(0);
+  width:12px; height:12px; border-radius:50%; background:#FF4418;
+  transition:transform .15s; pointer-events:none;
+}
+/* Show circle on hover only; hide it while actively dragging */
+.progress-bar-wrap.dragging .scrub-thumb { transform:translateY(-50%) scale(0) !important; }
+
+/* ── More menu bottom sheet ── */
+.more-menu {
+  position:absolute; bottom:0; left:0; right:0; z-index:70;
+  background:#141414; border-radius:20px 20px 0 0;
+  padding:0 0 44px;
+  transform:translateY(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 -4px 30px rgba(0,0,0,.85);
+}
+.more-menu.open { transform:translateY(0); }
+.more-menu-drag { width:36px; height:4px; background:rgba(255,255,255,.18); border-radius:2px; margin:12px auto 14px; }
+.more-menu-section { padding:0 18px 14px; }
+.more-section-label { font-size:10px; font-weight:700; color:rgba(255,255,255,.3); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.speed-chips { display:flex; gap:7px; }
+.speed-chip {
+  flex:1; padding:9px 2px; border-radius:10px; border:1px solid #2A2A2A;
+  background:#1A1A1A; font-size:12px; font-weight:700; color:rgba(255,255,255,.45);
+  cursor:pointer; text-align:center; transition:background .13s, color .13s, border-color .13s;
+}
+.speed-chip.active { background:#FF4418; border-color:#FF4418; color:#fff; }
+.more-menu-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 0; border-top:1px solid rgba(255,255,255,.06); cursor:pointer;
+}
+.more-menu-row-left { display:flex; align-items:center; gap:12px; }
+.more-menu-row-left svg { width:20px; height:20px; fill:none; stroke:rgba(255,255,255,.65); stroke-width:1.8; flex-shrink:0; }
+.more-menu-row-left span { font-size:14px; font-weight:600; color:rgba(255,255,255,.82); }
+.more-menu-row-right svg { width:15px; height:15px; fill:none; stroke:rgba(255,255,255,.35); stroke-width:2; }
+.more-menu-backdrop { position:absolute; inset:0; z-index:69; display:none; }
+.more-menu-backdrop.open { display:block; }
+
+/* ── Interstitial / ad popup skip button ── */
+.ad-skip-btn {
+  margin-top:8px; width:100%; padding:10px; border-radius:10px; border:none;
+  background:rgba(255,255,255,.06); font-family:'Inter',sans-serif;
+  font-size:12px; font-weight:600; color:rgba(255,255,255,.45);
+  cursor:pointer; display:none; transition:color .15s, background .15s;
+}
+.ad-skip-btn:active { color:rgba(255,255,255,.7); }
+.ad-skip-countdown { font-size:10px; color:rgba(255,255,255,.3); margin-left:4px; }
+
+/* ── Episode cost badge ── */
+.ep-cost { font-size:8px; font-weight:800; color:#ffd700; letter-spacing:.2px; margin-top:1px; opacity:.9; }
+.ep-square.ep-buyable { cursor:pointer; }
+.ep-square.ep-buyable:active { transform:scale(.92); }
+
+/* ── Notification banners ── */
+.notif-banner-container {
+  position:absolute; top:0; left:0; right:0; z-index:500;
+  pointer-events:none; padding:8px 0 0;
+}
+.notif-banner {
+  margin:0 10px 6px;
+  background:rgba(16,16,16,.97); border:1px solid rgba(255,255,255,.1);
+  border-radius:14px; padding:11px 13px;
+  display:flex; align-items:flex-start; gap:10px;
+  transform:translateY(-110%); opacity:0;
+  transition:transform .36s cubic-bezier(.4,0,.2,1), opacity .36s;
+  box-shadow:0 4px 20px rgba(0,0,0,.6); pointer-events:all;
+}
+.notif-banner.show { transform:translateY(0); opacity:1; }
+.notif-banner-icon { font-size:22px; line-height:1; flex-shrink:0; margin-top:1px; }
+.notif-banner-body { flex:1; min-width:0; }
+.notif-banner-title { font-size:12px; font-weight:800; color:#fff; margin-bottom:2px; }
+.notif-banner-sub { font-size:11px; color:rgba(255,255,255,.48); line-height:1.4; }
+.notif-banner-time { font-size:10px; color:rgba(255,255,255,.22); flex-shrink:0; margin-top:2px; }
+.notif-banner-dismiss {
+  position:absolute; top:8px; right:8px; width:18px; height:18px;
+  background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.notif-banner-dismiss svg { width:10px; height:10px; stroke:rgba(255,255,255,.3); stroke-width:2.5; fill:none; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+<!-- ══════════════════════════════
+     HOME SCREEN
+══════════════════════════════ -->
+<div class="screen" id="home">
+
+  <!-- Floating top bar -->
+  <!-- hidden elements to preserve JS refs -->
+  <span id="home-coin-count" style="display:none">0</span>
+  <span id="home-coin-chip" style="display:none"></span>
+  <div class="top-bar">
+    <div class="logo"><span class="logo-box">M</span>ICRO<span class="logo-accent">DRAMA</span></div>
+    <button class="vip-btn" id="vip-btn">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v2H3v-2zM3 17l3-8.5 4.5 3.5L12 4l2.5 8 4.5-3.5L22 17H3z"/></svg>
+      <span>VIP</span>
+    </button>
+  </div>
+
+  <!-- Hero poster -->
+  <div class="hero" id="hero-banner">
+    <img class="hero-poster"
+      src="https://images.unsplash.com/photo-1761900850159-0d58ccf171f8?w=750&q=85&fit=crop"
+      alt="Lucifer Bride"
+      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1697350996010-9f61993d1cae?w=750&q=85&fit=crop'" />
+    <div class="hero-poster-overlay"></div>
+    <div class="hero-info">
+      <div class="hero-title">Lucifer Bride</div>
+      <div class="hero-meta">
+        <span>2024</span><span>·</span>
+        <span>Crime, Dark Comedy</span><span>·</span>
+        <span>4 Seasons</span>
+        <span class="rating-badge">16+</span>
+      </div>
+      <div class="hero-buttons">
+        <button class="hero-play-btn" onclick="openPlayer(0); event.stopPropagation()">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Play
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Rails -->
+  <div class="rails">
+    <div class="rail"><div class="rail-header">Top Picks for You<span class="rail-see-all">See all ›</span></div><div class="rail-scroll" id="rail-crime"></div></div>
+    <div class="rail"><div class="rail-header">HOT right now<span class="rail-see-all">See all ›</span></div><div class="rail-scroll" id="rail-new"></div></div>
+    <div class="rail"><div class="rail-header">New Arrivals<span class="rail-see-all">See all ›</span></div><div class="rail-scroll" id="rail-portrait"></div></div>
+    <div class="rail"><div class="rail-header">My Recordings<span class="rail-see-all">See all ›</span></div><div class="rail-scroll" id="rail-recordings"></div></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="home-nav-btn">
+      <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Discover</span>
+    </div>
+    <div class="nav-item" id="shorts-nav-btn">
+      <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      <span>Shorts</span>
+    </div>
+    <div class="nav-item" id="home-reward-btn">
+      <div class="reward-nav-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <span>Reward</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PLAYER SCREEN
+══════════════════════════════ -->
+<div class="screen hidden" id="player">
+
+  <!-- Video background -->
+  <div class="player-video-wrap">
+    <video id="player-video" autoplay muted loop playsinline></video>
+    <div class="video-poster" id="player-bg"></div>
+  </div>
+
+  <!-- Episode-change color flash -->
+  <div class="nav-flash" id="nav-flash"></div>
+
+  <!-- Swipe hint -->
+  <div class="swipe-hint" id="swipe-hint">Next Episode ↑</div>
+
+  <!-- Full-screen tap zone -->
+  <div class="tap-zone" id="tap-zone"></div>
+
+  <!-- CENTER play / pause -->
+  <button class="center-play" id="center-play">
+    <svg id="center-icon" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+  </button>
+
+  <!-- Overlay -->
+  <div class="player-overlay" id="player-overlay">
+
+    <!-- Top -->
+    <div class="player-top">
+      <button class="back-btn" id="back-btn">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="player-top-center" id="player-top-title"></div>
+      <button class="mute-btn" id="mute-btn">
+        <svg id="mute-icon" viewBox="0 0 24 24">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Right actions -->
+    <div class="player-right" id="player-right">
+
+      <!-- Gold coin + circular timer + episode counter -->
+      <div class="coin-btn-wrap" id="coin-btn">
+        <div class="coin-timer-wrap">
+          <svg class="coin-timer-svg" viewBox="0 0 34 34">
+            <circle class="coin-timer-bg" cx="17" cy="17" r="15"/>
+            <circle class="coin-timer-arc" id="coin-arc" cx="17" cy="17" r="15"/>
+          </svg>
+          <div class="coin-inner">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" fill="#c8860a"/>
+              <circle cx="12" cy="12" r="6.5" fill="#f0a500"/>
+              <text x="12" y="16" text-anchor="middle" font-size="9" font-weight="900" fill="#7a4800">$</text>
+            </svg>
+          </div>
+        </div>
+        <div class="coin-counter" id="coin-counter">4</div>
+      </div>
+
+      <!-- Like / heart -->
+      <button class="action-btn" id="like-btn">
+        <svg id="like-icon" viewBox="0 0 24 24">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span id="like-count">257</span>
+      </button>
+
+      <!-- Save / bookmark -->
+      <button class="action-btn" id="save-btn">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Save</span>
+      </button>
+
+      <!-- Share -->
+      <button class="action-btn" id="share-btn">
+        <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span>Share</span>
+      </button>
+
+      <!-- More -->
+      <button class="action-btn" id="more-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2" fill="#fff"/><circle cx="12" cy="12" r="1.2" fill="#fff"/><circle cx="12" cy="19" r="1.2" fill="#fff"/></svg>
+        <span>More</span>
+      </button>
+    </div>
+
+    <!-- Bottom bar: progress bar first (order:-1 = top), then title, then ep-info -->
+    <div class="player-bottom">
+      <!-- Progress bar — order:-1 makes it render above title/ep info -->
+      <div class="progress-bar-wrap" id="progress-bar-wrap">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:48%"></div>
+          <div class="scrub-thumb" id="scrub-thumb" style="left:48%"></div>
+        </div>
+      </div>
+
+      <!-- Title row (hides on tap) -->
+      <div class="title-row" id="title-row">
+        <div class="title-info">
+          <div class="show-title" id="player-title">Lucifer Bride</div>
+          <div class="show-genre" id="player-genre">Crime, Dark Comedy</div>
+        </div>
+      </div>
+
+      <!-- Episode info row (always visible) — tap to open episodes -->
+      <div class="ep-info-row" id="ep-info-row">
+        <svg class="all-eps-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1.2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.2"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.2"/>
+        </svg>
+        <span class="ep-season" id="ep-season-text">Season 4, Episode 6</span>
+        <span class="ep-name"   id="ep-name-text">· The Deal</span>
+      </div>
+    </div>
+
+  </div><!-- /player-overlay -->
+
+  <!-- ── Ad Popup ── -->
+  <div class="ad-popup" id="ad-popup">
+    <div class="ad-card">
+      <button class="ad-close-btn" id="ad-close-btn">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- State 1: offer -->
+      <div id="ad-offer-state">
+        <img class="ad-coin-img"
+          src="https://www.figma.com/api/mcp/asset/175dcb3a-71d3-48e1-9b45-15c776b0e72c"
+          onerror="this.style.fontSize='40px';this.outerHTML='<div style=\'font-size:48px;margin:0 auto 10px\'>🪙</div>'"
+          alt="coin" />
+        <div class="ad-offer-text">get free coins by watching this ad</div>
+        <button class="ad-play-btn" id="ad-play-btn">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch +30 coins
+        </button>
+      </div>
+
+      <!-- State 2: ad playing inside popup -->
+      <div id="ad-playing-state" style="display:none">
+        <div class="ad-playing-wrap">
+          <div class="ad-playing-countdown" id="ad-playing-countdown">5</div>
+          <div class="ad-playing-logo">🎬</div>
+          <div class="ad-playing-brand">STREAMFLEX PRO</div>
+          <div class="ad-playing-tag">Watch More. Pay Less.</div>
+          <div class="ad-playing-offer">Try FREE for 30 days</div>
+        </div>
+        <div class="ad-sponsored">Sponsored Content</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Subscribe Onboarding Popup ── -->
+  <div class="onboarding-popup" id="subscribe-popup">
+    <div class="onboard-card">
+      <button class="onboard-close" id="subscribe-popup-close">✕</button>
+      <div class="onboard-icon">👑</div>
+      <div class="onboard-title">Unlock VIP Access</div>
+      <div class="onboard-desc">Subscribe now and earn extra coins to unlock more episodes faster.</div>
+      <div class="onboard-coin-badge">+80 coins</div>
+      <button class="onboard-cta" id="subscribe-popup-btn">Subscribe Now</button>
+    </div>
+  </div>
+
+  <!-- ── Notifications Onboarding Popup ── -->
+  <div class="onboarding-popup" id="notif-popup">
+    <div class="onboard-card">
+      <button class="onboard-close" id="notif-popup-close">✕</button>
+      <div class="onboard-icon">🔔</div>
+      <div class="onboard-title">Never Miss an Episode</div>
+      <div class="onboard-desc">Enable notifications and we'll let you know when new episodes drop.</div>
+      <div class="onboard-coin-badge">+30 coins</div>
+      <button class="onboard-cta" id="notif-popup-btn">Enable Notifications</button>
+    </div>
+  </div>
+
+  <!-- ── More Menu ── -->
+  <div class="more-menu-backdrop" id="more-menu-backdrop"></div>
+  <div class="more-menu" id="more-menu">
+    <div class="more-menu-drag"></div>
+    <!-- Playback Speed -->
+    <div class="more-menu-section">
+      <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px;">Playback Speed</div>
+      <div style="display:flex;gap:6px;">
+        <button class="speed-chip" data-speed="0.5">0.5×</button>
+        <button class="speed-chip" data-speed="0.75">0.75×</button>
+        <button class="speed-chip active" data-speed="1">1×</button>
+        <button class="speed-chip" data-speed="1.5">1.5×</button>
+        <button class="speed-chip" data-speed="2">2×</button>
+      </div>
+    </div>
+    <!-- Picture in Picture -->
+    <div class="more-menu-section" style="border-top:1px solid #1E1E1E;padding-top:14px;">
+      <div class="more-menu-row" id="pip-btn">
+        <div class="more-menu-row-left">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><rect x="12" y="10" width="9" height="6" rx="1.2" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.65)"/></svg>
+          <span>Picture in Picture</span>
+        </div>
+        <div class="more-menu-row-right">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Episodes Panel ── -->
+  <div class="eps-backdrop" id="eps-backdrop"></div>
+  <div class="episodes-panel" id="episodes-panel">
+    <div class="eps-header">
+      <div style="display:flex;align-items:center;gap:2px">
+        <span class="eps-title">All Episodes</span>
+        <span class="eps-total" id="eps-total-label">· 20 eps</span>
+      </div>
+      <button class="eps-close" id="eps-close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="season-tabs" id="season-tabs"></div>
+    <div class="eps-grid" id="eps-grid"></div>
+  </div>
+
+</div><!-- /player -->
+
+<!-- ══════════════════════════════
+     VIP SCREEN
+══════════════════════════════ -->
+<div class="screen hidden" id="vip">
+
+  <!-- Hero banner -->
+  <div class="vip-banner">
+    <!-- Abstract red+gold gradient banner -->
+    <svg class="vip-banner-img" viewBox="0 0 375 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="vg1" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="60%" stop-color="#c0320a"/><stop offset="100%" stop-color="#1a0000"/></radialGradient>
+        <radialGradient id="vg2" cx="75%" cy="65%" r="55%"><stop offset="0%" stop-color="#d4af37" stop-opacity=".7"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></radialGradient>
+        <radialGradient id="vg3" cx="15%" cy="80%" r="40%"><stop offset="0%" stop-color="#ff4418" stop-opacity=".5"/><stop offset="100%" stop-color="#ff4418" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="375" height="300" fill="url(#vg1)"/>
+      <rect width="375" height="300" fill="url(#vg2)"/>
+      <rect width="375" height="300" fill="url(#vg3)"/>
+      <!-- Decorative arcs -->
+      <circle cx="280" cy="60" r="120" fill="none" stroke="#d4af37" stroke-width=".8" opacity=".18"/>
+      <circle cx="280" cy="60" r="90" fill="none" stroke="#d4af37" stroke-width=".6" opacity=".14"/>
+      <circle cx="280" cy="60" r="55" fill="none" stroke="#ffe566" stroke-width=".5" opacity=".2"/>
+      <circle cx="60" cy="240" r="100" fill="none" stroke="#ff6b35" stroke-width=".8" opacity=".15"/>
+      <!-- Light rays -->
+      <line x1="188" y1="0" x2="375" y2="300" stroke="#d4af37" stroke-width=".5" opacity=".08"/>
+      <line x1="100" y1="0" x2="375" y2="250" stroke="#d4af37" stroke-width=".4" opacity=".06"/>
+      <line x1="250" y1="0" x2="0" y2="200" stroke="#ff6b35" stroke-width=".4" opacity=".07"/>
+      <!-- Particles -->
+      <circle cx="310" cy="40" r="2.5" fill="#ffe566" opacity=".5"/>
+      <circle cx="330" cy="80" r="1.5" fill="#d4af37" opacity=".6"/>
+      <circle cx="290" cy="110" r="2" fill="#ffe566" opacity=".4"/>
+      <circle cx="60" cy="50" r="2" fill="#d4af37" opacity=".4"/>
+      <circle cx="40" cy="120" r="1.5" fill="#ff8c5a" opacity=".5"/>
+      <circle cx="350" cy="160" r="1.8" fill="#d4af37" opacity=".45"/>
+    </svg>
+    <div class="vip-banner-grad"></div>
+    <button class="vip-back-btn-abs" id="vip-back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="vip-banner-text">
+      <div class="vip-crown-pill">
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v2H3v-2zM3 17l3-8.5 4.5 3.5L12 4l2.5 8 4.5-3.5L22 17H3z"/></svg>
+        <span>VIP</span>
+      </div>
+      <div class="vip-banner-title">Unlimited Access</div>
+      <div class="vip-banner-sub">Watch every episode, ad-free.</div>
+    </div>
+  </div>
+
+  <!-- Feature chips -->
+  <div class="vip-feat-chips">
+    <div class="vip-feat-chip">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      All Episodes
+    </div>
+    <div class="vip-feat-chip">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      No Ads
+    </div>
+    <div class="vip-feat-chip">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      HD Quality
+    </div>
+    <div class="vip-feat-chip">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Early Access
+    </div>
+  </div>
+
+  <!-- Plan selector -->
+  <div class="vip-plans-wrap">
+    <div class="vip-plans-label">Choose your plan</div>
+
+    <!-- Weekly -->
+    <div class="vip-plan" id="vip-plan-weekly">
+      <div class="vip-hot-badge">Most Popular</div>
+      <div class="vip-plan-left">
+        <div class="vip-plan-name">Weekly VIP</div>
+        <div class="vip-plan-desc">Billed weekly</div>
+      </div>
+      <div class="vip-plan-right">
+        <div class="vip-plan-price-block">
+          <div class="vip-plan-amount">$3.99</div>
+          <div class="vip-plan-period">/ week</div>
+        </div>
+        <div class="vip-radio"><div class="vip-radio-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Yearly -->
+    <div class="vip-plan active" id="vip-plan-yearly">
+      <div class="vip-plan-left">
+        <div class="vip-plan-name">Yearly VIP</div>
+        <div class="vip-plan-desc">
+          Billed annually &nbsp;<span class="vip-plan-save">Save 81%</span>
+        </div>
+      </div>
+      <div class="vip-plan-right">
+        <div class="vip-plan-price-block">
+          <div class="vip-plan-amount">$39.99</div>
+          <div class="vip-plan-period">/ year</div>
+        </div>
+        <div class="vip-radio"><div class="vip-radio-dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="vip-cta-wrap">
+    <button class="vip-sub-btn" id="vip-sub-btn">Subscribe</button>
+  </div>
+  <div class="vip-terms-txt">Auto-renews. Cancel anytime in settings. By subscribing you agree to the Terms of Service.</div>
+
+</div>
+
+<!-- ══════════════════════════════
+     SHORTS SCREEN
+══════════════════════════════ -->
+<div class="screen hidden" id="shorts">
+
+  <!-- Back button -->
+  <button class="shorts-back-btn" id="shorts-back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+
+  <!-- Vertical snap feed -->
+  <div id="shorts-feed">
+
+    <!-- Short 1 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=390&q=80') center/cover no-repeat;"
+      data-idx="0" data-title="Fallen Angel" data-year="2024" data-genre="Fantasy" data-subgenre="Romance"
+      data-dur-ms="88000" data-dur-display="1m 28s" data-age="16+"
+      data-season="1" data-episode="1" data-ep-name="The Descent"
+      data-poster="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=390&q=80"
+      data-description="A fallen angel crashes into the mortal world and must choose between returning to the heavens or staying for the woman who captured his heart."
+      data-director="K. Park" data-cast="Ji-Woo Lee, Seo-Jun Park, Min-Jung Choi">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-0"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="0"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Fallen Angel</div>
+            <div class="shorts-bottom-meta">2024 · Fantasy · 1m 28s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 2 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1761900850159-0d58ccf171f8?w=390&q=80') center/cover no-repeat;"
+      data-idx="1" data-title="Lucifer's Bride" data-year="2024" data-genre="Crime" data-subgenre="Dark Comedy"
+      data-dur-ms="72000" data-dur-display="1m 12s" data-age="18+"
+      data-season="4" data-episode="6" data-ep-name="The Deal"
+      data-poster="https://images.unsplash.com/photo-1761900850159-0d58ccf171f8?w=390&q=80"
+      data-description="When a sharp-tongued lawyer strikes a bargain with the devil himself, she never expected he'd collect — or that she'd fall for him first."
+      data-director="J. Kim" data-cast="So-Yeon Han, Do-Hyun Kwon, Ye-Jin Moon">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-1"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="1"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1761900850159-0d58ccf171f8?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Lucifer's Bride</div>
+            <div class="shorts-bottom-meta">2024 · Crime · 1m 12s · <span class="shorts-bottom-age">18+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 3 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1485846234645-a62644f84728?w=390&q=80') center/cover no-repeat;"
+      data-idx="2" data-title="Hacks" data-year="2023" data-genre="Comedy" data-subgenre="Drama"
+      data-dur-ms="105000" data-dur-display="1m 45s" data-age="13+"
+      data-season="2" data-episode="4" data-ep-name="The Roast"
+      data-poster="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=390&q=80"
+      data-description="A ruthlessly funny stand-up comic and a young writer clash and connect as they navigate the cutthroat world of comedy, writing, and growing up."
+      data-director="L. Chen" data-cast="Emma Park, Chris Oh, Diana Yoon">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-2"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="2"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Hacks</div>
+            <div class="shorts-bottom-meta">2023 · Comedy · 1m 45s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 4 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=390&q=80') center/cover no-repeat;"
+      data-idx="3" data-title="Succession" data-year="2023" data-genre="Drama" data-subgenre="Thriller"
+      data-dur-ms="115000" data-dur-display="1m 55s" data-age="18+"
+      data-season="4" data-episode="6" data-ep-name="Which Side"
+      data-poster="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=390&q=80"
+      data-description="A powerful media dynasty tears itself apart as three siblings wage war to succeed their aging, unpredictable father at the helm of a billion-dollar empire."
+      data-director="M. Rhoades" data-cast="Brian Kim, Anna Choi, James Park, Daniel Lee">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-3"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="3"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Succession</div>
+            <div class="shorts-bottom-meta">2023 · Drama · 1m 55s · <span class="shorts-bottom-age">18+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 5 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=390&q=80') center/cover no-repeat;"
+      data-idx="4" data-title="Dark Waters" data-year="2024" data-genre="Mystery" data-subgenre="Drama"
+      data-dur-ms="58000" data-dur-display="0m 58s" data-age="16+"
+      data-season="1" data-episode="3" data-ep-name="The Tide"
+      data-poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=390&q=80"
+      data-description="A marine investigator uncovers a decades-old conspiracy buried beneath a coastal town's secrets, testing her will to survive."
+      data-director="S. Yoon" data-cast="Ha-Eun Jung, Jae-Won Oh, Soo-Jin Lim">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-4"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="4"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Dark Waters</div>
+            <div class="shorts-bottom-meta">2024 · Mystery · 0m 58s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 6 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=390&q=80') center/cover no-repeat;"
+      data-idx="5" data-title="Steel Heart" data-year="2023" data-genre="Action" data-subgenre="Romance"
+      data-dur-ms="82000" data-dur-display="1m 22s" data-age="13+"
+      data-season="2" data-episode="5" data-ep-name="Armored"
+      data-poster="https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=390&q=80"
+      data-description="A stoic bodyguard assigned to protect a rebellious heiress finds his iron resolve crumbling with every passing day."
+      data-director="D. Bae" data-cast="Min-Ho Kang, Ji-Hyun Ahn, Woo-Jin Lee">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-5"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="5"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Steel Heart</div>
+            <div class="shorts-bottom-meta">2023 · Action · 1m 22s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 7 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=390&q=80') center/cover no-repeat;"
+      data-idx="6" data-title="Crimson Moon" data-year="2024" data-genre="Horror" data-subgenre="Thriller"
+      data-dur-ms="98000" data-dur-display="1m 38s" data-age="18+"
+      data-season="1" data-episode="2" data-ep-name="Blood Pact"
+      data-poster="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=390&q=80"
+      data-description="A cursed village only opens its gates on the night of a crimson moon — and one outsider is about to learn why no one ever leaves."
+      data-director="Y. Shin" data-cast="Tae-Yang Park, Bo-Ra Kwon, In-Ho Choi">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-6"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="6"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Crimson Moon</div>
+            <div class="shorts-bottom-meta">2024 · Horror · 1m 38s · <span class="shorts-bottom-age">18+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 8 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=390&q=80') center/cover no-repeat;"
+      data-idx="7" data-title="Last Stand" data-year="2023" data-genre="Action" data-subgenre="Drama"
+      data-dur-ms="120000" data-dur-display="2m 00s" data-age="16+"
+      data-season="3" data-episode="8" data-ep-name="No Retreat"
+      data-poster="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=390&q=80"
+      data-description="A disgraced soldier given one last mission discovers it's a trap — and the enemy pulling the strings is someone he once called brother."
+      data-director="H. Lim" data-cast="Sung-Jin Ko, Jae-Hoon Moon, Na-Young Seo">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-7"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="7"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Last Stand</div>
+            <div class="shorts-bottom-meta">2023 · Action · 2m 00s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 9 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1519671282429-b44b4740f40f?w=390&q=80') center/cover no-repeat;"
+      data-idx="8" data-title="City Lights" data-year="2024" data-genre="Romance" data-subgenre="Drama"
+      data-dur-ms="52000" data-dur-display="0m 52s" data-age="13+"
+      data-season="1" data-episode="1" data-ep-name="First Night"
+      data-poster="https://images.unsplash.com/photo-1519671282429-b44b4740f40f?w=390&q=80"
+      data-description="Two strangers share a taxi in a city that never sleeps — a chance encounter that rewrites both their stories."
+      data-director="C. Ryu" data-cast="Ye-Seo Kim, Jun-Ho Park, Mi-Rae Choi">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-8"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="8"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1519671282429-b44b4740f40f?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">City Lights</div>
+            <div class="shorts-bottom-meta">2024 · Romance · 0m 52s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 10 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=390&q=80') center/cover no-repeat;"
+      data-idx="9" data-title="The Heir" data-year="2024" data-genre="Drama" data-subgenre="Thriller"
+      data-dur-ms="68000" data-dur-display="1m 08s" data-age="16+"
+      data-season="2" data-episode="3" data-ep-name="The Vote"
+      data-poster="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=390&q=80"
+      data-description="A billionaire heir must outmaneuver his own family in a boardroom power struggle that turns deadly before the ink dries."
+      data-director="K. Jang" data-cast="Hyun-Woo Shim, Su-Ji Han, Tae-Ho Yoon">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-9"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="9"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">The Heir</div>
+            <div class="shorts-bottom-meta">2024 · Drama · 1m 08s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 11 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=390&q=80') center/cover no-repeat;"
+      data-idx="10" data-title="Wild Game" data-year="2023" data-genre="Adventure" data-subgenre="Comedy"
+      data-dur-ms="91000" data-dur-display="1m 31s" data-age="13+"
+      data-season="1" data-episode="4" data-ep-name="Off the Grid"
+      data-poster="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=390&q=80"
+      data-description="Five city friends attempt a wilderness survival challenge — armed with nothing but overconfidence and a drone that won't stop filming."
+      data-director="B. Song" data-cast="Ji-Su Baek, Sung-Min Oh, Hana Kwak">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-10"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="10"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Wild Game</div>
+            <div class="shorts-bottom-meta">2023 · Adventure · 1m 31s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 12 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=390&q=80') center/cover no-repeat;"
+      data-idx="11" data-title="Ghost Story" data-year="2024" data-genre="Paranormal" data-subgenre="Drama"
+      data-dur-ms="108000" data-dur-display="1m 48s" data-age="16+"
+      data-season="1" data-episode="1" data-ep-name="She Stayed"
+      data-poster="https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=390&q=80"
+      data-description="A grief counselor moves into a haunted estate and slowly realises the ghost she cannot help is herself."
+      data-director="A. Moon" data-cast="Eun-Ji Cho, Jae-Hyun Kim, Song-Yi Park">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-11"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="11"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Ghost Story</div>
+            <div class="shorts-bottom-meta">2024 · Paranormal · 1m 48s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 13 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=390&q=80') center/cover no-repeat;"
+      data-idx="12" data-title="Boss Lady" data-year="2024" data-genre="Comedy" data-subgenre="Romance"
+      data-dur-ms="47000" data-dur-display="0m 47s" data-age="13+"
+      data-season="1" data-episode="2" data-ep-name="Power Suit"
+      data-poster="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=390&q=80"
+      data-description="An over-caffeinated startup CEO accidentally hires her ex as her new COO — and somehow it gets more chaotic from there."
+      data-director="P. Yeo" data-cast="Na-Kyung Im, Sung-Jae Lee, Bo-Young Jung">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-12"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="12"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Boss Lady</div>
+            <div class="shorts-bottom-meta">2024 · Comedy · 0m 47s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 14 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=390&q=80') center/cover no-repeat;"
+      data-idx="13" data-title="Double Cross" data-year="2023" data-genre="Crime" data-subgenre="Thriller"
+      data-dur-ms="119000" data-dur-display="1m 59s" data-age="18+"
+      data-season="3" data-episode="5" data-ep-name="The Burn"
+      data-poster="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=390&q=80"
+      data-description="An undercover detective gets in too deep when the cartel he's infiltrating turns out to be run by his own chief."
+      data-director="W. Han" data-cast="Do-Hwan Oh, Soo-Bin Choi, Jin-Young Lim">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-13"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="13"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Double Cross</div>
+            <div class="shorts-bottom-meta">2023 · Crime · 1m 59s · <span class="shorts-bottom-age">18+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 15 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=390&q=80') center/cover no-repeat;"
+      data-idx="14" data-title="Sweet Poison" data-year="2024" data-genre="Drama" data-subgenre="Romance"
+      data-dur-ms="75000" data-dur-display="1m 15s" data-age="16+"
+      data-season="2" data-episode="7" data-ep-name="Hooked"
+      data-poster="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=390&q=80"
+      data-description="A charming con artist falls genuinely in love with his mark — and must choose between the score of a lifetime and the person who changed him."
+      data-director="T. Koo" data-cast="Yoo-Ra Son, Chang-Wook Ji, Mi-Na Oh">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-14"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="14"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Sweet Poison</div>
+            <div class="shorts-bottom-meta">2024 · Drama · 1m 15s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 16 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1534447677768-be436bb09401?w=390&q=80') center/cover no-repeat;"
+      data-idx="15" data-title="Storm Rider" data-year="2024" data-genre="Action" data-subgenre="Sci-Fi"
+      data-dur-ms="102000" data-dur-display="1m 42s" data-age="16+"
+      data-season="1" data-episode="5" data-ep-name="Eye of the Storm"
+      data-poster="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=390&q=80"
+      data-description="In a future where weather is weaponised, the last rogue pilot must navigate a superstorm that holds the fate of three continents."
+      data-director="R. Im" data-cast="Sun-Ho Jung, Da-Eun Noh, Ki-Hoon Seo">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-15"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="15"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Storm Rider</div>
+            <div class="shorts-bottom-meta">2024 · Sci-Fi · 1m 42s · <span class="shorts-bottom-age">16+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 17 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=390&q=80') center/cover no-repeat;"
+      data-idx="16" data-title="Night Shift" data-year="2023" data-genre="Drama" data-subgenre="Comedy"
+      data-dur-ms="55000" data-dur-display="0m 55s" data-age="13+"
+      data-season="1" data-episode="6" data-ep-name="2AM Club"
+      data-poster="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=390&q=80"
+      data-description="The 2AM crew at a 24-hour diner forms an unlikely family — one catastrophic order at a time."
+      data-director="E. Kwon" data-cast="Min-Seok Oh, Hye-Ri Kim, Joon-Gi Lee">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-16"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="16"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Night Shift</div>
+            <div class="shorts-bottom-meta">2023 · Drama · 0m 55s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 18 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=390&q=80') center/cover no-repeat;"
+      data-idx="17" data-title="Ice Queen" data-year="2024" data-genre="Fantasy" data-subgenre="Drama"
+      data-dur-ms="86000" data-dur-display="1m 26s" data-age="13+"
+      data-season="1" data-episode="1" data-ep-name="Frozen Throne"
+      data-poster="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=390&q=80"
+      data-description="A queen with the power to freeze time refuses to age while her kingdom crumbles — until a mortal cartographer walks in and unfreezes everything."
+      data-director="S. Bak" data-cast="Ye-Jin Son, In-Guk Seo, Soo-Jung Im">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-17"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="17"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Ice Queen</div>
+            <div class="shorts-bottom-meta">2024 · Fantasy · 1m 26s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 19 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=390&q=80') center/cover no-repeat;"
+      data-idx="18" data-title="Shadow King" data-year="2023" data-genre="Thriller" data-subgenre="Crime"
+      data-dur-ms="113000" data-dur-display="1m 53s" data-age="18+"
+      data-season="2" data-episode="9" data-ep-name="Checkmate"
+      data-poster="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=390&q=80"
+      data-description="A chess prodigy turned money launderer plays his most dangerous game yet when the mob and the feds both close in on the same night."
+      data-director="N. Oh" data-cast="Woo-Sung Jung, Hyo-Jin Kong, Sung-Ryung Kim">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-18"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="18"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Shadow King</div>
+            <div class="shorts-bottom-meta">2023 · Thriller · 1m 53s · <span class="shorts-bottom-age">18+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Short 20 -->
+    <div class="shorts-item"
+      style="background:url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=390&q=80') center/cover no-repeat;"
+      data-idx="19" data-title="Love Trap" data-year="2024" data-genre="Romance" data-subgenre="Comedy"
+      data-dur-ms="67000" data-dur-display="1m 07s" data-age="13+"
+      data-season="1" data-episode="3" data-ep-name="Caught"
+      data-poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=390&q=80"
+      data-description="Two rival matchmakers accidentally end up matched with each other — and refuse to admit that every algorithm was right all along."
+      data-director="I. Cha" data-cast="So-Dam Park, Jae-Wook Go, Hye-Sun Ahn">
+      <div class="shorts-item-grad"></div>
+      <div class="shorts-play-overlay" id="spo-19"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <button class="shorts-mute-btn" data-idx="19"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <div class="shorts-bottom">
+        <div class="shorts-bottom-progress"><div class="shorts-progress-fill"></div></div>
+        <div class="shorts-bottom-row">
+          <div class="shorts-thumb-sq"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=88&q=70" alt=""/></div>
+          <div class="shorts-bottom-text">
+            <div class="shorts-bottom-title">Love Trap</div>
+            <div class="shorts-bottom-meta">2024 · Romance · 1m 07s · <span class="shorts-bottom-age">13+</span></div>
+          </div>
+          <button class="shorts-info-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /shorts-feed -->
+
+  <!-- Shorts bottom nav (same as home but Shorts active) -->
+  <div class="shorts-bot-nav">
+    <div class="nav-item" id="shorts-screen-home-btn">
+      <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Discover</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      <span>Shorts</span>
+    </div>
+    <div class="nav-item" id="shorts-reward-btn">
+      <div class="reward-nav-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <span>Reward</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </div>
+  </div>
+
+  <!-- Shorts Details panel (slides up from bottom) -->
+  <div id="shorts-details">
+    <div class="sd-poster" id="sd-poster-wrap">
+      <div class="sd-poster-grad"></div>
+    </div>
+    <div class="sd-body">
+      <div class="sd-progress-wrap"><div class="sd-progress-fill" id="sd-progress-fill" style="width:0%"></div></div>
+      <div class="sd-title" id="sd-title">—</div>
+      <div class="sd-meta" id="sd-meta">—</div>
+      <div class="sd-series-meta" id="sd-series-meta" style="display:none"></div>
+      <button class="sd-watch-btn" id="sd-watch-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Watch Now
+      </button>
+      <div class="sd-description" id="sd-description">—</div>
+      <div class="sd-credits" id="sd-credits"></div>
+      <div class="sd-actions">
+        <div class="sd-action" id="sd-mylist-action">
+          <div class="sd-action-circle" id="sd-mylist-circle">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          </div>
+          <span id="sd-mylist-label">My List</span>
+        </div>
+        <div class="sd-action" id="sd-share-action">
+          <div class="sd-action-circle">
+            <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          </div>
+          <span>Share</span>
+        </div>
+        <div class="sd-action">
+          <div class="sd-action-circle">
+            <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+          </div>
+          <span>Download</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shorts screen -->
+
+<!-- ══════════════════════════════
+     SHARE POPUP
+══════════════════════════════ -->
+<div class="share-popup" id="share-popup">
+  <div class="share-card">
+    <div class="share-drag"></div>
+    <div class="share-hdr">
+      <span class="share-hdr-title">Share Episode</span>
+      <button class="share-close" id="share-close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="share-url-row">
+      <span class="share-url-text" id="share-url-text">microdrama.app/watch/episode</span>
+      <button class="share-copy-btn" id="share-copy-btn">Copy</button>
+    </div>
+    <div class="share-methods">
+      <div class="share-method" onclick="">
+        <div class="share-method-icon" style="background:#000">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.849L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </div>
+        <span>X</span>
+      </div>
+      <div class="share-method" onclick="">
+        <div class="share-method-icon" style="background:#25D366">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.555 4.112 1.529 5.84L.057 23.5l5.76-1.51A11.93 11.93 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.52-5.163-1.427L3.5 21.5l.947-3.264A9.957 9.957 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        </div>
+        <span>WhatsApp</span>
+      </div>
+      <div class="share-method" onclick="">
+        <div class="share-method-icon" style="background:#0088cc">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        </div>
+        <span>Telegram</span>
+      </div>
+      <div class="share-method" onclick="">
+        <div class="share-method-icon" style="background:#1877F2">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </div>
+        <span>Facebook</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PAYMENT SCREEN
+══════════════════════════════ -->
+<div class="screen hidden" id="payment">
+
+  <div class="pay-header">
+    <button class="pay-back-btn" id="payment-back-btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="pay-header-title">Subscribe</div>
+    <div class="pay-header-spacer"></div>
+  </div>
+
+  <div class="pay-order-card">
+    <div class="pay-order-logo">M</div>
+    <div class="pay-order-info">
+      <div class="pay-order-name">Micro Drama</div>
+      <div class="pay-order-plan" id="pay-plan-label">Weekly VIP Plan</div>
+    </div>
+    <div class="pay-order-amount" id="pay-amount">$7.99</div>
+  </div>
+
+  <!-- Contact -->
+  <div class="pay-section">
+    <div class="pay-section-hdr">Contact</div>
+    <input class="stripe-field" type="email" placeholder="Email address" autocomplete="email" style="border-bottom:none"/>
+  </div>
+
+  <!-- Payment method -->
+  <div class="pay-section">
+    <div class="pay-section-hdr">Payment method</div>
+    <div class="stripe-card-num-wrap">
+      <input class="stripe-field" type="text" placeholder="Card number" maxlength="19" inputmode="numeric"/>
+      <div class="stripe-card-icons">
+        <div class="stripe-card-icon">VISA</div>
+        <div class="stripe-card-icon">MC</div>
+      </div>
+    </div>
+    <div class="stripe-row">
+      <input class="stripe-field" type="text" placeholder="MM / YY" maxlength="7" inputmode="numeric"/>
+      <input class="stripe-field" type="text" placeholder="CVC" maxlength="4" inputmode="numeric"/>
+    </div>
+    <input class="stripe-field" type="text" placeholder="Cardholder name" autocomplete="cc-name" style="border-bottom:1px solid #f3f4f6"/>
+    <div class="stripe-country-wrap">
+      <select class="stripe-country-field">
+        <option value="">Country or region</option>
+        <option value="US">United States</option>
+        <option value="IL">Israel</option>
+        <option value="GB">United Kingdom</option>
+        <option value="DE">Germany</option>
+        <option value="FR">France</option>
+        <option value="CA">Canada</option>
+        <option value="AU">Australia</option>
+        <option value="JP">Japan</option>
+        <option value="KR">South Korea</option>
+      </select>
+      <svg class="stripe-country-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
+  <div class="pay-cta-section">
+    <button class="stripe-submit-btn" id="pay-submit-btn">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Subscribe · <span id="pay-btn-amount">$7.99/week</span>
+    </button>
+  </div>
+
+  <div class="stripe-footer">
+    <svg class="stripe-footer-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span class="stripe-footer-text">Powered by</span>
+    <span class="stripe-brand">stripe</span>
+  </div>
+  <div class="stripe-terms">By confirming your subscription, you allow Micro Drama to charge your card for this payment and future payments in accordance with their terms. Cancel anytime.</div>
+
+</div>
+
+<!-- Daily login toast -->
+<div class="daily-toast" id="daily-toast">🪙 +15 coins — Daily login bonus!</div>
+
+<!-- Notification banners container -->
+<div class="notif-banner-container" id="notif-banner-container"></div>
+
+<!-- ══════════════════════════════
+     REWARDS SCREEN
+══════════════════════════════ -->
+<div class="screen hidden" id="rewards">
+
+  <!-- Top bar -->
+  <div class="rewards-topbar">
+    <div class="logo"><span class="logo-box">M</span>ICRO<span class="logo-accent">DRAMA</span></div>
+  </div>
+  <!-- hidden element to preserve JS refs -->
+  <span id="rewards-topbar-counter" style="display:none">0</span>
+
+  <!-- Hero coin balance -->
+  <div class="rewards-hero">
+    <div class="rewards-hero-label">Your Balance</div>
+
+    <div class="rewards-hero-num" id="rewards-hero-num">0</div>
+    <div class="rewards-hero-sub">Use coins to unlock episodes</div>
+  </div>
+
+  <!-- Rewards list -->
+  <div class="rewards-list">
+
+    <!-- Watch Episode -->
+    <div class="reward-row">
+      <div class="reward-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#FF4418" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="reward-info">
+        <div class="reward-name">Watch Episode</div>
+        <div class="reward-desc">Auto-awarded per episode watched</div>
+      </div>
+      <div class="reward-badge">+10</div>
+    </div>
+
+    <!-- Daily Login -->
+    <div class="reward-row">
+      <div class="reward-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="reward-info">
+        <div class="reward-name">Daily Login</div>
+        <div class="reward-desc">Come back daily for a bonus</div>
+      </div>
+      <div class="reward-badge">+15</div>
+    </div>
+
+    <!-- Watch Ad -->
+    <div class="reward-row">
+      <div class="reward-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="m17 2 5 5-5 5"/><path d="M2 12h15"/></svg>
+      </div>
+      <div class="reward-info">
+        <div class="reward-name">Watch Ad</div>
+        <div class="reward-desc">Watch a short ad for coins</div>
+      </div>
+      <button class="reward-action-btn" id="rewards-ad-btn">Watch · +30</button>
+    </div>
+
+    <!-- Subscribe -->
+    <div class="reward-row">
+      <div class="reward-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8"><path d="M3 18h18v2H3v-2zM3 17l3-8.5 4.5 3.5L12 4l2.5 8 4.5-3.5L22 17H3z"/></svg>
+      </div>
+      <div class="reward-info">
+        <div class="reward-name">Subscribe to VIP</div>
+        <div class="reward-desc">Unlock all episodes + earn coins</div>
+      </div>
+      <button class="reward-action-btn" id="rewards-sub-btn">Subscribe · +80</button>
+    </div>
+
+    <!-- Enable Notifications -->
+    <div class="reward-row">
+      <div class="reward-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+      <div class="reward-info">
+        <div class="reward-name">Enable Notifications</div>
+        <div class="reward-desc">Get alerts for new episodes</div>
+      </div>
+      <button class="reward-action-btn" id="rewards-notif-btn">Enable · +30</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav (Reward active) -->
+  <div class="bottom-nav">
+    <div class="nav-item" id="rewards-home-btn">
+      <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Discover</span>
+    </div>
+    <div class="nav-item" id="rewards-shorts-btn">
+      <svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+      <span>Shorts</span>
+    </div>
+    <div class="nav-item active" style="--reward-active:1">
+      <div class="reward-nav-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <span style="color:#d4af37">Reward</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+
+<script>
+/* ════════════════ DATA ════════════════ */
+const SHOWS = [
+  { id:0, title:'Lucifer Bride',  genre:'Crime, Dark Comedy',   season:4, totalSeasons:4, episode:6, epTitle:'The Deal',       thumb:'https://images.unsplash.com/photo-1761900850159-0d58ccf171f8?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',          progress:.48, likes:257, saves:182 },
+  { id:1, title:'The Boys',       genre:'Action, Thriller',     season:3, totalSeasons:3, episode:2, epTitle:'Payback',        thumb:'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',       progress:.20, likes:512, saves:310 },
+  { id:2, title:'Hacks',          genre:'Comedy, Drama',        season:2, totalSeasons:2, episode:4, epTitle:'The Roast',      thumb:'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',      progress:.65, likes:188, saves:97  },
+  { id:3, title:'Succession',     genre:'Drama, Thriller',      season:4, totalSeasons:4, episode:6, epTitle:'Which Side',     thumb:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',     progress:.33, likes:723, saves:445 },
+  { id:4, title:'Dark Obsession', genre:'Romance, Thriller',    season:2, totalSeasons:2, episode:1, epTitle:'New Beginnings', thumb:'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',         progress:0,   likes:341, saves:201 },
+  { id:5, title:'Night Shift',    genre:'Crime, Mystery',       season:1, totalSeasons:2, episode:3, epTitle:'Dead End',       thumb:'https://images.unsplash.com/photo-1551641506-ee5bf4cb45f1?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',     progress:.10, likes:198, saves:88  },
+  { id:6, title:'Fallen Angel',   genre:'Fantasy, Romance',     season:1, totalSeasons:3, episode:1, epTitle:'The Descent',    thumb:'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',   progress:0,   likes:892, saves:670 },
+  { id:7, title:'The Contract',   genre:'Drama, Romance',       season:3, totalSeasons:3, episode:8, epTitle:'Final Terms',    thumb:'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&q=80', video:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', progress:.90, likes:445, saves:312 },
+];
+const RAILS = [
+  { id:'rail-crime',      ids:[0,1,2,3], type:'portrait' },
+  { id:'rail-new',        ids:[4,5,6,0], type:'portrait' },
+  { id:'rail-portrait',   ids:[4,5,6],   type:'portrait'  },
+  { id:'rail-recordings', ids:[7,3,1],   type:'landscape' },
+];
+
+/* ════════════════ BUILD CARDS ════════════════ */
+function makeCard(show, type) {
+  const d = document.createElement('div');
+  d.className = `card ${type}`;
+  d.innerHTML = `
+    <img class="card-img" src="${show.thumb}" alt="${show.title}" loading="lazy"
+      onerror="this.style.background='linear-gradient(135deg,#1e1430,#0e1825)'; this.style.display='none'" />
+    <div class="card-progress"><div class="card-progress-fill" style="width:${show.progress*100}%"></div></div>
+    <div class="card-label">
+      <div class="card-title">${show.title}</div>
+      <div class="card-ep">S${show.season} · E${show.episode}</div>
+    </div>`;
+  d.addEventListener('click', () => openPlayer(show.id));
+  return d;
+}
+RAILS.forEach(r => {
+  const el = document.getElementById(r.id);
+  r.ids.forEach(id => el.appendChild(makeCard(SHOWS[id], r.type)));
+});
+document.getElementById('hero-banner').addEventListener('click', () => openPlayer(0));
+
+/* ════════════════ VIDEO POOL ════════════════ */
+const EPISODE_VIDEOS = [
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanDo.mp4',
+];
+
+function getEpisodeVideo(showId, season, epNum) {
+  const idx = (showId * 1000 + season * 20 + epNum) % EPISODE_VIDEOS.length;
+  return EPISODE_VIDEOS[idx];
+}
+
+function switchVideo(videoUrl, thumbUrl) {
+  const vid = document.getElementById('player-video');
+  const bg  = document.getElementById('player-bg');
+  // Show poster instantly (no transition flash)
+  bg.style.transition = 'none';
+  bg.style.backgroundImage = `url(${thumbUrl})`;
+  bg.style.opacity = '1';
+  vid.poster = thumbUrl;
+  requestAnimationFrame(() => { bg.style.transition = 'opacity .5s'; });
+  // Swap video
+  vid.src = videoUrl;
+  vid.load();
+  vid.play().catch(() => {});
+  vid.addEventListener('playing', () => { bg.style.opacity = '0'; }, { once: true });
+}
+
+/* ════════════════ PLAYER STATE ════════════════ */
+let overlayOn = true;
+let isPlaying = true;
+let liked = false;
+let saved = false;
+let isMuted = true; // video starts muted (autoplay requirement)
+let progressTimer = null;
+let overlayTimer = null;
+let lastNavTime = 0;
+const epProgressMap = new Map(); // stores progress per episode key
+function epKey(showId, season, ep) { return `${showId}_${season}_${ep}`; }
+const NAV_COOLDOWN = 800; // ms between episode navigations
+const FLASH_COLORS = ['#7b2ff7','#00b4d8','#e63946','#f77f00','#2dc653','#ff6b9d'];
+let flashColorIdx = 0;
+let currentProgress = 0;
+let currentShowId = 0;
+let currentSeason = 4;
+let currentEpisode = 6;
+let panelSeason = 4;       // which season tab is open in episodes panel
+let vipUnlocked = false;   // true after any VIP subscription
+
+// Onboarding / rewards state
+let firstPlayDone = false;
+let pendingSubscribeReward = false;
+let subscribeRewardGiven = false;
+let notifEnabled = false;
+const episodeCoinsGiven = new Set(); // tracks episodes that have already awarded +2 coins
+
+// Episodes 1–coinCounter are unlocked (starts at 5 = first 5 free)
+// coinCounter is incremented by the coin arc timer (+1 per revolution)
+// and by watching a full ad (+5 via startCoinReward)
+
+function getUnlocked() {
+  const s = new Set();
+  if (vipUnlocked) {
+    for (let i = 1; i <= 20; i++) s.add(i);
+    return s;
+  }
+  for (let i = 1; i <= 20; i++) {
+    if (i <= 5) { s.add(i); continue; }
+    const cost = (i - 5) * 30;
+    if (coinCounter >= cost) s.add(i);
+  }
+  return s;
+}
+
+function episodeCost(epNum) {
+  if (epNum <= 5) return 0;
+  return (epNum - 5) * 30;
+}
+
+/* ════════════════ OPEN PLAYER ════════════════ */
+function openPlayer(showId, epNum, season) {
+  const show = SHOWS[showId];
+  currentShowId  = showId;
+  currentSeason  = season  || show.season;
+  currentEpisode = epNum   || show.episode;
+  panelSeason    = currentSeason;
+
+  switchVideo(getEpisodeVideo(showId, currentSeason, currentEpisode), show.thumb);
+
+  populatePlayer(show, currentEpisode);
+
+  // Reset state
+  overlayOn = true; isPlaying = true; liked = false; saved = false; isMuted = true;
+  document.getElementById('like-icon').classList.remove('liked');
+  document.getElementById('player-overlay').classList.remove('overlay-hidden');
+  setCenterIcon(true);
+  updateMuteIcon();
+
+  document.getElementById('home').classList.add('hidden');
+  document.getElementById('player').classList.remove('hidden');
+
+  stopProgress();
+  const key = epKey(showId, currentSeason, currentEpisode);
+  currentProgress = epProgressMap.has(key) ? epProgressMap.get(key) : show.progress;
+  adWatchStart = currentProgress;
+  document.getElementById('progress-fill').style.width = `${currentProgress*100}%`;
+  startProgress();
+  buildEpisodesGrid(show);
+  startOverlayTimer();
+
+  // Award +10 coins for new episode (first time only)
+  if (!episodeCoinsGiven.has(key)) {
+    episodeCoinsGiven.add(key);
+    setTimeout(() => addCoins(10), 900);
+  }
+
+  // First-play onboarding: show subscribe popup
+  if (!firstPlayDone) {
+    firstPlayDone = true;
+    setTimeout(() => {
+      stopProgress();
+      const vid = document.getElementById('player-video');
+      vid.pause();
+      isPlaying = false;
+      setCenterIcon(false);
+      stopOverlayTimer();
+      document.getElementById('subscribe-popup').classList.add('open');
+    }, 800);
+  }
+}
+
+function populatePlayer(show, epNum) {
+  document.getElementById('player-title').textContent = show.title;
+  document.getElementById('player-genre').textContent = show.genre;
+  document.getElementById('player-top-title').textContent = `${show.title} · EP ${epNum}`;
+  document.getElementById('ep-season-text').textContent = `Season ${currentSeason}, Episode ${epNum}`;
+  document.getElementById('ep-name-text').textContent  = `· ${show.epTitle}`;
+  document.getElementById('like-count').textContent    = show.likes;
+}
+
+/* ════════════════ CLOSE PLAYER ════════════════ */
+function closePlayer() {
+  epProgressMap.set(epKey(currentShowId, currentSeason, currentEpisode), currentProgress);
+  closeEpisodesPanel();
+  stopOverlayTimer();
+  document.getElementById('player').classList.add('hidden');
+  document.getElementById('home').classList.remove('hidden');
+  stopProgress();
+  const vid = document.getElementById('player-video');
+  vid.pause(); vid.src = '';
+  document.getElementById('player-bg').style.opacity = '0';
+}
+
+/* ════════════════ VIP SCREEN ════════════════ */
+let vipFromScreen = 'home';
+
+function openVip(from) {
+  vipFromScreen = from || 'home';
+  document.getElementById(vipFromScreen).classList.add('hidden');
+  document.getElementById('vip').classList.remove('hidden');
+}
+function closeVip() {
+  document.getElementById('vip').classList.add('hidden');
+  document.getElementById(vipFromScreen).classList.remove('hidden');
+}
+document.getElementById('vip-btn').addEventListener('click', () => openVip('home'));
+document.getElementById('vip-back-btn').addEventListener('click', closeVip);
+document.getElementById('vip-sub-btn').addEventListener('click', () => openPayment());
+
+/* ════════════════ PAYMENT SCREEN ════════════════ */
+function openPayment() {
+  const planWeekly = document.getElementById('vip-plan-weekly').classList.contains('active');
+  document.getElementById('pay-plan-label').textContent  = planWeekly ? 'Weekly VIP Plan' : 'Yearly VIP Plan';
+  document.getElementById('pay-amount').textContent      = planWeekly ? '$3.99' : '$39.99';
+  document.getElementById('pay-btn-amount').textContent  = planWeekly ? '$3.99/week' : '$39.99/year';
+  document.getElementById('vip').classList.add('hidden');
+  document.getElementById('payment').classList.remove('hidden');
+}
+document.getElementById('payment-back-btn').addEventListener('click', () => {
+  document.getElementById('payment').classList.add('hidden');
+  document.getElementById('vip').classList.remove('hidden');
+});
+document.getElementById('pay-submit-btn').addEventListener('click', () => {
+  vipUnlocked = true;
+  document.getElementById('payment').classList.add('hidden');
+  document.getElementById(vipFromScreen).classList.remove('hidden');
+
+  // Mark subscribe button done on rewards screen
+  const rSubBtn = document.getElementById('rewards-sub-btn');
+  if (rSubBtn) { rSubBtn.textContent = '✓ Subscribed'; rSubBtn.classList.add('done'); }
+
+  // Award coins
+  if (pendingSubscribeReward && !subscribeRewardGiven) {
+    subscribeRewardGiven = true;
+    pendingSubscribeReward = false;
+    setTimeout(() => {
+      rewardCoinsAnimated(80);
+      if (!document.getElementById('player').classList.contains('hidden')) {
+        setTimeout(() => { document.getElementById('notif-popup').classList.add('open'); }, 1600);
+      }
+    }, 400);
+  } else {
+    setTimeout(() => rewardCoinsAnimated(80), 400);
+  }
+
+  // Rebuild episodes grid if player is open
+  if (!document.getElementById('player').classList.contains('hidden')) {
+    buildEpisodesGrid(SHOWS[currentShowId]);
+  }
+});
+document.querySelectorAll('.vip-plan').forEach(plan => {
+  plan.addEventListener('click', () => {
+    if (plan.classList.contains('active')) return; // second click on same plan = no-op
+    document.querySelectorAll('.vip-plan').forEach(p => p.classList.remove('active'));
+    plan.classList.add('active');
+  });
+});
+
+/* ════════════════ SHORTS SCREEN ════════════════ */
+(function() {
+  const shortsScreen  = document.getElementById('shorts');
+  const homeScreen    = document.getElementById('home');
+  const shortsFeed    = document.getElementById('shorts-feed');
+  const shortsItems   = [...shortsFeed.querySelectorAll('.shorts-item')];
+  const detailsPanel  = document.getElementById('shorts-details');
+
+  let shortsActive    = false;
+  let activeIdx       = 0;
+  let progTimers      = {};
+  let pausedSet       = new Set();
+  let mutedSet        = new Set();
+  let shortMyList     = new Set();
+  let detailSource    = null;
+
+  function getDur(idx) {
+    return (parseInt(shortsItems[idx].dataset.durMs) || 60000) / 4; // 4× speed
+  }
+
+  function openShorts() {
+    homeScreen.style.transition = 'none';
+    shortsScreen.style.transition = 'none';
+    shortsScreen.classList.remove('hidden');
+    homeScreen.classList.add('hidden');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      homeScreen.style.transition = '';
+      shortsScreen.style.transition = '';
+    }));
+    document.getElementById('home-nav-btn').classList.remove('active');
+    document.getElementById('shorts-nav-btn').classList.add('active');
+    shortsActive = true;
+    activeIdx = 0;
+    shortsFeed.scrollTop = 0;
+    startProg(0);
+  }
+
+  function closeShorts() {
+    stopAllProg();
+    homeScreen.style.transition = 'none';
+    shortsScreen.style.transition = 'none';
+    shortsScreen.classList.add('hidden');
+    homeScreen.classList.remove('hidden');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      homeScreen.style.transition = '';
+      shortsScreen.style.transition = '';
+    }));
+    document.getElementById('shorts-nav-btn').classList.remove('active');
+    document.getElementById('home-nav-btn').classList.add('active');
+    shortsActive = false;
+    detailsPanel.classList.remove('open');
+  }
+
+  /* Progress animation — loops when it reaches 100% */
+  function startProg(idx) {
+    const now = performance.now();
+    if (!progTimers[idx]) progTimers[idx] = { elapsed:0, start:now };
+    else progTimers[idx].start = now;
+    pausedSet.delete(idx);
+    animProg(idx);
+  }
+  function animProg(idx) {
+    const t = progTimers[idx];
+    if (!t || pausedSet.has(idx)) return;
+    const dur = getDur(idx);
+    const elapsed = t.elapsed + performance.now() - t.start;
+    if (elapsed >= dur) {
+      progTimers[idx] = { elapsed:0, start:performance.now() };
+      shortsItems[idx].querySelector('.shorts-progress-fill').style.width = '0%';
+      animProg(idx);
+      return;
+    }
+    const pct = (elapsed / dur) * 100;
+    shortsItems[idx].querySelector('.shorts-progress-fill').style.width = pct + '%';
+    t._raf = requestAnimationFrame(() => animProg(idx));
+  }
+  function stopProg(idx) {
+    const t = progTimers[idx];
+    if (!t) return;
+    cancelAnimationFrame(t._raf);
+    const dur = getDur(idx);
+    t.elapsed = Math.min(t.elapsed + (performance.now() - t.start), dur - 1);
+  }
+  function pauseProg(idx) { stopProg(idx); pausedSet.add(idx); }
+  function resumeProg(idx) {
+    pausedSet.delete(idx);
+    if (progTimers[idx]) progTimers[idx].start = performance.now();
+    else progTimers[idx] = { elapsed:0, start:performance.now() };
+    animProg(idx);
+  }
+  function stopAllProg() { shortsItems.forEach((_, i) => stopProg(i)); }
+
+  /* Scroll snap tracking */
+  shortsFeed.addEventListener('scroll', () => {
+    if (!shortsActive) return;
+    const h = shortsFeed.clientHeight;
+    const newIdx = Math.round(shortsFeed.scrollTop / h);
+    if (newIdx !== activeIdx && newIdx >= 0 && newIdx < shortsItems.length) {
+      stopProg(activeIdx);
+      activeIdx = newIdx;
+      startProg(activeIdx);
+    }
+  }, { passive:true });
+
+  /* Tap to pause/resume */
+  shortsItems.forEach((item, idx) => {
+    item.addEventListener('click', e => {
+      if (e.target.closest('.shorts-mute-btn') || e.target.closest('.shorts-bottom') || e.target.closest('.shorts-back-btn') || e.target.closest('.shorts-info-btn')) return;
+      const ov = document.getElementById('spo-' + idx);
+      if (!pausedSet.has(idx)) {
+        pauseProg(idx);
+        ov.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="white"/></svg>';
+        ov.classList.add('show');
+        clearTimeout(item._ot);
+        item._ot = setTimeout(() => ov.classList.remove('show'), 1800);
+      } else {
+        resumeProg(idx);
+        ov.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        ov.classList.remove('show');
+      }
+    });
+
+    /* Bottom bar → open details */
+    item.querySelector('.shorts-bottom').addEventListener('click', e => {
+      e.stopPropagation();
+      openDetails(item, idx);
+    });
+  });
+
+  /* Mute buttons */
+  shortsFeed.querySelectorAll('.shorts-mute-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      const muted = mutedSet.has(idx);
+      if (muted) {
+        mutedSet.delete(idx);
+        btn.querySelector('svg').innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+      } else {
+        mutedSet.add(idx);
+        btn.querySelector('svg').innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      }
+    });
+  });
+
+  /* Details panel */
+  function openDetails(item, idx) {
+    pauseProg(idx);
+    detailSource = { item, idx };
+    const d = item.dataset;
+    document.getElementById('sd-poster-wrap').style.backgroundImage = `url('${d.poster}')`;
+    document.getElementById('sd-title').textContent = d.title;
+    const ageBadge = `<span class="shorts-bottom-age">${d.age}</span>`;
+    document.getElementById('sd-meta').innerHTML = `${d.year} · ${d.genre}, ${d.subgenre} · ${d.durDisplay || d.durMs} ${ageBadge}`;
+    const seriesEl = document.getElementById('sd-series-meta');
+    if (d.season) {
+      seriesEl.textContent = `Season ${d.season}, Ep ${d.episode} · ${d.epName || ''}`;
+      seriesEl.style.display = 'block';
+    } else { seriesEl.style.display = 'none'; }
+    document.getElementById('sd-description').textContent = d.description || '';
+    document.getElementById('sd-credits').innerHTML = `<strong>Director:</strong> ${d.director || '—'}<br><strong>Cast:</strong> ${d.cast || '—'}`;
+    const pct = parseFloat(item.querySelector('.shorts-progress-fill').style.width) || 0;
+    document.getElementById('sd-progress-fill').style.width = pct + '%';
+    syncMyList(idx);
+    detailsPanel.scrollTop = 0;
+    detailsPanel.classList.add('open');
+  }
+
+  function closeDetails() {
+    detailsPanel.classList.remove('open');
+    if (detailSource) {
+      const { item, idx } = detailSource;
+      const pct = parseFloat(document.getElementById('sd-progress-fill').style.width) || 0;
+      item.querySelector('.shorts-progress-fill').style.width = pct + '%';
+      if (progTimers[idx]) progTimers[idx].elapsed = (pct / 100) * getDur(idx);
+      resumeProg(idx);
+      detailSource = null;
+    }
+  }
+
+  function syncMyList(idx) {
+    const circle = document.getElementById('sd-mylist-circle');
+    const label  = document.getElementById('sd-mylist-label');
+    if (shortMyList.has(idx)) {
+      circle.classList.add('active');
+      circle.querySelector('svg').innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+      label.textContent = 'Added';
+    } else {
+      circle.classList.remove('active');
+      circle.querySelector('svg').innerHTML = '<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>';
+      label.textContent = 'My List';
+    }
+  }
+
+  /* Expose globally for nav from other screens */
+  window._openShorts = openShorts;
+
+  /* Wiring */
+  document.getElementById('shorts-nav-btn').addEventListener('click', openShorts);
+  document.getElementById('shorts-back-btn').addEventListener('click', () => {
+    if (detailsPanel.classList.contains('open')) closeDetails();
+    else closeShorts();
+  });
+  document.getElementById('shorts-screen-home-btn').addEventListener('click', closeShorts);
+  document.getElementById('shorts-reward-btn').addEventListener('click', () => {
+    closeShorts();
+    openRewards();
+  });
+  document.getElementById('sd-watch-btn').addEventListener('click', closeDetails);
+  document.getElementById('sd-mylist-action').addEventListener('click', () => {
+    if (!detailSource) return;
+    const { idx } = detailSource;
+    if (shortMyList.has(idx)) shortMyList.delete(idx); else shortMyList.add(idx);
+    syncMyList(idx);
+  });
+  document.getElementById('sd-share-action').addEventListener('click', () => {
+    if (!detailSource) return;
+    const d = detailSource.item.dataset;
+    const title = d.title.toLowerCase().replace(/\s+/g, '-');
+    window.openSharePopup(`microdrama.app/watch/${title}/episode-${d.episode}`);
+  });
+  /* Info button on each item → open details */
+  shortsItems.forEach((item, idx) => {
+    const infoBtn = item.querySelector('.shorts-info-btn');
+    if (infoBtn) {
+      infoBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        openDetails(item, idx);
+      });
+    }
+  });
+})();
+
+/* ════════════════ OVERLAY AUTO-HIDE TIMER ════════════════ */
+function startOverlayTimer() {
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => { if (overlayOn) toggleOverlay(); }, 4000);
+}
+function stopOverlayTimer() {
+  clearTimeout(overlayTimer);
+  overlayTimer = null;
+}
+
+/* ════════════════ EPISODE-CHANGE FLASH ════════════════ */
+function flashEpisodeChange() {
+  const el = document.getElementById('nav-flash');
+  el.style.background = FLASH_COLORS[flashColorIdx % FLASH_COLORS.length];
+  flashColorIdx++;
+  el.classList.remove('flash');
+  void el.offsetWidth; // force reflow to restart animation
+  el.classList.add('flash');
+}
+
+/* ════════════════ OVERLAY TOGGLE ════════════════ */
+function toggleOverlay() {
+  overlayOn = !overlayOn;
+  document.getElementById('player-overlay').classList.toggle('overlay-hidden', !overlayOn);
+  document.getElementById('center-play').style.opacity = overlayOn ? '1' : '0';
+  document.getElementById('center-play').style.pointerEvents = overlayOn ? 'all' : 'none';
+  if (overlayOn) startOverlayTimer(); else stopOverlayTimer();
+}
+
+/* ════════════════ CENTER PLAY/PAUSE ════════════════ */
+function setCenterIcon(play) {
+  const svg = document.getElementById('center-icon');
+  const btn = document.getElementById('center-play');
+  if (play) {
+    svg.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    btn.classList.remove('play-offset');
+  } else {
+    svg.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    btn.classList.add('play-offset');
+  }
+}
+
+/* ════════════════ MUTE ICON ════════════════ */
+function updateMuteIcon() {
+  const svg = document.getElementById('mute-icon');
+  if (isMuted) {
+    svg.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  } else {
+    svg.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+  }
+}
+
+document.getElementById('mute-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  isMuted = !isMuted;
+  const vid = document.getElementById('player-video');
+  vid.muted = isMuted;
+  updateMuteIcon();
+  startOverlayTimer(); // reset auto-hide on interaction
+});
+
+/* ════════════════ TAP ZONE (toggle overlay) ════════════════ */
+document.getElementById('tap-zone').addEventListener('click', toggleOverlay);
+
+/* ════════════════ CENTER PLAY BUTTON ════════════════ */
+document.getElementById('center-play').addEventListener('click', (e) => {
+  e.stopPropagation();
+  isPlaying = !isPlaying;
+  const vid = document.getElementById('player-video');
+  isPlaying ? vid.play().catch(()=>{}) : vid.pause();
+  setCenterIcon(isPlaying);
+  isPlaying ? startProgress() : stopProgress();
+});
+
+/* ════════════════ BACK BUTTON ════════════════ */
+document.getElementById('back-btn').addEventListener('click', (e) => {
+  e.stopPropagation(); closePlayer();
+});
+
+/* ════════════════ LIKE ════════════════ */
+document.getElementById('like-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  liked = !liked;
+  const icon = document.getElementById('like-icon');
+  const cnt  = document.getElementById('like-count');
+  icon.classList.toggle('liked', liked);
+  cnt.textContent = parseInt(cnt.textContent) + (liked ? 1 : -1);
+});
+
+/* ════════════════ SAVE ════════════════ */
+document.getElementById('save-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  saved = !saved;
+  const svg = document.querySelector('#save-btn svg');
+  svg.style.fill = saved ? '#fff' : 'none';
+});
+
+/* ════════════════ AD POPUP ════════════════ */
+let adInnerTimer = null;
+let adWatchStart = 0;
+
+function closeAdPopup(andReward) {
+  clearInterval(adInnerTimer); adInnerTimer = null;
+  document.getElementById('ad-popup').classList.remove('open');
+  if (interstitialCallback) {
+    const cb = interstitialCallback;
+    interstitialCallback = null;
+    cb(andReward);
+  } else {
+    const vid = document.getElementById('player-video');
+    vid.play().catch(() => {});
+    isPlaying = true; setCenterIcon(true); startProgress();
+    if (andReward) {
+      overlayOn = true;
+      document.getElementById('player-overlay').classList.remove('overlay-hidden');
+      startOverlayTimer();
+      startCoinReward();
+    }
+  }
+}
+
+document.getElementById('ad-close-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  closeAdPopup(false);
+});
+
+document.getElementById('ad-play-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('ad-offer-state').style.display = 'none';
+  document.getElementById('ad-playing-state').style.display = 'block';
+  let secs = 5;
+  document.getElementById('ad-playing-countdown').textContent = secs;
+  adInnerTimer = setInterval(() => {
+    secs--;
+    document.getElementById('ad-playing-countdown').textContent = secs;
+    if (secs <= 0) closeAdPopup(true);
+  }, 1000);
+});
+
+document.getElementById('ad-popup').addEventListener('click', (e) => e.stopPropagation());
+
+/* ════════════════ COIN REWARD ANIMATION ════════════════ */
+function startCoinReward() {
+  const coinBtn   = document.getElementById('coin-btn');
+  const counterEl = document.getElementById('coin-counter');
+
+  coinTick = 0;
+
+  // Force coin button visible regardless of overlay state
+  coinBtn.style.opacity = '1';
+  coinBtn.style.pointerEvents = 'all';
+
+  // Reset arc, then fill over 5s
+  arc.style.transition = 'none';
+  arc.style.strokeDashoffset = String(circum);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      arc.style.transition = 'stroke-dashoffset 5s linear';
+      arc.style.strokeDashoffset = '0';
+    });
+  });
+
+  // Count up +6 per second for 5 seconds (total +30 coins for watching full ad)
+  let tick = 0;
+  const rewardInterval = setInterval(() => {
+    tick++;
+    addCoins(6);
+    counterEl.classList.remove('counting');
+    void counterEl.offsetWidth;
+    counterEl.classList.add('counting');
+
+    if (tick >= 5) {
+      clearInterval(rewardInterval);
+      // Fade out coin button after a short pause
+      setTimeout(() => {
+        coinBtn.style.transition = 'opacity .5s';
+        coinBtn.style.opacity = '0';
+        setTimeout(() => {
+          coinBtn.style.transition = '';
+          coinBtn.style.opacity = '';
+          coinBtn.style.pointerEvents = '';
+          counterEl.classList.remove('counting');
+          arc.style.transition = 'none';
+          arc.style.strokeDashoffset = String(circum);
+          coinTick = 0;
+        }, 500);
+      }, 700);
+    }
+  }, 1000);
+}
+
+/* ════════════════ ANIMATED COIN REWARD (variable amount) ════════════════ */
+function rewardCoinsAnimated(total) {
+  const TICKS = 10;
+  const TICK_MS = 300;
+  const base = Math.floor(total / TICKS);
+  let remaining = total;
+  const counterEl = document.getElementById('coin-counter');
+  const playerOpen = !document.getElementById('player').classList.contains('hidden');
+
+  if (playerOpen) {
+    const coinBtn = document.getElementById('coin-btn');
+    coinBtn.style.opacity = '1';
+    coinBtn.style.pointerEvents = 'all';
+    arc.style.transition = 'none';
+    arc.style.strokeDashoffset = String(circum);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      arc.style.transition = `stroke-dashoffset ${(TICKS * TICK_MS / 1000).toFixed(1)}s linear`;
+      arc.style.strokeDashoffset = '0';
+    }));
+  }
+
+  let tick = 0;
+  const iv = setInterval(() => {
+    tick++;
+    const amount = tick === TICKS ? remaining : Math.min(base, remaining);
+    remaining -= amount;
+    if (amount > 0) {
+      addCoins(amount);
+      counterEl.classList.remove('counting'); void counterEl.offsetWidth; counterEl.classList.add('counting');
+    }
+    if (tick >= TICKS) {
+      clearInterval(iv);
+      if (playerOpen) {
+        const coinBtn = document.getElementById('coin-btn');
+        setTimeout(() => {
+          coinBtn.style.transition = 'opacity .5s';
+          coinBtn.style.opacity = '0';
+          setTimeout(() => {
+            coinBtn.style.transition = ''; coinBtn.style.opacity = '';
+            coinBtn.style.pointerEvents = '';
+            counterEl.classList.remove('counting');
+            arc.style.transition = 'none';
+            arc.style.strokeDashoffset = String(circum);
+          }, 500);
+        }, 700);
+      }
+    }
+  }, TICK_MS);
+}
+
+/* ════════════════ EPISODES PANEL ════════════════ */
+function openEpisodesPanel() {
+  panelSeason = currentSeason;
+  buildEpisodesGrid(SHOWS[currentShowId]);
+  document.getElementById('episodes-panel').classList.add('open');
+  document.getElementById('eps-backdrop').classList.add('open');
+}
+function closeEpisodesPanel() {
+  document.getElementById('episodes-panel').classList.remove('open');
+  document.getElementById('eps-backdrop').classList.remove('open');
+}
+
+document.getElementById('ep-info-row').addEventListener('click', (e) => {
+  e.stopPropagation(); openEpisodesPanel();
+});
+document.getElementById('eps-close').addEventListener('click', closeEpisodesPanel);
+document.getElementById('eps-backdrop').addEventListener('click', closeEpisodesPanel);
+
+/* ════════════════ BUILD EPISODES GRID ════════════════ */
+function buildEpisodesGrid(show) {
+  const totalSeasons = show.totalSeasons || show.season;
+
+  document.getElementById('eps-total-label').textContent = `· ${totalSeasons} seasons · 20 eps each`;
+
+  // Build season tabs
+  const tabsEl = document.getElementById('season-tabs');
+  tabsEl.innerHTML = '';
+  for (let s = 1; s <= totalSeasons; s++) {
+    const tab = document.createElement('button');
+    tab.className = 'season-tab' + (s === panelSeason ? ' active' : '');
+    tab.textContent = `Season ${s}`;
+    tab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      panelSeason = s;
+      buildEpisodesGrid(show);
+    });
+    tabsEl.appendChild(tab);
+  }
+
+  // Build episodes grid for panelSeason
+  const grid = document.getElementById('eps-grid');
+  grid.innerHTML = '';
+  const unlocked = getUnlocked();
+
+  for (let i = 1; i <= 20; i++) {
+    const isLocked    = !unlocked.has(i);
+    const isStreaming = (panelSeason === currentSeason && i === currentEpisode);
+
+    const sq = document.createElement('div');
+    sq.className = 'ep-square' +
+      (isLocked     ? ' ep-locked'    : ' ep-unlocked') +
+      (isStreaming   ? ' ep-streaming' : '');
+
+    if (isStreaming) {
+      sq.innerHTML = `
+        <span class="ep-num">${i}</span>
+        <div class="streaming-bars"><span></span><span></span><span></span></div>
+        <span class="ep-streaming-label">NOW</span>`;
+      sq.addEventListener('click', (e) => { e.stopPropagation(); jumpToEpisode(i, panelSeason); });
+    } else if (isLocked) {
+      const cost = episodeCost(i);
+      sq.className += ' ep-buyable';
+      sq.innerHTML = `
+        <svg class="lock-icon" viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span class="ep-num">${i}</span>`;
+    } else {
+      sq.innerHTML = `<span class="ep-num">${i}</span>`;
+      sq.addEventListener('click', (e) => { e.stopPropagation(); jumpToEpisode(i, panelSeason); });
+    }
+    grid.appendChild(sq);
+  }
+}
+
+function jumpToEpisode(epNum, season) {
+  epProgressMap.set(epKey(currentShowId, currentSeason, currentEpisode), currentProgress);
+  closeEpisodesPanel();
+  currentSeason  = season || currentSeason;
+  currentEpisode = epNum;
+  const show = SHOWS[currentShowId];
+  populatePlayer(show, epNum);
+  switchVideo(getEpisodeVideo(currentShowId, currentSeason, epNum), show.thumb);
+  const savedProg = epProgressMap.get(epKey(currentShowId, currentSeason, epNum)) || 0;
+  currentProgress = savedProg;
+  adWatchStart = savedProg;
+  document.getElementById('progress-fill').style.width = `${savedProg*100}%`;
+  stopProgress(); startProgress();
+  // Award +10 coins for new episode (first time only)
+  const jumpKey = epKey(currentShowId, currentSeason, epNum);
+  if (!episodeCoinsGiven.has(jumpKey)) {
+    episodeCoinsGiven.add(jumpKey);
+    setTimeout(() => addCoins(10), 900);
+  }
+}
+
+/* Stop propagation on overlay interactive elements */
+document.querySelectorAll('.player-top, .player-right, .player-bottom').forEach(el =>
+  el.addEventListener('click', e => e.stopPropagation())
+);
+
+/* ════════════════ PROGRESS BAR SCRUBBING ════════════════ */
+(function() {
+  const wrap = document.getElementById('progress-bar-wrap');
+  const fill = document.getElementById('progress-fill');
+  const thumb = document.getElementById('scrub-thumb');
+  let scrubbing = false;
+
+  function scrubTo(clientX) {
+    const rect = wrap.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    currentProgress = pct;
+    fill.style.width = `${pct*100}%`;
+    thumb.style.left = `${pct*100}%`;
+    const vid = document.getElementById('player-video');
+    if (vid.duration) vid.currentTime = pct * vid.duration;
+  }
+
+  wrap.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    scrubbing = true;
+    wrap.classList.add('dragging');
+    scrubTo(e.touches[0].clientX);
+    stopProgress();
+  }, { passive:false });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (!scrubbing) return;
+    e.stopPropagation();
+    scrubTo(e.touches[0].clientX);
+  }, { passive:false });
+
+  wrap.addEventListener('touchend', (e) => {
+    if (!scrubbing) return;
+    e.stopPropagation();
+    scrubbing = false;
+    wrap.classList.remove('dragging');
+    if (isPlaying) startProgress();
+  }, { passive:false });
+
+  wrap.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    scrubbing = true;
+    wrap.classList.add('dragging');
+    scrubTo(e.clientX);
+    stopProgress();
+    const onMove = (ev) => { if (scrubbing) scrubTo(ev.clientX); };
+    const onUp = () => {
+      scrubbing = false;
+      wrap.classList.remove('dragging');
+      if (isPlaying) startProgress();
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+})();
+
+/* ════════════════ SWIPE BETWEEN EPISODES ════════════════ */
+let touchStartY = 0, touchStartTime = 0;
+
+document.getElementById('tap-zone').addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+  touchStartTime = Date.now();
+}, { passive:true });
+
+document.getElementById('tap-zone').addEventListener('touchend', (e) => {
+  const dy = touchStartY - e.changedTouches[0].clientY;
+  const dt = Date.now() - touchStartTime;
+  if (Math.abs(dy) < 40 || dt > 500) return;
+  if (Date.now() - lastNavTime < NAV_COOLDOWN) return;
+  e.preventDefault();
+
+  const show = SHOWS[currentShowId];
+  const hint = document.getElementById('swipe-hint');
+  epProgressMap.set(epKey(currentShowId, currentSeason, currentEpisode), currentProgress);
+  const navigated = navigateEpisode(dy > 0 ? 1 : -1, show, hint, '↑', '↓');
+
+  if (navigated) {
+    lastNavTime = Date.now();
+    flashEpisodeChange();
+    populatePlayer(show, currentEpisode);
+    switchVideo(getEpisodeVideo(currentShowId, currentSeason, currentEpisode), show.thumb);
+    const savedProg = epProgressMap.get(epKey(currentShowId, currentSeason, currentEpisode)) || 0;
+    currentProgress = savedProg;
+    adWatchStart = savedProg;
+    document.getElementById('progress-fill').style.width = `${savedProg*100}%`;
+    document.getElementById('scrub-thumb').style.left = `${savedProg*100}%`;
+    stopProgress(); startProgress();
+    const swipeKey = epKey(currentShowId, currentSeason, currentEpisode);
+    if (!episodeCoinsGiven.has(swipeKey)) { episodeCoinsGiven.add(swipeKey); setTimeout(() => addCoins(10), 900); }
+  }
+  hint.classList.add('show');
+  setTimeout(() => hint.classList.remove('show'), 1400);
+}, { passive:false });
+
+/* wheel scroll as backup for desktop */
+document.getElementById('tap-zone').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (Date.now() - lastNavTime < NAV_COOLDOWN) return;
+
+  const show = SHOWS[currentShowId];
+  const hint = document.getElementById('swipe-hint');
+  epProgressMap.set(epKey(currentShowId, currentSeason, currentEpisode), currentProgress);
+  const navigated = navigateEpisode(e.deltaY > 0 ? 1 : -1, show, hint, '→', '←');
+
+  if (navigated) {
+    lastNavTime = Date.now();
+    flashEpisodeChange();
+    populatePlayer(show, currentEpisode);
+    switchVideo(getEpisodeVideo(currentShowId, currentSeason, currentEpisode), show.thumb);
+    const savedProg = epProgressMap.get(epKey(currentShowId, currentSeason, currentEpisode)) || 0;
+    currentProgress = savedProg;
+    adWatchStart = savedProg;
+    document.getElementById('progress-fill').style.width = `${savedProg*100}%`;
+    document.getElementById('scrub-thumb').style.left = `${savedProg*100}%`;
+    stopProgress(); startProgress();
+    hint.classList.add('show');
+    setTimeout(() => hint.classList.remove('show'), 1400);
+    const wheelKey = epKey(currentShowId, currentSeason, currentEpisode);
+    if (!episodeCoinsGiven.has(wheelKey)) { episodeCoinsGiven.add(wheelKey); setTimeout(() => addCoins(10), 900); }
+  }
+}, { passive:false });
+
+/* Season-aware episode navigation helper */
+function navigateEpisode(dir, show, hint, fwdArrow, bwdArrow) {
+  const maxSeasons = show.totalSeasons || show.season;
+  if (dir > 0) {
+    // forward
+    if (currentEpisode < 20) {
+      currentEpisode++;
+    } else if (currentSeason < maxSeasons) {
+      currentSeason++;
+      currentEpisode = 1;
+    } else {
+      if (hint) hint.textContent = 'Last Episode';
+      return false;
+    }
+    if (hint) hint.textContent = `S${currentSeason} E${currentEpisode} ${fwdArrow}`;
+  } else {
+    // backward
+    if (currentEpisode > 1) {
+      currentEpisode--;
+    } else if (currentSeason > 1) {
+      currentSeason--;
+      currentEpisode = 20;
+    } else {
+      if (hint) hint.textContent = 'First Episode';
+      return false;
+    }
+    if (hint) hint.textContent = `S${currentSeason} E${currentEpisode} ${bwdArrow}`;
+  }
+  return true;
+}
+
+/* ════════════════ PROGRESS ════════════════ */
+function startProgress() {
+  stopProgress();
+  progressTimer = setInterval(() => {
+    currentProgress = Math.min(1, currentProgress + 0.0032);
+    document.getElementById('progress-fill').style.width = `${currentProgress*100}%`;
+    document.getElementById('scrub-thumb').style.left = `${currentProgress*100}%`;
+    if (currentProgress >= 1) { stopProgress(); autoNextEpisode(); }
+  }, 100);
+}
+function stopProgress() {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+}
+
+let interstitialCallback = null;
+function showInterstitialAd(onDone) {
+  interstitialCallback = onDone;
+  const vid = document.getElementById('player-video');
+  vid.pause(); isPlaying = false; setCenterIcon(false); stopProgress(); stopOverlayTimer();
+  document.getElementById('ad-offer-state').style.display = 'block';
+  document.getElementById('ad-playing-state').style.display = 'none';
+  document.getElementById('ad-popup').classList.add('open');
+}
+
+function autoNextEpisode() {
+  const show = SHOWS[currentShowId];
+  const nextSeason = currentSeason, nextEp = currentEpisode;
+  const canNavigate = (() => {
+    if (currentEpisode < 20) return true;
+    if (currentSeason < (show.totalSeasons || show.season)) return true;
+    return false;
+  })();
+  if (!canNavigate) return;
+
+  showInterstitialAd((andReward) => {
+    const navigated = navigateEpisode(1, show, null, '', '');
+    if (navigated) {
+      populatePlayer(show, currentEpisode);
+      switchVideo(getEpisodeVideo(currentShowId, currentSeason, currentEpisode), show.thumb);
+      currentProgress = 0;
+      adWatchStart = 0;
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('scrub-thumb').style.left = '0%';
+      const vid = document.getElementById('player-video');
+      vid.play().catch(() => {}); isPlaying = true; setCenterIcon(true);
+      startProgress();
+      // Show all player buttons for 4 seconds after the ad
+      overlayOn = true;
+      document.getElementById('player-overlay').classList.remove('overlay-hidden');
+      if (andReward) startCoinReward();
+      startOverlayTimer();
+    }
+  });
+}
+
+/* ════════════════ COIN CIRCULAR PROGRESS + EPISODE COUNTER ════════════════ */
+let coinCounter = 0;       // starts at 0; first 5 episodes always free
+let coinTick = 0;
+const COIN_PERIOD = 60;
+const arc = document.getElementById('coin-arc');
+const circum = 2 * Math.PI * 15; // r=15 → ~94.25
+
+arc.style.strokeDasharray = circum;
+arc.style.strokeDashoffset = circum; // start empty
+arc.style.animation = 'none';
+
+function addCoins(n) {
+  coinCounter += n;
+  // Player coin counter
+  const el = document.getElementById('coin-counter');
+  el.textContent = coinCounter;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  // Home screen coin chip
+  const homeCount = document.getElementById('home-coin-count');
+  if (homeCount) {
+    homeCount.textContent = coinCounter;
+    const chip = document.getElementById('home-coin-chip');
+    if (chip) { chip.classList.remove('pop'); void chip.offsetWidth; chip.classList.add('pop'); }
+  }
+  // Rewards screen counters
+  const heroNum = document.getElementById('rewards-hero-num');
+  if (heroNum) { heroNum.textContent = coinCounter; heroNum.classList.remove('pop'); void heroNum.offsetWidth; heroNum.classList.add('pop'); }
+  const topbar = document.getElementById('rewards-topbar-counter');
+  if (topbar) topbar.textContent = coinCounter;
+  // Rebuild episodes panel if open
+  if (document.getElementById('episodes-panel').classList.contains('open')) {
+    buildEpisodesGrid(SHOWS[currentShowId]);
+  }
+}
+
+function updateCoinTimer() {
+  coinTick++;
+  const filled = (coinTick / COIN_PERIOD) * circum;
+  arc.style.strokeDashoffset = circum - filled;
+  if (coinTick >= COIN_PERIOD) {
+    coinTick = 0;
+    arc.style.strokeDashoffset = circum;
+  }
+}
+// Passive coin timer removed — coins earned only through explicit actions
+
+/* ════════════════ MORE MENU ════════════════ */
+(function() {
+  let playbackSpeed = 1;
+  const menu = document.getElementById('more-menu');
+  const backdrop = document.getElementById('more-menu-backdrop');
+
+  document.getElementById('more-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.add('open');
+    backdrop.classList.add('open');
+  });
+
+  function closeMenu() {
+    menu.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+
+  backdrop.addEventListener('click', closeMenu);
+
+  document.querySelectorAll('.speed-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.speed-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      playbackSpeed = parseFloat(chip.dataset.speed);
+      const vid = document.getElementById('player-video');
+      vid.playbackRate = playbackSpeed;
+      setTimeout(closeMenu, 250);
+    });
+  });
+
+  document.getElementById('pip-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const vid = document.getElementById('player-video');
+    if (document.pictureInPictureEnabled && vid.requestPictureInPicture) {
+      vid.requestPictureInPicture().catch(() => {});
+    }
+    closeMenu();
+  });
+})();
+
+/* ════════════════ SHARE POPUP ════════════════ */
+(function() {
+  const popup    = document.getElementById('share-popup');
+  const closeBtn = document.getElementById('share-close');
+  const copyBtn  = document.getElementById('share-copy-btn');
+  const urlEl    = document.getElementById('share-url-text');
+
+  window.openSharePopup = function(url) {
+    urlEl.textContent = url;
+    popup.classList.add('open');
+    if (!document.getElementById('player').classList.contains('hidden')) {
+      document.getElementById('player-overlay').classList.add('overlay-hidden');
+      stopOverlayTimer();
+    }
+  };
+  function closeShare() {
+    popup.classList.remove('open');
+  }
+
+  document.getElementById('share-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const ep = currentEpisode || 1;
+    const showTitle = SHOWS[currentShowId]?.title.toLowerCase().replace(/\s+/g,'-') || 'episode';
+    window.openSharePopup(`microdrama.app/watch/${showTitle}/episode-${ep}`);
+  });
+  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeShare(); });
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) closeShare();
+  });
+  copyBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigator.clipboard?.writeText(urlEl.textContent).catch(()=>{});
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1800);
+  });
+})();
+
+/* ════════════════ SUBSCRIBE ONBOARDING POPUP ════════════════ */
+document.getElementById('subscribe-popup').addEventListener('click', e => e.stopPropagation());
+
+document.getElementById('subscribe-popup-close').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('subscribe-popup').classList.remove('open');
+  // Show notifications popup after short delay
+  setTimeout(() => {
+    document.getElementById('notif-popup').classList.add('open');
+  }, 400);
+});
+
+document.getElementById('subscribe-popup-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  pendingSubscribeReward = true;
+  document.getElementById('subscribe-popup').classList.remove('open');
+  // Navigate to VIP from player context
+  vipFromScreen = 'player';
+  document.getElementById('player').classList.add('hidden');
+  document.getElementById('vip').classList.remove('hidden');
+});
+
+/* ════════════════ NOTIFICATIONS ONBOARDING POPUP ════════════════ */
+document.getElementById('notif-popup').addEventListener('click', e => e.stopPropagation());
+
+function resumePlayerAfterOnboarding() {
+  const vid = document.getElementById('player-video');
+  vid.play().catch(() => {});
+  isPlaying = true;
+  setCenterIcon(true);
+  startProgress();
+  startOverlayTimer();
+}
+
+document.getElementById('notif-popup-close').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('notif-popup').classList.remove('open');
+  resumePlayerAfterOnboarding();
+});
+
+document.getElementById('notif-popup-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('notif-popup').classList.remove('open');
+  if (!notifEnabled) {
+    notifEnabled = true;
+    if (typeof Notification !== 'undefined') Notification.requestPermission().catch(() => {});
+    // Update rewards screen button state
+    const rNotifBtn = document.getElementById('rewards-notif-btn');
+    if (rNotifBtn) { rNotifBtn.textContent = '✓ Enabled'; rNotifBtn.classList.add('done'); }
+    resumePlayerAfterOnboarding();
+    setTimeout(() => rewardCoinsAnimated(30), 300);
+  } else {
+    resumePlayerAfterOnboarding();
+  }
+});
+
+/* ════════════════ REWARDS SCREEN ════════════════ */
+function openRewards(fromScreen) {
+  const from = fromScreen || 'home';
+  document.getElementById(from).classList.add('hidden');
+  document.getElementById('rewards').classList.remove('hidden');
+  // Sync counters
+  document.getElementById('rewards-hero-num').textContent = coinCounter;
+  document.getElementById('rewards-topbar-counter').textContent = coinCounter;
+  // Sync button states
+  if (vipUnlocked) {
+    const rSubBtn = document.getElementById('rewards-sub-btn');
+    rSubBtn.textContent = '✓ Subscribed'; rSubBtn.classList.add('done');
+  }
+  if (notifEnabled) {
+    const rNotifBtn = document.getElementById('rewards-notif-btn');
+    rNotifBtn.textContent = '✓ Enabled'; rNotifBtn.classList.add('done');
+  }
+}
+
+document.getElementById('home-reward-btn').addEventListener('click', () => openRewards('home'));
+document.getElementById('rewards-home-btn').addEventListener('click', () => {
+  document.getElementById('rewards').classList.add('hidden');
+  document.getElementById('home').classList.remove('hidden');
+  document.getElementById('home-reward-btn').closest('.bottom-nav').querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('home-nav-btn').classList.add('active');
+});
+document.getElementById('rewards-shorts-btn').addEventListener('click', () => {
+  document.getElementById('rewards').classList.add('hidden');
+  document.getElementById('home').classList.remove('hidden');
+  if (window._openShorts) window._openShorts();
+});
+
+// Rewards Ad button — show the real ad popup
+document.getElementById('rewards-ad-btn').addEventListener('click', () => {
+  const btn = document.getElementById('rewards-ad-btn');
+  if (btn.classList.contains('done')) return;
+  interstitialCallback = (andReward) => {
+    btn.textContent = '✓ Done';
+    btn.classList.add('done');
+    if (andReward) rewardCoinsAnimated(30);
+  };
+  // Skip offer state — go straight to playing
+  document.getElementById('ad-offer-state').style.display = 'none';
+  document.getElementById('ad-playing-state').style.display = 'block';
+  let secs = 5;
+  document.getElementById('ad-playing-countdown').textContent = secs;
+  document.getElementById('ad-popup').classList.add('open');
+  clearInterval(adInnerTimer);
+  adInnerTimer = setInterval(() => {
+    secs--;
+    document.getElementById('ad-playing-countdown').textContent = secs;
+    if (secs <= 0) closeAdPopup(true);
+  }, 1000);
+});
+
+// Rewards Subscribe button
+document.getElementById('rewards-sub-btn').addEventListener('click', () => {
+  const btn = document.getElementById('rewards-sub-btn');
+  if (btn.classList.contains('done')) return;
+  openVip('rewards');
+});
+
+// Rewards Notifications button
+document.getElementById('rewards-notif-btn').addEventListener('click', () => {
+  const btn = document.getElementById('rewards-notif-btn');
+  if (btn.classList.contains('done')) return;
+  if (!notifEnabled) {
+    notifEnabled = true;
+    if (typeof Notification !== 'undefined') Notification.requestPermission().catch(() => {});
+    btn.textContent = '✓ Enabled';
+    btn.classList.add('done');
+    rewardCoinsAnimated(30);
+  }
+});
+
+/* ════════════════ DAILY LOGIN BONUS ════════════════ */
+(function() {
+  const KEY = 'md_last_login';
+  const today = new Date().toDateString();
+  const last = localStorage.getItem(KEY);
+  localStorage.setItem(KEY, today);
+  if (last && last !== today) {
+    setTimeout(() => {
+      addCoins(15);
+      const toast = document.getElementById('daily-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }, 1400);
+  }
+})();
+
+/* ════════════════ PUSH NOTIFICATION BANNERS ════════════════ */
+(function() {
+  const banners = [
+    { icon:'🎬', title:'New Episodes Available', body:'Fresh episodes just dropped — don\'t miss out!' },
+    { icon:'🔔', title:'Never Miss an Episode', body:'Set a reminder so you\'re always first to watch.' },
+    { icon:'coin-svg', title:'Claim Your Daily Reward', body:'Open every day to earn coins and unlock more content.' },
+  ];
+  const container = document.getElementById('notif-banner-container');
+
+  const coinIconSvg = `<svg viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0"><circle cx="12" cy="12" r="9" fill="#c8860a"/><circle cx="12" cy="12" r="6.5" fill="#d4af37"/><text x="12" y="16" text-anchor="middle" font-size="9" font-weight="900" fill="#7a4800">$</text></svg>`;
+
+  function showBanner(data, delay) {
+    setTimeout(() => {
+      const icon = data.icon === 'coin-svg' ? coinIconSvg : `<div style="font-size:22px;flex-shrink:0;line-height:1">${data.icon}</div>`;
+      const el = document.createElement('div');
+      el.className = 'notif-banner';
+      el.innerHTML = `
+        ${icon}
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">${data.title}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5)">${data.body}</div>
+        </div>`;
+      container.appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+      setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 400);
+      }, 3200);
+    }, delay);
+  }
+
+  banners.forEach((b, i) => showBanner(b, 1500 + i * 3500));
+})();
+
+/* ════════════════ STOP PROPAGATION ════════════════ */
+['like-btn','save-btn','back-btn','center-play','coin-btn','ep-info-row'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', e => e.stopPropagation());
+});
+</script>
+</body>
+</html>
