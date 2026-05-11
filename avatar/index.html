@@ -41,9 +41,9 @@ body { font-family: 'Poppins', sans-serif; background: #0d0d0d; color: #fff; ove
 .nav-logo { flex-shrink: 0; display: flex; align-items: center; }
 .nav-logo img { width: 52px; height: 52px; display: block; object-fit: contain; }
 .nav-links { display: flex; gap: 48px; margin-left: 40px; }
-.nav-links a { text-decoration: none; color: var(--gray); font-size: 18px; font-weight: 400; transition: color .2s; }
+.nav-links a { text-decoration: none; color: var(--gray); font-size: 18px; font-weight: 400; transition: color .2s, border-color .2s; border-bottom: 2px solid transparent; padding-bottom: 2px; }
 .nav-links a.active { color: var(--blue); font-weight: 600; }
-.nav-links a:hover { color: #fff; }
+.nav-links a:hover { color: #fff; border-bottom-color: var(--blue); }
 .nav-right { display: flex; align-items: center; gap: 20px; flex-shrink: 0; margin-left: auto; }
 .nav-ai-btn {
   width: 32px; height: 32px; border-radius: 50%;
