@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Avatar – Content Discovery Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: #0d0d0d; color: #fff; overflow-x: hidden; }
+
+/* ── Tokens ── */
+:root {
+  --blue: #1cbed5;
+  --bg:   #1c1c1c;
+  --gray: #cacaca;
+  --card-radius: 12px;
+}
+
+/* ── Screens ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ═══════════════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════════════ */
+.top-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  display: flex; align-items: center;
+  padding: 22px 40px;
+  background: linear-gradient(to bottom,
+    rgba(13,13,13,.85) 0%,
+    rgba(13,13,13,.45) 65%,
+    transparent 100%);
+  transition: background .3s ease;
+}
+.top-nav.nav-scrolled {
+  background: rgba(13,13,13,.97) !important;
+}
+.nav-logo { flex-shrink: 0; display: flex; align-items: center; }
+.nav-logo img { width: 52px; height: 52px; display: block; object-fit: contain; }
+.nav-links { display: flex; gap: 48px; margin-left: 40px; }
+.nav-links a { text-decoration: none; color: var(--gray); font-size: 18px; font-weight: 400; transition: color .2s; }
+.nav-links a.active { color: var(--blue); font-weight: 600; }
+.nav-links a:hover { color: #fff; }
+.nav-right { display: flex; align-items: center; gap: 20px; flex-shrink: 0; margin-left: auto; }
+.nav-ai-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: transparent;
+  border: none; color: #fff; font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.nav-ai-btn:hover { transform: scale(1.12); box-shadow: 0 0 12px rgba(28,190,213,.5); }
+.nav-search-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: transparent; border: none; color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s;
+}
+.nav-search-btn:hover { transform: scale(1.12); }
+.nav-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; border: 2px solid rgba(255,255,255,.18); cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════
+   HERO – Kingdom of the Planet of the Apes
+═══════════════════════════════════════════════ */
+.hero-section {
+  position: relative; width: 100%; height: calc(100vh - 160px); min-height: 520px;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    url('https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=1920&q=80')
+    center / cover no-repeat;
+}
+.hero-gradient-left {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(13,13,13,.92) 0%, rgba(13,13,13,.6) 40%, transparent 65%);
+}
+.hero-gradient-bottom {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 55%;
+  background: linear-gradient(to top, #0d0d0d 0%, rgba(13,13,13,.7) 50%, transparent 100%);
+}
+.hero-content {
+  position: absolute; left: 63px; bottom: 120px; max-width: 640px;
+}
+.hero-title {
+  font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 40px;
+  line-height: 1.2; letter-spacing: .8px; margin-bottom: 14px;
+  text-transform: capitalize;
+}
+.hero-infobar {
+  display: flex; align-items: center; gap: 20px; margin-bottom: 18px;
+  font-size: 15px; color: var(--gray);
+}
+.hero-rating { display: flex; align-items: center; gap: 5px; }
+.hero-rating svg { width: 18px; height: 18px; fill: #f59e0b; }
+.hero-rating span { font-size: 18px; font-weight: 500; color: #fff; }
+.badge-hd {
+  border: 1px solid rgba(255,255,255,.6); border-radius: 4px;
+  padding: 1px 7px; font-size: 12px; color: #fff; font-weight: 600; letter-spacing: .5px;
+}
+.hero-desc {
+  font-size: 17px; line-height: 1.7; color: rgba(255,255,255,.8);
+  margin-bottom: 28px; max-width: 580px;
+}
+.hero-actions { display: flex; gap: 14px; }
+.btn-watch {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--blue); border: none; border-radius: 999px;
+  color: #fff; font-family: 'Poppins', sans-serif; font-weight: 700;
+  font-size: 15px; padding: 14px 30px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .6px;
+  backdrop-filter: blur(15px);
+  transition: background .2s, transform .15s;
+}
+.btn-watch:hover { background: #18a8bd; transform: scale(1.02); }
+.btn-info {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px; color: #fff; font-family: 'Poppins', sans-serif;
+  font-weight: 600; font-size: 15px; padding: 13px 28px; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .5px;
+  transition: background .2s;
+}
+.btn-info:hover { background: rgba(255,255,255,.2); }
+
+/* ═══════════════════════════════════════════════
+   RAILS WRAPPER
+═══════════════════════════════════════════════ */
+.rails-wrapper {
+  background: linear-gradient(to bottom, #0d0d0d 0%, var(--bg) 8%);
+  padding: 0 0 60px;
+}
+.rail-section { padding: 0 60px; margin-bottom: 40px; position: relative; overflow: visible; }
+.rail-title {
+  font-family: 'Open Sans', 'Poppins', sans-serif; font-weight: 400;
+  font-size: 26px; color: #fff; margin-bottom: 16px;
+  letter-spacing: .3px;
+}
+
+/* ── Scroll row ── */
+.rail-row {
+  display: flex; gap: 8px;
+  overflow-x: auto; overflow-y: visible;
+  scrollbar-width: none;
+  padding-top: 200px; padding-bottom: 200px;
+  margin-top: -200px; margin-bottom: -200px;
+}
+.rail-row::-webkit-scrollbar { display: none; }
+/* First card expands rightward only — prevents left-edge clipping */
+.rail-row > *:first-child:hover { transform-origin: left center; }
+.rail-top10 .top10-item:first-child:hover .top10-card { transform-origin: left center; }
+.app-circles-row > *:first-child:hover { transform-origin: left center; }
+
+/* ═══════════════════════════════════════════════
+   RAIL TYPE 1 – Channels (217×127)
+═══════════════════════════════════════════════ */
+.card-landscape {
+  flex-shrink: 0; width: 217px; cursor: pointer;
+  transition: transform .25s ease, z-index 0s; background: transparent;
+  position: relative;
+}
+.card-landscape:hover { transform: scale(1.2); z-index: 20; }
+.card-landscape .card-img-wrap {
+  width: 217px; height: 127px; border-radius: var(--card-radius); overflow: hidden;
+  position: relative;
+}
+.card-landscape .card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.card-landscape .card-img-wrap .overlay-dim {
+  position: absolute; inset: 0; background: rgba(0,0,0,.45); border-radius: var(--card-radius);
+}
+.card-landscape .channel-logo {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+.card-landscape .channel-logo .logo-badge {
+  padding: 5px 12px; border-radius: 6px;
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px;
+  letter-spacing: 1px; white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,.6);
+}
+.card-landscape .card-info { padding: 8px 4px 0; }
+.card-landscape .card-info .card-title {
+  font-size: 16px; font-weight: 500; line-height: 1.42; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.card-landscape .card-info .card-sub {
+  font-size: 14px; color: var(--gray); font-weight: 400;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-sub { display: none; }
+
+/* ═══════════════════════════════════════════════
+   RAIL TYPE 5 – Best Series (292×165 landscape)
+═══════════════════════════════════════════════ */
+.card-series {
+  flex-shrink: 0; width: 292px; cursor: pointer;
+  transition: transform .25s ease; position: relative;
+}
+.card-series:hover { transform: scale(1.2); z-index: 20; }
+.card-series .card-img-wrap {
+  position: relative; width: 292px; height: 165px;
+  border-radius: var(--card-radius); overflow: hidden;
+}
+.card-series .card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.card-series .card-info { padding: 8px 8px 0 8px; }
+.card-series .card-title { font-size: 16px; font-weight: 500; line-height: 1.42; }
+.card-series .card-sub   { font-size: 14px; color: var(--gray); font-weight: 400; margin-top: 2px; }
+
+/* ═══════════════════════════════════════════════
+   RAIL TYPE 2 – Continue Watching (292×165)
+═══════════════════════════════════════════════ */
+.card-continue {
+  flex-shrink: 0; width: 292px; cursor: pointer;
+  transition: transform .25s ease; position: relative;
+}
+.card-continue:hover { transform: scale(1.2); z-index: 20; }
+.card-continue .card-img-wrap {
+  position: relative; width: 292px; height: 165px;
+  border-radius: var(--card-radius); overflow: hidden;
+}
+.card-continue .card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.card-continue .progress-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 28px;
+  background: linear-gradient(to top, rgba(36,37,64,.7) 0%, rgba(36,37,64,0) 100%);
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+  display: flex; align-items: center; padding: 0 16px;
+}
+.card-continue .progress-bar-bg {
+  width: 100%; height: 4px; background: rgba(255,255,255,.3);
+  border-radius: 7px; overflow: hidden;
+}
+.card-continue .progress-bar-fill {
+  height: 100%; background: #fff; border-radius: 7px;
+}
+.card-continue .card-info { padding: 8px 8px 0 8px; }
+.card-continue .card-title { font-size: 16px; font-weight: 500; line-height: 1.42; }
+
+/* ═══════════════════════════════════════════════
+   RAIL TYPE 3 – Top 10
+═══════════════════════════════════════════════ */
+.rail-top10 { overflow-x: auto; overflow-y: visible; display: flex; gap: 0; scrollbar-width: none; padding-top: 200px; padding-bottom: 200px; margin-top: -200px; margin-bottom: -200px; }
+.rail-top10::-webkit-scrollbar { display: none; }
+.top10-item {
+  flex-shrink: 0; position: relative;
+  width: 240px; height: 350px; cursor: pointer;
+}
+.top10-item:first-child { width: 220px; }
+.top10-item:hover .top10-card { transform: scale(1.2); z-index: 20; }
+.top10-number {
+  position: absolute; left: 0; bottom: 32px;
+  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-size: 220px; line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 4px rgba(255,255,255,.2);
+  user-select: none; z-index: 1;
+}
+.top10-item.double-digit .top10-number { font-size: 180px; }
+.top10-card {
+  position: absolute; right: 4px; top: 0;
+  width: 154px; z-index: 2;
+  transition: transform .2s;
+  box-shadow: 0 30px 40px rgba(0,0,0,.8);
+  border-radius: var(--card-radius); overflow: hidden;
+}
+.top10-card img { width: 154px; height: 232px; object-fit: cover; display: block; }
+.top10-card-title {
+  padding: 8px 8px 4px;
+  font-size: 13px; font-weight: 500; line-height: 1.4;
+  background: #1e1e1e;
+}
+
+/* ═══════════════════════════════════════════════
+   RAIL TYPE 4 – Portrait Cards
+═══════════════════════════════════════════════ */
+.card-portrait {
+  flex-shrink: 0; width: 217px; cursor: pointer;
+  transition: transform .25s ease; position: relative;
+}
+.card-portrait:hover { transform: scale(1.2); z-index: 20; }
+.card-portrait .card-img-wrap {
+  width: 217px; height: 323px; border-radius: var(--card-radius); overflow: hidden;
+}
+.card-portrait .card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.card-portrait .card-info {
+  padding: 8px 4px 0;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.card-portrait .card-title {
+  font-size: 16px; font-weight: 500; line-height: 1.42;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-portrait .card-sub {
+  font-size: 14px; color: var(--gray); font-weight: 400;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ═══════════════════════════════════════════════
+   ESELF AVATAR — dark-theme overrides
+═══════════════════════════════════════════════ */
+/* Thumbnail widget (shown after closing conversation) */
+.eself-widget-container {
+  background: #0d1117 !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(28,188,213,.45) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.7), 0 0 0 1px rgba(28,188,213,.1) !important;
+  border-radius: 20px !important;
+  top: auto !important;
+  bottom: 20px !important;
+  right: 20px !important;
+}
+.eself-widget-container .talk-to-the { color: #fff !important; }
+.eself-widget-container .first-ai-powered-agent { color: var(--blue) !important; }
+/* Conversation panel */
+.iframe-container { z-index: 9001 !important; }
+.iframe-box {
+  background: #0a0f1e !important;
+  border: 1.5px solid rgba(28,188,213,.3) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.85) !important;
+}
+#eself-iframe { border-radius: 18px !important; }
+
+/* ═══════════════════════════════════════════════
+   FULLSCREEN PLAYER
+═══════════════════════════════════════════════ */
+#player-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: #000;
+  display: none; align-items: center; justify-content: center;
+}
+#player-overlay.visible { display: flex; }
+.player-bg-blur {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.35; filter: blur(28px);
+  pointer-events: none;
+}
+.player-close-btn {
+  position: absolute; top: 24px; right: 28px; z-index: 5;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.player-close-btn:hover { background: rgba(255,255,255,.3); }
+.player-stage {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 32px;
+  width: 100%; max-width: 860px; padding: 0 48px;
+}
+.player-info { text-align: center; }
+.player-name { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.player-meta { font-size: 15px; color: rgba(255,255,255,.55); }
+.player-play-btn {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.5);
+  color: #fff; font-size: 30px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .15s;
+}
+.player-play-btn:hover { background: rgba(255,255,255,.32); transform: scale(1.06); }
+.player-controls { width: 100%; }
+.player-timestamps {
+  display: flex; justify-content: space-between;
+  color: rgba(255,255,255,.45); font-size: 13px; margin-bottom: 8px;
+}
+.player-track {
+  width: 100%; height: 4px; background: rgba(255,255,255,.2);
+  border-radius: 2px; cursor: pointer;
+}
+.player-fill {
+  height: 100%; background: #fff; border-radius: 2px;
+  transition: width .4s; pointer-events: none;
+}
+
+/* Voice transcript overlay */
+.voice-transcript-overlay {
+  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+  max-width: 640px; width: max-content;
+  background: rgba(0,0,0,.78); backdrop-filter: blur(6px);
+  color: #fff; font-size: 17px; line-height: 1.4;
+  padding: 12px 22px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  z-index: 500; display: none; text-align: center;
+  pointer-events: none;
+  animation: fadeInUp .2s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.avatar-panel-top {
+  padding: 56px 28px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  flex: 1;
+}
+
+.avatar-sparkle {
+  font-size: 26px; letter-spacing: -2px;
+  color: rgba(255,255,255,.85);
+}
+
+.avatar-question {
+  font-family: 'Lato', sans-serif; font-weight: 700;
+  font-size: 28px; line-height: 1.15;
+  text-align: center; color: #fff;
+  width: 300px;
+}
+
+.avatar-options { display: flex; flex-direction: column; gap: 10px; width: 340px; }
+.avatar-option-pill {
+  width: 100%; padding: 12px 16px;
+  border: 1px solid rgba(189,189,189,.7);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff; font-family: 'Lato', sans-serif; font-weight: 700;
+  font-size: 14px; text-align: left; cursor: pointer;
+  transition: background .2s, border-color .2s, transform .1s;
+  line-height: 21px;
+}
+.avatar-option-pill:hover {
+  background: rgba(255,255,255,.08);
+  border-color: var(--blue);
+  transform: translateX(3px);
+}
+
+/* Mood pills – 3 vertical options */
+.avatar-mood-list { display: flex; flex-direction: column; gap: 10px; width: 340px; }
+.avatar-mood-pill {
+  padding: 14px 18px; border: 1px solid rgba(189,189,189,.5);
+  border-radius: 10px; background: transparent;
+  color: #fff; font-family: 'Lato', sans-serif; font-weight: 700; font-size: 14px;
+  cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 12px;
+  transition: background .2s, border-color .2s, transform .1s;
+}
+.avatar-mood-pill .mood-em { font-size: 20px; flex-shrink: 0; }
+.avatar-mood-pill:hover { background: rgba(28,190,213,.15); border-color: var(--blue); transform: translateX(3px); }
+
+.avatar-mood-intro {
+  font-family: 'Lato', sans-serif; font-weight: 400;
+  font-size: 13px; color: rgba(255,255,255,.5);
+  text-align: center; width: 280px;
+}
+
+.avatar-photo-wrap {
+  display: flex; justify-content: center;
+  flex-shrink: 0; margin-top: auto;
+  padding: 0 40px 40px;
+}
+.avatar-photo-wrap img {
+  width: 240px; height: 280px; object-fit: cover; object-position: top;
+  border-radius: 12px;
+  box-shadow: -4px -4px 8px 8px rgba(0,0,0,.4);
+  display: block; flex-shrink: 0;
+}
+
+/* Collapsed bubble */
+.avatar-bubble-btn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 360;
+  width: 96px; height: 96px; border-radius: 50%;
+  background: #18141e;
+  border: 2px solid rgba(28,190,213,.6);
+  cursor: pointer; padding: 0;
+  display: none; align-items: center; justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px rgba(28,190,213,.25), 0 8px 24px rgba(0,0,0,.6);
+  animation: pulse 2.5s infinite;
+  transition: transform .2s;
+}
+.avatar-bubble-btn img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.avatar-bubble-btn:hover { transform: scale(1.08); }
+.avatar-bubble-btn.visible { display: flex; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(28,190,213,.35), 0 8px 24px rgba(0,0,0,.5); }
+  50%       { box-shadow: 0 0 0 9px rgba(28,190,213,.1),  0 8px 24px rgba(0,0,0,.5); }
+}
+
+/* ═══════════════════════════════════════════════
+   DETAILS OVERLAY (popup layer)
+═══════════════════════════════════════════════ */
+#details-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(20, 20, 20, 0.85);
+  display: none;
+}
+#details-overlay.visible { display: block; }
+
+.det-panel {
+  position: absolute; top: 0; bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 850px; background: #1c1c1c;
+  overflow-y: auto;
+  scrollbar-width: none; -ms-overflow-style: none;
+  box-shadow: 0 0 80px rgba(0,0,0,.9);
+}
+.det-panel::-webkit-scrollbar { display: none; }
+
+.det-close {
+  position: absolute; top: 20px; right: 20px; z-index: 10;
+  width: 34px; height: 34px;
+  background: rgba(0,0,0,.55); border: none; border-radius: 50%;
+  color: rgba(255,255,255,.85); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.det-close:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+.det-hero {
+  width: 100%; height: 420px;
+  object-fit: cover; object-position: center top;
+  display: block;
+}
+
+.det-info { padding: 28px 40px 0; }
+
+.det-title {
+  font-size: 38px; font-weight: 700; color: #fff;
+  margin-bottom: 12px; line-height: 1.1;
+}
+
+.det-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 13px; color: rgba(255,255,255,.7);
+  margin-bottom: 20px;
+}
+.det-meta-sep { color: rgba(255,255,255,.3); }
+.det-badge {
+  border: 1px solid rgba(255,255,255,.55); border-radius: 4px;
+  padding: 1px 6px; font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.75); line-height: 18px;
+}
+
+.det-btns { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.det-btn-play {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 22px; border-radius: 6px;
+  background: var(--blue); border: none;
+  color: #fff; font-family: 'Poppins', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background .2s;
+}
+.det-btn-play:hover { background: #17a7bd; }
+.det-btn-outline {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: 6px;
+  background: transparent; border: 1px solid rgba(255,255,255,.4);
+  color: #fff; font-family: 'Poppins', sans-serif;
+  font-size: 13px; cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.det-btn-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); }
+
+.det-synopsis {
+  font-size: 13px; line-height: 1.75;
+  color: rgba(255,255,255,.72);
+  margin-bottom: 16px;
+}
+
+.det-credit { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 5px; }
+.det-credit strong { color: #fff; font-weight: 600; }
+
+.det-tabs-bar {
+  display: flex; gap: 0; margin-top: 28px;
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 0 40px;
+}
+.det-tab {
+  font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,.45);
+  padding: 14px 0; margin-right: 32px;
+  border: none; border-bottom: 2px solid transparent;
+  background: none; cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: color .2s;
+}
+.det-tab.active { color: #fff; border-bottom-color: var(--blue); }
+.det-tab:hover:not(.active) { color: rgba(255,255,255,.7); }
+
+.det-tab-body { padding: 24px 40px 60px; }
+
+.det-related-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.det-rel-card { width: 230px; cursor: pointer; }
+.det-rel-card img {
+  width: 230px; height: 130px;
+  object-fit: cover; border-radius: 8px; display: block;
+  transition: opacity .15s;
+}
+.det-rel-card:hover img { opacity: .8; }
+.det-rel-title {
+  font-size: 12px; color: rgba(255,255,255,.8);
+  margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.det-rel-sub {
+  font-size: 11px; color: rgba(255,255,255,.4);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   GRID PAGE
+═══════════════════════════════════════════════ */
+/* ── Grid Page ── */
+#screen-grid { background: #0d0d0d; min-height: 100vh; }
+.grid-body { padding: 100px 48px 16px; overflow: visible; }
+.grid-page-title { font-size: 30px; font-weight: 400; color: #fff; margin-bottom: 4px; }
+.grid-page-sub { display: none; }
+.grid-rail-section { margin-bottom: 32px; overflow: visible; position: relative; }
+.g-section-label { display: none; }
+.grid-rail-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 16px; overflow: visible; }
+
+/* Portrait card */
+.p-card { position: relative; cursor: pointer; z-index: 1; }
+.p-card:hover, .p-card.avatar-pick { z-index: 20; }
+.p-card-thumb { width: 100%; height: 288px; border-radius: 10px; object-fit: cover; display: block; transition: opacity .18s; }
+.p-card:hover .p-card-thumb, .p-card.avatar-pick .p-card-thumb { opacity: 0; }
+.p-card-label { margin-top: 8px; font-size: 13px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.p-card-sub-label { font-size: 11px; color: rgba(255,255,255,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin-top: 2px; }
+
+/* Hover / avatar-promoted expanded card — Figma 523×568px scaled ×0.85 */
+.p-card-hover { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 445px; background: #2a2a2a; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,.9); z-index: 30; overflow: hidden; }
+.p-card:hover .p-card-hover, .p-card.avatar-pick .p-card-hover { display: block; }
+.grid-rail-row > .p-card:first-child .p-card-hover { left: 0; transform: translateY(-50%); }
+.grid-rail-row > .p-card:last-child .p-card-hover { left: auto; right: 0; transform: translateY(-50%); }
+.p-hover-img-wrap { position: relative; width: 100%; height: 250px; overflow: hidden; }
+.p-hover-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.p-hover-scanline { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px); animation: scanMove 8s linear infinite; }
+.p-hover-trailer-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 27px 14px 10px; background: linear-gradient(to top, rgba(0,0,0,.88), transparent); }
+.p-hover-trailer-badge { font-size: 9px; font-weight: 800; letter-spacing: 1px; background: var(--blue); color: #fff; padding: 3px 9px; border-radius: 3px; margin-bottom: 5px; display: inline-block; animation: livePulse 1.5s ease-in-out infinite; }
+.p-hover-prog-bg { width: 100%; height: 3px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; }
+.p-hover-prog-fill { height: 100%; width: 35%; background: var(--blue); border-radius: 999px; animation: trailerFill 90s linear forwards; }
+.p-hover-info { padding: 20px; }
+.p-hover-title { font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 9px; line-height: 1.2; }
+.p-hover-meta { display: flex; align-items: center; gap: 9px; font-size: 12px; color: rgba(255,255,255,.65); margin-bottom: 12px; flex-wrap: wrap; }
+.p-hover-age { border: 1.5px solid rgba(255,255,255,.65); border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.p-hover-stars { display: flex; align-items: center; gap: 5px; margin-bottom: 12px; }
+.p-hover-star { color: #f5a623; font-size: 17px; }
+.p-hover-rating { font-size: 17px; font-weight: 600; color: #fff; }
+.p-hover-synopsis { font-size: 11px; color: rgba(255,255,255,.72); line-height: 1.55; margin-bottom: 17px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.p-hover-btns { display: flex; gap: 10px; align-items: center; }
+.p-hover-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,.6); background: transparent; color: #fff; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, border-color .15s; }
+.p-hover-btn.play { background: #fff; color: #000; border-color: #fff; font-size: 12px; font-weight: 700; }
+.p-hover-btn.info-btn { font-size: 15px; font-style: italic; font-family: 'Lato', serif; font-weight: 700; }
+.p-hover-btn:not(.play):hover { border-color: #fff; background: rgba(255,255,255,.15); }
+.p-hover-btn.play:hover { background: rgba(255,255,255,.85); }
+
+/* ── Grid avatar panel (Figma-matched, right side) ── */
+#grp-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 382px;
+  background: rgba(0,0,0,0.85); z-index: 50;
+  display: none; flex-direction: column; align-items: stretch;
+}
+#grp-panel.visible { display: flex; }
+.grp-close-x {
+  position: absolute; top: 22px; right: 24px;
+  background: none; border: none; color: rgba(255,255,255,.6);
+  font-size: 18px; cursor: pointer; transition: color .2s; z-index: 2;
+}
+.grp-close-x:hover { color: #fff; }
+.grp-top-section {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 64px 32px 24px;
+}
+.grp-sparkle-icon { font-size: 22px; color: #fff; margin-bottom: 18px; }
+.grp-question-text {
+  font-family: 'Lato', sans-serif; font-size: 28px; font-weight: 700;
+  color: #fff; text-align: center; line-height: 1.25; margin-bottom: 28px;
+}
+.grp-pill {
+  width: 100%; padding: 12px 16px; margin-bottom: 10px;
+  border: 1px solid rgba(189,189,189,.55); border-radius: 8px;
+  background: transparent; color: #fff;
+  font-family: 'Lato', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; text-align: left; transition: background .2s, border-color .2s;
+}
+.grp-pill:hover { background: rgba(28,190,213,.15); border-color: var(--blue); }
+.grp-photo-wrap { padding: 0 40px 40px; display: flex; justify-content: center; }
+.grp-avatar-photo { width: 240px; height: 280px; border-radius: 12px; overflow: hidden; box-shadow: -4px -4px 16px rgba(0,0,0,.5); }
+.grp-avatar-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: rgba(28,190,213,.95); color: #fff;
+  padding: 12px 26px; border-radius: 999px;
+  font-size: 14px; font-weight: 600;
+  z-index: 300; opacity: 0; pointer-events: none;
+  transition: opacity .3s; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── Animations ── */
+.fade-in { animation: fadeIn .4s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.slide-up { animation: slideUp .32s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Settings button ── */
+.nav-settings-btn { width:32px;height:32px;border-radius:50%;background:transparent;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s; }
+.nav-settings-btn:hover { transform:scale(1.12); }
+
+/* ── Premium+ App circles ── */
+.app-circles-row { display:flex; gap:24px; overflow-x:auto; scrollbar-width:none; padding:200px 60px; margin-top:-200px; margin-bottom:-200px; }
+.app-circles-row::-webkit-scrollbar { display:none; }
+.app-circle { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:transform .25s ease; position:relative; }
+.app-circle:hover { transform:scale(1.2); z-index:20; }
+.app-circle-img { width:269px; height:269px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; font-weight:700; font-size:36px; letter-spacing:.5px; text-align:center; color:#fff; }
+.app-circle-name { font-size:13px; color:rgba(255,255,255,.7); text-align:center; }
+
+/* Solid top nav for pages without hero */
+.top-nav-solid {
+  background: #0d0d0d;
+  position: relative;
+}
+/* Page wrapper with top padding for pages without hero */
+.page-rails-wrapper {
+  padding-top: 100px;
+  background: #0d0d0d;
+  min-height: 100vh;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN — HOME
+══════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+
+  <!-- Hero -->
+  <section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-gradient-left"></div>
+    <div class="hero-gradient-bottom"></div>
+
+    <!-- Top Nav -->
+    <nav class="top-nav">
+      <div class="nav-logo">
+        <img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" />
+      </div>
+      <div class="nav-links">
+        <a href="#" class="active" onclick="goHome();return false;">Home</a>
+        <a href="#" onclick="goLive();return false;">Live</a>
+        <a href="#" onclick="goKids();return false;">Kids</a>
+        <a href="#" onclick="goSport();return false;">Sport</a>
+        <a href="#" onclick="goPremium();return false;">Premium+</a>
+      </div>
+      <div class="nav-right">
+        <button class="nav-ai-btn" onclick="expandAvatarPanel()" title="AI Genie">
+          <img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" />
+        </button>
+        <button class="nav-search-btn" title="Search">
+          <img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" />
+        </button>
+        <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <div class="hero-content fade-in">
+      <h1 class="hero-title">Kingdom of the Planet<br>of the Apes</h1>
+      <div class="hero-infobar">
+        <span>2024 · Drama, Super hero</span>
+        <div class="hero-rating">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>8.8</span>
+        </div>
+        <span class="badge-hd">HD</span>
+      </div>
+      <p class="hero-desc">
+        Kingdom of the Planet of the Apes is an upcoming American science fiction
+        action film. It serves as the sequel to War for the Planet of the Apes.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-watch" onclick="showToast('▶ Playing Kingdom of the Planet of the Apes…')">
+          ▶ Watch Now
+        </button>
+        <button class="btn-info" onclick="showToast('Opening details…')">
+          ℹ More Info
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rails -->
+  <div class="rails-wrapper">
+
+    <div class="rail-section">
+      <p class="rail-title">Channels</p>
+      <div class="rail-row" id="rail-landscape"></div>
+    </div>
+
+    <div class="rail-section">
+      <p class="rail-title">Continue Watching</p>
+      <div class="rail-row" id="rail-continue"></div>
+    </div>
+
+    <div class="rail-section">
+      <p class="rail-title">My List</p>
+      <div class="rail-row" id="rail-mylist"></div>
+    </div>
+
+    <div class="rail-section">
+      <p class="rail-title">Top 10 Popular Movies</p>
+      <div class="rail-top10" id="rail-top10"></div>
+    </div>
+
+    <div class="rail-section">
+      <p class="rail-title">Best Series</p>
+      <div class="rail-row" id="rail-series"></div>
+    </div>
+
+  </div>
+</div><!-- /screen-home -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — LIVE
+══════════════════════════════════════ -->
+<div id="screen-live" class="screen">
+  <nav class="top-nav top-nav-solid">
+    <div class="nav-logo">
+      <img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" />
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="goHome();return false;">Home</a>
+      <a href="#" class="active" onclick="return false;">Live</a>
+      <a href="#" onclick="goKids();return false;">Kids</a>
+      <a href="#" onclick="goSport();return false;">Sport</a>
+      <a href="#" onclick="goPremium();return false;">Premium+</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-ai-btn" onclick="showToast('AI Genie…')" title="AI Genie"><img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" /></button>
+      <button class="nav-search-btn" title="Search"><img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" /></button>
+      <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </nav>
+  <div class="page-rails-wrapper">
+    <div class="rail-section"><p class="rail-title">Channels</p><div class="rail-row" id="live-channels"></div></div>
+    <div class="rail-section"><p class="rail-title">Kids Channels</p><div class="rail-row" id="live-kids-channels"></div></div>
+    <div class="rail-section"><p class="rail-title">Sport Channels</p><div class="rail-row" id="live-sport-channels"></div></div>
+    <div class="rail-section"><p class="rail-title">Local Channels</p><div class="rail-row" id="live-local-channels"></div></div>
+  </div>
+</div><!-- /screen-live -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — KIDS
+══════════════════════════════════════ -->
+<div id="screen-kids" class="screen">
+  <section class="hero-section">
+    <div class="hero-bg" style="background-image:url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=1920&q=80');background-size:cover;background-position:center;"></div>
+    <div class="hero-gradient-left"></div>
+    <div class="hero-gradient-bottom"></div>
+    <nav class="top-nav">
+      <div class="nav-logo"><img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" /></div>
+      <div class="nav-links">
+        <a href="#" onclick="goHome();return false;">Home</a>
+        <a href="#" onclick="goLive();return false;">Live</a>
+        <a href="#" class="active" onclick="return false;">Kids</a>
+        <a href="#" onclick="goSport();return false;">Sport</a>
+        <a href="#" onclick="goPremium();return false;">Premium+</a>
+      </div>
+      <div class="nav-right">
+        <button class="nav-ai-btn" onclick="showToast('AI Genie…')" title="AI Genie"><img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" /></button>
+        <button class="nav-search-btn" title="Search"><img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" /></button>
+        <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      </div>
+    </nav>
+    <div class="hero-content fade-in">
+      <h1 class="hero-title">The Lion King</h1>
+      <div class="hero-infobar"><span>2019 · Adventure, Family</span><div class="hero-rating"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>8.0</span></div><span class="badge-hd">HD</span></div>
+      <p class="hero-desc">Simba idolises his father, King Mufasa, and takes to heart his own royal destiny. But not everyone in the kingdom celebrates the new heir's arrival.</p>
+      <div class="hero-actions"><button class="btn-watch" onclick="showToast('▶ Playing The Lion King…')">▶ Watch Now</button><button class="btn-info" onclick="showToast('Opening details…')">ℹ More Info</button></div>
+    </div>
+  </section>
+  <div class="rails-wrapper">
+    <div class="rail-section"><p class="rail-title">Kids Categories</p><div class="rail-row" id="kids-categories"></div></div>
+    <div class="rail-section"><p class="rail-title">Kids Channels</p><div class="rail-row" id="kids-channels"></div></div>
+    <div class="rail-section"><p class="rail-title">Gems for You</p><div class="rail-row" id="kids-gems"></div></div>
+    <div class="rail-section"><p class="rail-title">Cute Movies</p><div class="rail-row" id="kids-cute"></div></div>
+  </div>
+</div><!-- /screen-kids -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — SPORT
+══════════════════════════════════════ -->
+<div id="screen-sport" class="screen">
+  <section class="hero-section">
+    <div class="hero-bg" style="background-image:url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80');background-size:cover;background-position:center;"></div>
+    <div class="hero-gradient-left"></div>
+    <div class="hero-gradient-bottom"></div>
+    <nav class="top-nav">
+      <div class="nav-logo"><img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" /></div>
+      <div class="nav-links">
+        <a href="#" onclick="goHome();return false;">Home</a>
+        <a href="#" onclick="goLive();return false;">Live</a>
+        <a href="#" onclick="goKids();return false;">Kids</a>
+        <a href="#" class="active" onclick="return false;">Sport</a>
+        <a href="#" onclick="goPremium();return false;">Premium+</a>
+      </div>
+      <div class="nav-right">
+        <button class="nav-ai-btn" onclick="showToast('AI Genie…')" title="AI Genie"><img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" /></button>
+        <button class="nav-search-btn" title="Search"><img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" /></button>
+        <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      </div>
+    </nav>
+    <div class="hero-content fade-in">
+      <h1 class="hero-title">UEFA Champions<br>League Final</h1>
+      <div class="hero-infobar"><span>Live · Football</span><div class="hero-rating"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>9.5</span></div><span class="badge-hd">4K</span></div>
+      <p class="hero-desc">The biggest club match in European football. Watch every tackle, goal and moment of brilliance live.</p>
+      <div class="hero-actions"><button class="btn-watch" onclick="showToast('▶ Watching Live…')">▶ Watch Live</button><button class="btn-info" onclick="showToast('Match info…')">ℹ More Info</button></div>
+    </div>
+  </section>
+  <div class="rails-wrapper">
+    <div class="rail-section"><p class="rail-title">Sport Categories</p><div class="rail-row" id="sport-categories"></div></div>
+    <div class="rail-section"><p class="rail-title">Sport Channels</p><div class="rail-row" id="sport-channels"></div></div>
+    <div class="rail-section"><p class="rail-title">FIFA Highlights</p><div class="rail-row" id="sport-fifa"></div></div>
+    <div class="rail-section"><p class="rail-title">Football Highlights</p><div class="rail-row" id="sport-football"></div></div>
+  </div>
+</div><!-- /screen-sport -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — PREMIUM+
+══════════════════════════════════════ -->
+<div id="screen-premium" class="screen">
+  <nav class="top-nav top-nav-solid">
+    <div class="nav-logo"><img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" /></div>
+    <div class="nav-links">
+      <a href="#" onclick="goHome();return false;">Home</a>
+      <a href="#" onclick="goLive();return false;">Live</a>
+      <a href="#" onclick="goKids();return false;">Kids</a>
+      <a href="#" onclick="goSport();return false;">Sport</a>
+      <a href="#" class="active" onclick="return false;">Premium+</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-ai-btn" onclick="showToast('AI Genie…')" title="AI Genie"><img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" /></button>
+      <button class="nav-search-btn" title="Search"><img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" /></button>
+      <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </nav>
+  <div class="page-rails-wrapper">
+    <div class="rail-section" style="padding-left:0;padding-right:0;">
+      <div class="app-circles-row" id="premium-apps"></div>
+    </div>
+    <div class="rail-section"><p class="rail-title">New on Netflix</p><div class="rail-row" id="premium-netflix"></div></div>
+    <div class="rail-section"><p class="rail-title">Recently Added on Disney+</p><div class="rail-row" id="premium-disney"></div></div>
+    <div class="rail-section"><p class="rail-title">Top Max Recommendations</p><div class="rail-row" id="premium-max"></div></div>
+  </div>
+</div><!-- /screen-premium -->
+
+
+<!-- ══════════════════════════════════════
+     DETAILS OVERLAY (popup layer)
+══════════════════════════════════════ -->
+<div id="details-overlay">
+  <div class="det-panel">
+    <button class="det-close" onclick="closeDetailsOverlay()">✕</button>
+    <img class="det-hero"
+         src="https://www.figma.com/api/mcp/asset/f7d66a9f-3a97-42c2-8fd3-3f59b68b6df9"
+         alt="Rebel Ridge" />
+
+    <div class="det-info">
+      <h1 class="det-title">Rebel Ridge</h1>
+      <div class="det-meta">
+        <span>2024</span>
+        <span class="det-meta-sep">·</span>
+        <span>Thriller, Action</span>
+        <span class="det-meta-sep">·</span>
+        <span>1h 54m</span>
+        <span class="det-meta-sep">·</span>
+        <span style="color:#f5a623;">★</span>
+        <span>8.8</span>
+        <span class="det-badge">HD</span>
+        <span class="det-badge">16+</span>
+      </div>
+
+      <div class="det-btns">
+        <button class="det-btn-play" onclick="avatarStartPlayback()">▶ Resume</button>
+        <button class="det-btn-outline" onclick="showToast('Added to My List')">+ My List</button>
+        <button class="det-btn-outline" onclick="showToast('Sharing…')">↗ Share</button>
+      </div>
+
+      <p class="det-synopsis">43 men around the world gave birth simultaneously at noon on October 1, 1989, although none had shown any sign of pregnancy until labor began. 43 women around the world gave birth at noon on October 1, 1989, although none had shown any sign of pregnancy until began. At noon on October 1, 1989, although ave birth at noon on October 1, 1989, although none had shown any sign of pregnancy until began.</p>
+
+      <p class="det-credit"><strong>Cast:</strong> Gorke Otxoa, Fele Martinez, Fernando Gil, Gorke Otxoa, Fele Martinez</p>
+      <p class="det-credit"><strong>Director:</strong> Laura Caballero</p>
+
+      <div class="det-tabs-bar">
+        <button class="det-tab active" onclick="switchDetTab(this,'det-related')">Related content</button>
+        <button class="det-tab" onclick="switchDetTab(this,'det-info-tab')">Details</button>
+      </div>
+    </div>
+
+    <div id="det-related" class="det-tab-body">
+      <div class="det-related-grid" id="details-more-rail"></div>
+    </div>
+    <div id="det-info-tab" class="det-tab-body" style="display:none;">
+      <p class="det-credit">2024 · Jeremy Saulnier · Netflix Original · 1h 54m · Rated R</p>
+      <p class="det-credit" style="margin-top:8px;">Language: English · Subtitles: Available</p>
+    </div>
+  </div>
+</div><!-- /details-overlay -->
+
+
+<!-- FULLSCREEN PLAYER -->
+<div id="player-overlay">
+  <img id="player-bg-blur" class="player-bg-blur" src="" alt="" />
+  <button class="player-close-btn" onclick="closePlayer()">✕</button>
+  <div class="player-stage">
+    <div class="player-info">
+      <div class="player-name" id="player-title-el">Rebel Ridge</div>
+      <div class="player-meta" id="player-meta-el">2024 · Action · Thriller</div>
+    </div>
+    <button class="player-play-btn" onclick="showToast('Paused')">▶</button>
+    <div class="player-controls">
+      <div class="player-timestamps">
+        <span id="player-cur-el">0:28:15</span>
+        <span id="player-dur-el">1:54:00</span>
+      </div>
+      <div class="player-track">
+        <div class="player-fill" id="player-fill-el" style="width:25%"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /player-overlay -->
+
+<!-- speechSynthesis patch: intercept avatar TTS before eself script runs -->
+<script>
+window._avatarSpeaking = false;
+(function () {
+  var synth = window.speechSynthesis;
+  if (!synth || typeof synth.speak !== 'function') return;
+  var _orig = synth.speak.bind(synth);
+  synth.speak = function (utt) {
+    /* Only route to handleAvatarSpeech for eself's own TTS, not our responses */
+    if (utt && utt.text && !window._avatarSpeaking) {
+      setTimeout(function () {
+        if (typeof handleAvatarSpeech === 'function') handleAvatarSpeech(utt.text);
+      }, 50);
+    }
+    return _orig(utt);
+  };
+})();
+</script>
+
+<!-- ══════════════════════════════════════
+     AVATAR FRAME — eself widget contained here
+══════════════════════════════════════ -->
+<div id="avatar-frame">
+  <script data-client="69418b003d8c9ff12d5e421a" data-flow-id="agent-5" src="https://assets.eself.ai/small-agent/prod/bundle.js" data-small-agent="true"></script>
+</div>
+
+<!-- Voice transcript caption bar -->
+<div class="voice-transcript-overlay" id="voice-transcript">
+  <span id="voice-text"></span>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — GRID PAGE
+══════════════════════════════════════ -->
+<div id="screen-grid" class="screen">
+
+  <!-- Top nav – same structure as home -->
+  <nav class="top-nav">
+    <div class="nav-logo">
+      <img src="https://www.figma.com/api/mcp/asset/882ec780-a700-43d5-927b-c017d45c839a" alt="Kaltura" />
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="goHome();return false;">Home</a>
+      <a href="#" onclick="goLive();return false;">Live</a>
+      <a href="#" onclick="goKids();return false;">Kids</a>
+      <a href="#" onclick="goSport();return false;">Sport</a>
+      <a href="#" onclick="goPremium();return false;">Premium+</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-ai-btn" onclick="toggleGridPanel()" title="AI Genie">
+        <img src="https://www.figma.com/api/mcp/asset/55df99e7-ff33-4c64-92e8-cebc915e5cb4" alt="AI" style="width:24px;height:24px;" />
+      </button>
+      <button class="nav-search-btn" title="Search">
+        <img src="https://www.figma.com/api/mcp/asset/51c9ca71-c999-4b78-a249-a159ee18ccfe" alt="Search" style="width:24px;height:24px;" />
+      </button>
+      <button class="nav-settings-btn" onclick="showToast('Settings…')" title="Settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Grid content (right side reserved for avatar panel) -->
+  <div class="grid-body">
+    <h1 class="grid-page-title" id="grid-title">Your Thrill Picks</h1>
+    <p class="grid-page-sub" id="grid-sub">Action, thrills &amp; adrenaline · 8 titles</p>
+
+    <div class="grid-rail-section">
+      <div class="grid-rail-row" id="g-grid-1"></div>
+    </div>
+
+    <div class="grid-rail-section">
+      <div class="grid-rail-row" id="g-grid-2"></div>
+    </div>
+
+
+  </div>
+
+  <!-- Avatar panel (Figma-style, right side) -->
+  <div id="grp-panel">
+    <button class="grp-close-x" onclick="hideGridPanel()">✕</button>
+    <div class="grp-top-section">
+      <div class="grp-sparkle-icon">✦</div>
+      <h2 class="grp-question-text" id="grp-question-text">Did you find what you were looking for?</h2>
+      <div id="grp-pills">
+        <button class="grp-pill" onclick="grpYes()">Yes, indeed</button>
+        <button class="grp-pill" onclick="grpNo()">No, Ask me another one</button>
+      </div>
+    </div>
+    <div class="grp-photo-wrap">
+      <div class="grp-avatar-photo">
+        <img src="https://www.figma.com/api/mcp/asset/eb2b11d7-606b-491b-8153-1de346b9525d" alt="AI Genie" />
+      </div>
+    </div>
+  </div>
+
+  <button class="avatar-bubble-btn" id="grp-bubble" onclick="toggleGridPanel()" title="Open AI Genie">
+    <img src="https://www.figma.com/api/mcp/asset/eb2b11d7-606b-491b-8153-1de346b9525d" alt="AI Genie" />
+  </button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────── */
+
+const landscapeData = [
+  { title: 'CNN',        sub: 'Live News',      img: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&q=80', logo: 'CNN',       logoColor: '#cc0000', logoBg: 'rgba(0,0,0,.0)' },
+  { title: 'BBC One',    sub: 'Live Now',       img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80', logo: 'BBC',       logoColor: '#fff',    logoBg: '#bb1919' },
+  { title: 'HBO',        sub: 'Season 4, Ep 2', img: 'https://www.figma.com/api/mcp/asset/02b4378c-5f75-4b48-97ad-d7da3fce054c', logo: 'HBO',      logoColor: '#fff',    logoBg: 'rgba(0,0,0,.0)' },
+  { title: 'Sky One',    sub: 'Season 1, Ep 5', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80', logo: 'SKY',       logoColor: '#fff',    logoBg: 'rgba(0,82,204,.8)' },
+  { title: 'Netflix',    sub: 'New Episode',    img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80', logo: 'NETFLIX',   logoColor: '#e50914', logoBg: 'rgba(0,0,0,.0)' },
+  { title: 'Disney+',    sub: 'New Season',     img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80', logo: 'DISNEY+',   logoColor: '#fff',    logoBg: 'rgba(17,60,142,.85)' },
+  { title: 'Channel 4',  sub: 'Episode 3',      img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80', logo: 'CH·4',       logoColor: '#fff',    logoBg: 'rgba(20,20,20,.0)' },
+  { title: 'ITV',        sub: 'Tonight',        img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80', logo: 'ITV',       logoColor: '#fff',    logoBg: 'rgba(218,41,28,.8)' },
+];
+
+const continueData = [
+  { title: 'Rebel Ridge',          progress: 50, img: 'https://www.figma.com/api/mcp/asset/f7d66a9f-3a97-42c2-8fd3-3f59b68b6df9' },
+  { title: 'Westworld S4',         progress: 72, img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80' },
+  { title: 'The Witcher',          progress: 30, img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80' },
+  { title: 'Cobra Kai S5',         progress: 60, img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80' },
+  { title: 'Stranger Things',      progress: 20, img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80' },
+  { title: 'The Crown S5',         progress: 85, img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+];
+
+const portraitData = [
+  { title: 'Rebel Ridge',            sub: '2024 · Action',      img: 'https://www.figma.com/api/mcp/asset/f7d66a9f-3a97-42c2-8fd3-3f59b68b6df9' },
+  { title: 'Dune: Part Two',         sub: '2024 · Sci-Fi',      img: 'https://www.figma.com/api/mcp/asset/13dc0478-c702-4698-8035-76d65c3eb6e6' },
+  { title: 'Fleabag',                sub: 'S1 · BBC',           img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80' },
+  { title: 'Peep Show',              sub: 'S3 · Channel 4',     img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80' },
+  { title: 'The IT Crowd',           sub: 'Classic',            img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80' },
+  { title: 'Black Adder',            sub: 'Classic BBC',        img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80' },
+  { title: 'Fawlty Towers',          sub: 'Classic BBC',        img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80' },
+  { title: 'Doctor Who',             sub: 'S14 · BBC One',      img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80' },
+];
+
+const comedyData = [
+  { title: 'Fleabag',          sub: 'S2 · BBC Three · 2019',  rating: '9.1', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80',  synopsis: 'Fleabag channels grief through devastatingly funny black comedy. Raw, honest and completely unmissable.' },
+  { title: 'Fawlty Towers',    sub: 'Classic · BBC · 1975',   rating: '9.0', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80',  synopsis: 'Britain\'s most beloved sitcom. Basil Fawlty\'s chaotic hotel is a masterclass in comedic catastrophe.' },
+  { title: 'Peep Show',        sub: 'S6 · Channel 4',         rating: '8.8', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80',  synopsis: 'Mark and Jeremy\'s delusional inner monologues make this the most painfully funny show on British TV.' },
+  { title: 'The IT Crowd',     sub: 'S3 · Channel 4',         rating: '8.7', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80',  synopsis: 'The socially inept IT department versus the corporate world. A cult classic you\'ll binge in one sitting.' },
+  { title: 'Black Adder',      sub: 'S4 · BBC One · 1989',    rating: '8.9', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',  synopsis: 'Edmund Blackadder\'s razor wit versus the trenches of World War I. The greatest sitcom finale ever made.' },
+  { title: 'Inside No. 9',     sub: 'S8 · BBC Two',           rating: '8.5', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80',  synopsis: 'A dark anthology of perfectly crafted stories — every single episode a new, twist-filled surprise.' },
+  { title: 'Ghosts',           sub: 'S5 · BBC One',           rating: '8.3', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80',  synopsis: 'A crumbling country mansion full of spirits from different eras — warmly funny and brilliantly cast.' },
+  { title: 'This Country',     sub: 'S3 · BBC Three',         rating: '8.4', img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80',  synopsis: 'Kerry and Kurtan navigate small-town boredom in this deceptively sweet and truthful mockumentary.' },
+  { title: 'Derry Girls',      sub: 'S3 · Channel 4',         rating: '8.6', img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80',  synopsis: 'Five teens navigate the Troubles in 1990s Northern Ireland with explosive, joyful hilarity.' },
+  { title: 'The Office UK',    sub: 'S2 · BBC Two · 2002',    rating: '8.5', img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80',  synopsis: 'David Brent\'s unbearable cringe comedy still lands like a punch after all these years. A true original.' },
+  { title: 'Detectorists',     sub: 'S3 · BBC Four',          rating: '8.7', img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80',  synopsis: 'Two metal detectorists search for treasure and meaning. Gentlest, most beautiful comedy the BBC ever made.' },
+  { title: 'The Inbetweeners', sub: 'S3 · Channel 4',         rating: '8.4', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80',  synopsis: 'Four socially awkward teenagers attempt to be cool and fail spectacularly. Painfully relatable.' },
+  { title: 'Catastrophe',      sub: 'S4 · Channel 4',         rating: '8.2', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80',  synopsis: 'A one-night stand leads to pregnancy, marriage and chaos. Brutally honest, wickedly sharp comedy.' },
+  { title: 'Motherland',       sub: 'S3 · BBC Two',           rating: '7.9', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80',  synopsis: 'The competitive chaos of middle-class parenting laid ruthlessly bare. You will laugh and cringe in equal measure.' },
+  { title: 'Rev.',             sub: 'S3 · BBC Two',           rating: '8.1', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',  synopsis: 'An inner-city vicar battles dwindling congregations and his own faith. Tender, funny, quietly profound.' },
+  { title: 'Porridge',         sub: 'Classic · BBC One · 1974', rating: '8.8', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80', synopsis: 'Norman Stanley Fletcher does time with unbeatable wit. The gold standard of British prison comedy.' },
+];
+
+const thrillData = [
+  { title: 'Cobra Kai S5',     sub: '2022 · Action · Netflix',    rating: '8.7', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80',  synopsis: 'The karate rivalry reignites with devastating consequences. Non-stop action, zero filler — pure adrenaline.' },
+  { title: 'Squid Game S2',    sub: '2024 · Thriller · Netflix',  rating: '8.5', img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80',  synopsis: 'Gi-hun returns to the games with a mission. Darker, more brutal, and utterly gripping from start to finish.' },
+  { title: 'The Boys S4',      sub: '2024 · Action · Amazon',     rating: '8.6', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',  synopsis: 'Superheroes gone rogue. Darkly satirical and relentlessly brutal — streaming\'s most vital and fearless series.' },
+  { title: 'Extraction 2',     sub: '2023 · Action · Netflix',    rating: '7.9', img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80',  synopsis: 'Tyler Rake returns for another near-impossible rescue mission with extraordinary action set pieces.' },
+  { title: 'Jack Ryan S4',     sub: '2023 · Thriller · Amazon',   rating: '7.8', img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80',  synopsis: 'CIA analyst turned operative faces a vast global conspiracy. Smart, tense and relentlessly plotted.' },
+  { title: 'Reacher S2',       sub: '2023 · Action · Amazon',     rating: '8.4', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80',  synopsis: 'Jack Reacher reunites with his old special investigations unit. Enemies should be very, very worried.' },
+  { title: '24 Hours to Live', sub: '2017 · Thriller',            rating: '6.8', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80',  synopsis: 'A hitman is temporarily resurrected to complete one final mission. Brutal, fast and completely ruthless.' },
+  { title: 'Nobody',           sub: '2021 · Action',              rating: '7.4', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80',  synopsis: 'A mild-mannered family man turns out to be far more dangerous than anyone ever imagined. Brilliantly executed.' },
+  { title: 'Sicario',          sub: '2015 · Thriller',            rating: '7.6', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80',  synopsis: 'An idealistic FBI agent enters the murky underworld of a government-backed operation on the US–Mexico border.' },
+  { title: 'Taken',            sub: '2008 · Action · Thriller',   rating: '7.8', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80',  synopsis: 'Liam Neeson\'s particular set of skills redefines the action thriller. Relentless from first frame to last.' },
+  { title: 'Heat',             sub: '1995 · Crime · Action',      rating: '8.3', img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80',  synopsis: 'De Niro and Pacino face off in Michael Mann\'s masterpiece. The coffee shop scene alone is worth admission.' },
+  { title: 'Drive',            sub: '2011 · Thriller',            rating: '7.8', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80',  synopsis: 'A getaway driver moonlights for hire, until one job upends everything. Neon-soaked and impossible to forget.' },
+  { title: 'Prisoners',        sub: '2013 · Thriller',            rating: '8.1', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80',  synopsis: 'Two daughters vanish. Their desperate fathers resort to extreme measures. Gripping and deeply unsettling.' },
+  { title: 'John Wick 4',      sub: '2023 · Action',              rating: '7.7', img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80',  synopsis: 'Keanu Reeves\' assassin faces the High Table in Paris, Berlin and Osaka. Breathtaking choreography.' },
+  { title: 'Mad Max: Fury Road',sub: '2015 · Action · Sci-Fi',   rating: '8.1', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',  synopsis: 'Two hours of relentless high-octane insanity across a post-apocalyptic desert. Pure cinematic adrenaline.' },
+  { title: 'The Equalizer 3',  sub: '2023 · Action · Thriller',   rating: '7.1', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80',  synopsis: 'Robert McCall takes on the Italian mob in a sun-drenched Sicilian finale. Washington is magnetic throughout.' },
+];
+
+const seriesData = [
+  { title: 'The Last of Us',  sub: 'S2 · HBO',          img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80' },
+  { title: 'Succession',      sub: 'S4 · HBO',          img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+  { title: 'Severance',       sub: 'S2 · Apple TV+',    img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80' },
+  { title: 'The Bear',        sub: 'S3 · FX',           img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80' },
+  { title: 'Shogun',          sub: '2024 · FX',         img: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80' },
+  { title: 'White Lotus S3',  sub: '2025 · HBO',        img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80' },
+  { title: 'Slow Horses',     sub: 'S4 · Apple TV+',   img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80' },
+  { title: 'The Crown',       sub: 'S5 · Netflix',      img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80' },
+];
+
+const relaxingData = [
+  { title: 'The Grand Tour',    sub: 'S5 · Amazon',          rating: '8.1', img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80',  synopsis: 'Clarkson, Hammond and May take on epic road trips in breathtaking locations. Pure, effortless entertainment.' },
+  { title: 'Planet Earth III',  sub: '2023 · BBC One',        rating: '9.2', img: 'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=400&q=80',  synopsis: 'Attenborough narrates the most stunning wildlife footage ever captured. Utterly peaceful and awe-inspiring.' },
+  { title: 'Our Planet',        sub: 'S2 · Netflix',          rating: '9.0', img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80',  synopsis: 'Netflix\'s landmark nature series. Slow, beautiful and deeply moving — perfect viewing for a calm evening.' },
+  { title: 'The Crown',         sub: 'S5 · Netflix',          rating: '8.2', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80',  synopsis: 'Lavish period drama following the British royal family. Elegant, measured and visually sumptuous throughout.' },
+  { title: 'Chef\'s Table',     sub: 'S7 · Netflix',          rating: '8.6', img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80',  synopsis: 'Beautifully shot portraits of the world\'s greatest chefs. Meditative, gorgeous and utterly mouthwatering.' },
+  { title: 'Midnight Diner',    sub: 'S3 · Netflix',          rating: '8.4', img: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=400&q=80',  synopsis: 'Late-night Tokyo diner stories. Quiet, warm and human — the most comforting show you\'ve never heard of.' },
+  { title: 'Slow Horses',       sub: 'S3 · Apple TV+',        rating: '8.5', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80',  synopsis: 'British intelligence drama with Gary Oldman in career-best form. Understated, smart and deeply satisfying.' },
+  { title: 'Abstract',          sub: 'S2 · Netflix',          rating: '8.3', img: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&q=80',  synopsis: 'Netflix\'s documentary series on the art of design. Calming, inspiring and endlessly thought-provoking.' },
+];
+
+const surpriseMixData = [
+  { title: 'Severance',         sub: 'S2 · Apple TV+',        rating: '8.7', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',  synopsis: 'Office workers have their work and personal memories surgically divided. Utterly original, deeply unsettling.' },
+  { title: 'The Bear',          sub: 'S3 · FX',               rating: '8.9', img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80',  synopsis: 'A Michelin-starred chef returns to run his family\'s sandwich shop. The most stressful and brilliant show on TV.' },
+  { title: 'White Lotus S3',    sub: '2025 · HBO',             rating: '8.5', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',  synopsis: 'Privileged guests unravel at a Thai resort. Wickedly sharp satire wrapped in gorgeous tropical photography.' },
+  { title: 'Shogun',            sub: '2024 · FX',              rating: '9.0', img: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80',  synopsis: 'A shipwrecked English sailor navigates feudal Japan. Epic, meticulous and one of the best shows in years.' },
+  { title: 'Beef',              sub: '2023 · Netflix',         rating: '8.3', img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80',  synopsis: 'A road-rage incident spirals into all-out war between two strangers. Darkly funny and thoroughly addictive.' },
+  { title: 'True Detective S4', sub: '2024 · HBO',             rating: '7.8', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80',  synopsis: 'Jodie Foster investigates a polar research station disappearance. Atmospheric, strange and completely compelling.' },
+  { title: 'The Penguin',       sub: '2024 · HBO',             rating: '8.1', img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80',  synopsis: 'Colin Farrell is unrecognisable as Oswald Cobblepot rising through Gotham\'s criminal underworld. Superb.' },
+  { title: 'English Teacher',   sub: '2024 · FX',              rating: '7.6', img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80',  synopsis: 'A Texas high school teacher navigates the absurdities of modern American life. Surprisingly sharp and funny.' },
+];
+
+const myListData = [
+  { title: 'Oppenheimer',      sub: '2023 · Drama',       img: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=400&q=80' },
+  { title: 'Barbie',           sub: '2023 · Comedy',      img: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=400&q=80' },
+  { title: 'Dune: Part Two',   sub: '2024 · Sci-Fi',      img: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&q=80' },
+  { title: 'The Batman',       sub: '2022 · Action',      img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&q=80' },
+  { title: 'Top Gun: Maverick',sub: '2022 · Action',      img: 'https://images.unsplash.com/photo-1487255338789-e1c4f29be789?w=400&q=80' },
+  { title: 'Inception',        sub: '2010 · Sci-Fi',      img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80' },
+  { title: 'Fleabag S2',       sub: 'S2 · BBC Three',     img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80' },
+  { title: 'The Bear S2',      sub: '2023 · FX',          img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80' },
+];
+
+const top10Data = [
+  { n: 1,  title: 'Oppenheimer' },
+  { n: 2,  title: 'Dune: Part Two' },
+  { n: 3,  title: 'The Dark Knight' },
+  { n: 4,  title: 'Inception' },
+  { n: 5,  title: 'Top Gun: Maverick' },
+  { n: 6,  title: 'Avatar: The Way' },
+  { n: 7,  title: 'Spider-Man: NWH' },
+  { n: 8,  title: 'The Batman' },
+  { n: 9,  title: 'Barbie' },
+  { n: 10, title: 'Killers of Flowers' },
+];
+
+const top10Imgs = [
+  'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=300&q=80',
+  'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=300&q=80',
+  'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&q=80',
+  'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&q=80',
+  'https://images.unsplash.com/photo-1487255338789-e1c4f29be789?w=300&q=80',
+  'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&q=80',
+  'https://images.unsplash.com/photo-1569701813229-33284b643e3c?w=300&q=80',
+  'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&q=80',
+  'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=300&q=80',
+  'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&q=80',
+];
+
+/* ── LIVE DATA ── */
+const liveChannelsData = [
+  { title: 'BBC One',     sub: 'Live Now',        logo: 'BBC ONE',  logoColor: '#fff', logoBg: '#bb1919', img: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&q=80' },
+  { title: 'ITV',         sub: 'Live Now',        logo: 'ITV',      logoColor: '#fff', logoBg: '#da291c', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80' },
+  { title: 'Channel 4',   sub: 'Live Now',        logo: 'CH·4',     logoColor: '#fff', logoBg: '#1a1a1a', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80' },
+  { title: 'Channel 5',   sub: 'Live Now',        logo: 'CH·5',     logoColor: '#fff', logoBg: '#6a0dad', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80' },
+  { title: 'BBC Two',     sub: 'Live Now',        logo: 'BBC TWO',  logoColor: '#fff', logoBg: '#333', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+  { title: 'CNN',         sub: 'Breaking News',   logo: 'CNN',      logoColor: '#fff', logoBg: '#cc0000', img: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&q=80' },
+  { title: 'Sky News',    sub: 'Live News',       logo: 'SKY NEWS', logoColor: '#fff', logoBg: '#00105a', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80' },
+  { title: 'E4',          sub: 'Live Now',        logo: 'E4',       logoColor: '#fff', logoBg: '#7b68ee', img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80' },
+];
+const liveKidsChannelsData = [
+  { title: 'CBeebies',    sub: 'Live Now',        logo: 'CBeebies', logoColor: '#fff', logoBg: '#e91e8c', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'CBBC',        sub: 'Live Now',        logo: 'CBBC',     logoColor: '#fff', logoBg: '#f57c00', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+  { title: 'Cartoon Net.',sub: 'Live Now',        logo: 'CN',       logoColor: '#000', logoBg: '#fff',    img: 'https://images.unsplash.com/photo-1560707854-fb9a4aebb6ad?w=400&q=80' },
+  { title: 'Nickelodeon', sub: 'Live Now',        logo: 'NICK',     logoColor: '#fff', logoBg: '#ff6600', img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+  { title: 'Disney Ch.',  sub: 'Live Now',        logo: 'DISNEY',   logoColor: '#fff', logoBg: '#113ccf', img: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=400&q=80' },
+  { title: 'Baby TV',     sub: 'Live Now',        logo: 'BABY TV',  logoColor: '#fff', logoBg: '#e91e63', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Jim Jam',     sub: 'Live Now',        logo: 'JIM JAM',  logoColor: '#fff', logoBg: '#4caf50', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+  { title: 'Boomerang',   sub: 'Live Now',        logo: 'BOOM',     logoColor: '#fff', logoBg: '#ff9800', img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+];
+const liveSportChannelsData = [
+  { title: 'Sky Sports',  sub: 'Live Sport',      logo: 'SKY SP.',  logoColor: '#fff', logoBg: '#003399', img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&q=80' },
+  { title: 'BT Sport',    sub: 'Live Sport',      logo: 'BT SPORT', logoColor: '#fff', logoBg: '#c8102e', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
+  { title: 'ESPN',        sub: 'Live Sport',      logo: 'ESPN',     logoColor: '#fff', logoBg: '#cc0000', img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80' },
+  { title: 'Eurosport',   sub: 'Live Sport',      logo: 'EURO',     logoColor: '#fff', logoBg: '#ff6600', img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80' },
+  { title: 'TNT Sports',  sub: 'Live Sport',      logo: 'TNT',      logoColor: '#000', logoBg: '#ffcc00', img: 'https://images.unsplash.com/photo-1505464277586-8bd1e1c0c7e5?w=400&q=80' },
+  { title: 'beIN Sports', sub: 'Live Sport',      logo: 'beIN',     logoColor: '#fff', logoBg: '#8b0000', img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80' },
+  { title: 'DAZN',        sub: 'Live Sport',      logo: 'DAZN',     logoColor: '#fff', logoBg: '#1a1a1a', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80' },
+  { title: 'SportTV',     sub: 'Live Sport',      logo: 'SPORT TV', logoColor: '#fff', logoBg: '#0066cc', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80' },
+];
+const liveLocalChannelsData = [
+  { title: 'ITV News',    sub: 'Local News',      logo: 'ITV LCL',  logoColor: '#fff', logoBg: '#da291c', img: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&q=80' },
+  { title: 'BBC Reg.',    sub: 'Regional',        logo: 'BBC REG',  logoColor: '#fff', logoBg: '#bb1919', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80' },
+  { title: 'Channel 9',  sub: 'Local',           logo: 'CH·9',     logoColor: '#fff', logoBg: '#1976d2', img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80' },
+  { title: 'Made in Leeds',sub: 'Local',          logo: 'MADE',     logoColor: '#fff', logoBg: '#388e3c', img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+  { title: 'London Live', sub: 'Local',           logo: 'LDN LIVE', logoColor: '#fff', logoBg: '#7b1fa2', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80' },
+  { title: 'STV',         sub: 'Scotland',        logo: 'STV',      logoColor: '#fff', logoBg: '#0033a0', img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80' },
+  { title: 'S4C',         sub: 'Wales',           logo: 'S4C',      logoColor: '#fff', logoBg: '#006633', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80' },
+  { title: 'UTV',         sub: 'Northern Ireland',logo: 'UTV',      logoColor: '#fff', logoBg: '#c8102e', img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80' },
+];
+
+/* ── KIDS DATA ── */
+const kidsCategoriesData = [
+  { title: 'Animation',   sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1560707854-fb9a4aebb6ad?w=400&q=80' },
+  { title: 'Adventure',   sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=400&q=80' },
+  { title: 'Comedy',      sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+  { title: 'Learning',    sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+  { title: 'Music',       sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Fairy Tales', sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=400&q=80' },
+  { title: 'Science',     sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1447433693896-bf03c0dced83?w=400&q=80' },
+  { title: 'Action',      sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1569701813229-33284b643e3c?w=400&q=80' },
+];
+const kidsChannelsData = [
+  { title: 'CBeebies',    sub: 'Live',            logo: 'CBeebies', logoColor: '#fff', logoBg: '#e91e8c', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'CBBC',        sub: 'Live',            logo: 'CBBC',     logoColor: '#fff', logoBg: '#f57c00', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+  { title: 'Nickelodeon', sub: 'Live',            logo: 'NICK',     logoColor: '#fff', logoBg: '#ff6600', img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+  { title: 'Disney Ch.',  sub: 'Live',            logo: 'DISNEY',   logoColor: '#fff', logoBg: '#113ccf', img: 'https://images.unsplash.com/photo-1560707854-fb9a4aebb6ad?w=400&q=80' },
+  { title: 'Cartoon Net.',sub: 'Live',            logo: 'CN',       logoColor: '#000', logoBg: '#fff',    img: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=400&q=80' },
+  { title: 'Baby TV',     sub: 'Live',            logo: 'BABY TV',  logoColor: '#fff', logoBg: '#e91e63', img: 'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=400&q=80' },
+  { title: 'Jim Jam',     sub: 'Live',            logo: 'JIM JAM',  logoColor: '#fff', logoBg: '#4caf50', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Boomerang',   sub: 'Live',            logo: 'BOOM',     logoColor: '#fff', logoBg: '#ff9800', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+];
+const kidsGemsData = [
+  { title: 'Finding Nemo',   sub: '2003 · Animation',  img: 'https://images.unsplash.com/photo-1560707854-fb9a4aebb6ad?w=400&q=80' },
+  { title: 'Toy Story 4',    sub: '2019 · Animation',  img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+  { title: 'Moana',          sub: '2016 · Adventure',  img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80' },
+  { title: 'Encanto',        sub: '2021 · Musical',    img: 'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=400&q=80' },
+  { title: 'Ratatouille',    sub: '2007 · Comedy',     img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80' },
+  { title: 'Up',             sub: '2009 · Adventure',  img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80' },
+  { title: 'Inside Out 2',   sub: '2024 · Animation',  img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Frozen II',      sub: '2019 · Musical',    img: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&q=80' },
+];
+const kidsCuteData = [
+  { title: 'Peppa Pig',      sub: 'Series · CBeebies', img: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&q=80' },
+  { title: 'Bluey',          sub: 'Series · ABC Kids',  img: 'https://images.unsplash.com/photo-1560707854-fb9a4aebb6ad?w=400&q=80' },
+  { title: 'PAW Patrol',     sub: 'Series · Nick Jr.',  img: 'https://images.unsplash.com/photo-1587731556938-38755b4803a6?w=400&q=80' },
+  { title: 'Cocomelon',      sub: 'Series · Netflix',   img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Ben & Holly',    sub: 'Series · Milkshake', img: 'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=400&q=80' },
+  { title: 'Hey Duggee',     sub: 'Series · CBeebies',  img: 'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=400&q=80' },
+  { title: 'Octonauts',      sub: 'Series · CBeebies',  img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80' },
+  { title: 'Shaun the Sheep',sub: 'Series · CBBC',      img: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&q=80' },
+];
+
+/* ── SPORT DATA ── */
+const sportCategoriesData = [
+  { title: 'Football',    sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&q=80' },
+  { title: 'Basketball',  sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1505464277586-8bd1e1c0c7e5?w=400&q=80' },
+  { title: 'Tennis',      sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80' },
+  { title: 'Athletics',   sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80' },
+  { title: 'Swimming',    sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80' },
+  { title: 'F1 Racing',   sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80' },
+  { title: 'Rugby',       sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
+  { title: 'Cricket',     sub: 'Browse all',      img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80' },
+];
+const sportChannelsData = [
+  { title: 'Sky Sports 1',sub: 'Live Sport',      logo: 'SKY SP.1', logoColor: '#fff', logoBg: '#003399', img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&q=80' },
+  { title: 'BT Sport 1',  sub: 'Live Sport',      logo: 'BT SP.1',  logoColor: '#fff', logoBg: '#c8102e', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
+  { title: 'ESPN',         sub: 'Live Sport',     logo: 'ESPN',     logoColor: '#fff', logoBg: '#cc0000', img: 'https://images.unsplash.com/photo-1505464277586-8bd1e1c0c7e5?w=400&q=80' },
+  { title: 'Eurosport 1', sub: 'Live Sport',      logo: 'EURO 1',   logoColor: '#fff', logoBg: '#ff6600', img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80' },
+  { title: 'beIN Sports', sub: 'Live Sport',      logo: 'beIN',     logoColor: '#fff', logoBg: '#8b0000', img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80' },
+  { title: 'Sky Sports F1',sub: 'Live',           logo: 'SKY F1',   logoColor: '#fff', logoBg: '#e91e63', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80' },
+  { title: 'DAZN',         sub: 'Live Sport',     logo: 'DAZN',     logoColor: '#fff', logoBg: '#1a1a1a', img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80' },
+  { title: 'TNT Sports',  sub: 'Live Sport',      logo: 'TNT',      logoColor: '#000', logoBg: '#ffcc00', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80' },
+];
+const sportFifaData = [
+  { title: 'World Cup Final 2022',       sub: 'Argentina vs France',  img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&q=80' },
+  { title: 'WC Semi-Final 2022',         sub: 'Argentina vs Croatia', img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
+  { title: 'WC Group Stage Highlights',  sub: 'Best Goals',           img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80' },
+  { title: 'Messi: The GOAT',            sub: 'Documentary',          img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80' },
+  { title: 'WC 2022: Full Tournament',   sub: 'All Matches',          img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80' },
+  { title: 'WC 2018: Russia',            sub: 'Highlights',           img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80' },
+  { title: 'WC 2014: Brazil',            sub: 'Best Moments',         img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80' },
+  { title: 'Road to Qatar 2022',         sub: 'Qualifiers',           img: 'https://images.unsplash.com/photo-1505464277586-8bd1e1c0c7e5?w=400&q=80' },
+];
+const sportFootballData = [
+  { title: 'Premier League Wk 32',      sub: 'Best Goals',           img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80' },
+  { title: 'Champions League Highlights',sub: 'This week',           img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&q=80' },
+  { title: 'La Liga Weekly',             sub: 'Best Moments',        img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&q=80' },
+  { title: 'Bundesliga Highlights',      sub: 'Round 29',            img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&q=80' },
+  { title: 'Serie A Best Goals',         sub: 'Matchday 32',         img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80' },
+  { title: 'Ligue 1 Highlights',         sub: 'Matchday 30',         img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80' },
+  { title: 'Europa League Goals',        sub: 'Quarter-Finals',      img: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80' },
+  { title: 'FA Cup Semi-Final',          sub: 'Full Match Replay',   img: 'https://images.unsplash.com/photo-1505464277586-8bd1e1c0c7e5?w=400&q=80' },
+];
+
+/* ── PREMIUM+ DATA ── */
+const premiumAppsData = [
+  { name: 'Netflix',      bg: '#e50914', text: 'N' },
+  { name: 'Prime Video',  bg: '#00a8e0', text: 'prime' },
+  { name: 'Disney+',      bg: '#113ccf', text: 'D+' },
+  { name: 'Max',          bg: '#002be7', text: 'max' },
+  { name: 'HBO',          bg: '#000',    text: 'HBO' },
+  { name: 'Discovery+',   bg: '#0052cc', text: 'disc+' },
+];
+const premiumNetflixData = [
+  { title: 'Stranger Things S5', sub: '2025 · Sci-Fi',      img: 'https://images.unsplash.com/photo-1534809027769-b00d750a6bac?w=400&q=80' },
+  { title: 'Wednesday S2',       sub: '2025 · Comedy',      img: 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&q=80' },
+  { title: 'Squid Game S3',      sub: '2025 · Thriller',    img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&q=80' },
+  { title: 'The Witcher S4',     sub: '2025 · Fantasy',     img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80' },
+  { title: 'Narcos: Mexico S4',  sub: '2025 · Crime',       img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80' },
+  { title: 'Emily in Paris S5',  sub: '2025 · Romance',     img: 'https://images.unsplash.com/photo-1487255338789-e1c4f29be789?w=400&q=80' },
+  { title: 'Bridgerton S4',      sub: '2025 · Drama',       img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+  { title: 'Ozark: Origins',     sub: '2025 · Crime',       img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&q=80' },
+];
+const premiumDisneyData = [
+  { title: 'Inside Out 2',   sub: '2024 · Animation',  img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&q=80' },
+  { title: 'Moana 2',        sub: '2024 · Musical',    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80' },
+  { title: 'Alien: Romulus', sub: '2024 · Sci-Fi',     img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80' },
+  { title: 'Agatha All Along',sub: '2024 · Fantasy',   img: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80' },
+  { title: 'Loki S2',        sub: '2023 · Marvel',     img: 'https://images.unsplash.com/photo-1569863069822-8fca56e9dd3a?w=400&q=80' },
+  { title: 'The Bear S2',    sub: '2023 · Drama',      img: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80' },
+  { title: 'Star Wars: Andor',sub: '2022 · Sci-Fi',    img: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&q=80' },
+  { title: 'The Mandalorian S3',sub: '2023 · Sci-Fi',  img: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80' },
+];
+const premiumMaxData = [
+  { title: 'The Last of Us S2', sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80' },
+  { title: 'House of Dragon S3',sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&q=80' },
+  { title: 'White Lotus S3',    sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80' },
+  { title: 'Euphoria S3',       sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1519874179391-3ebc752241dd?w=400&q=80' },
+  { title: 'The Penguin S2',    sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=400&q=80' },
+  { title: 'Succession Film',   sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+  { title: 'True Detective S5', sub: '2025 · HBO',      img: 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80' },
+  { title: 'The Wire: Remastered',sub: 'Classic · HBO', img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80' },
+];
+
+/* Grid page config */
+const gridSets = {
+  comedy: {
+    title: 'Great British Comedies',
+    sub: 'Because you\'ve been on a roll',
+    section: 'Fan Favourites',
+    msg: 'Great taste! These British comedies are topping the charts right now. Here are my top picks ✨',
+    data: comedyData,
+    spotlight: {
+      img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80',
+      title: 'Fleabag',
+      sub: 'S2 · BBC Three · 2019 · Comedy Drama · 98% match for you'
+    },
+    feat: { img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&q=80', title: 'Fleabag', desc: 'Raw, hilarious, utterly unmissable ✨' },
+    yesLabel: 'Yes indeed!',
+    noLabel:  'No, ask me another one',
+  },
+  excited: {
+    title: 'Your Thrill Picks',
+    sub: 'Action, thrills & adrenaline',
+    section: 'Trending Blockbusters',
+    msg: 'Let\'s go! ⚡ High-energy picks blending your genre preferences with what\'s trending today.',
+    data: thrillData,
+    spotlight: {
+      img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=800&q=80',
+      title: 'Cobra Kai S5',
+      sub: '2022 · Action · Netflix · 96% match — exactly your speed'
+    },
+    feat: { img: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&q=80', title: 'Cobra Kai S5', desc: 'Non-stop action — you\'ll binge all night ⚡' },
+    yesLabel: 'Yes indeed!',
+    noLabel:  'No, ask me another one',
+  },
+  relaxed: {
+    title: 'Relaxing Picks',
+    sub: 'For a calm evening',
+    section: 'Wind-Down Favourites',
+    msg: 'Perfect for a relaxed evening. These are trending with viewers like you right now 🌙',
+    data: seriesData,
+    spotlight: null,
+    feat: { img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80', title: 'The Grand Tour', desc: 'Laid-back, beautiful, perfect for tonight 🌿' },
+    yesLabel: 'Yes, perfect!',
+    noLabel:  'No, show me something else',
+  },
+  surprise: {
+    title: 'Your Surprise Mix',
+    sub: 'Something unexpected',
+    section: 'Genie\'s Choice',
+    msg: 'I picked these just for you — a bit out of your comfort zone but I think you\'ll love them 🎲',
+    data: portraitData,
+    spotlight: null,
+    feat: { img: 'https://images.unsplash.com/photo-1614728263952-84ea256f9d4d?w=400&q=80', title: 'Dune: Part Two', desc: 'Epic and stunning — trust me on this one 🎲' },
+    yesLabel: 'Yes, perfect!',
+    noLabel:  'No, show me something else',
+  },
+};
+
+/* ── RENDER RAILS ──────────────────────────────────────────── */
+function renderLandscape() {
+  document.getElementById('rail-landscape').innerHTML = landscapeData.map(c => `
+    <div class="card-landscape" onclick="showToast('Tuning to ${c.title}…')">
+      <div class="card-img-wrap">
+        <img src="${c.img}" alt="${c.title}" loading="lazy" />
+        <div class="overlay-dim"></div>
+        <div class="channel-logo">
+          <span class="logo-badge" style="color:${c.logoColor};background:${c.logoBg};font-size:${c.logo.length > 5 ? '13px' : '17px'}">${c.logo}</span>
+        </div>
+      </div>
+      <div class="card-info">
+        <p class="card-title">${c.title}</p>
+        <p class="card-sub">${c.sub}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderSeries() {
+  document.getElementById('rail-series').innerHTML = seriesData.map(c => `
+    <div class="card-series" onclick="showToast('Playing ${c.title}…')">
+      <div class="card-img-wrap">
+        <img src="${c.img}" alt="${c.title}" loading="lazy" />
+      </div>
+      <div class="card-info">
+        <p class="card-title">${c.title}</p>
+        <p class="card-sub">${c.sub}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderContinue() {
+  document.getElementById('rail-continue').innerHTML = continueData.map(c => `
+    <div class="card-continue" onclick="showToast('Resuming ${c.title}…')">
+      <div class="card-img-wrap">
+        <img src="${c.img}" alt="${c.title}" loading="lazy" />
+        <div class="progress-overlay">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${c.progress}%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <p class="card-title">${c.title}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTop10() {
+  document.getElementById('rail-top10').innerHTML = top10Data.map((c, i) => `
+    <div class="top10-item ${c.n >= 10 ? 'double-digit' : ''}" onclick="showToast('Playing #${c.n}: ${c.title}…')">
+      <div class="top10-number">${c.n}</div>
+      <div class="top10-card">
+        <img src="${top10Imgs[i]}" alt="${c.title}" loading="lazy" />
+        <div class="top10-card-title">${c.title}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMyList() {
+  document.getElementById('rail-mylist').innerHTML = myListData.map(c => `
+    <div class="card-series" onclick="showToast('Playing ${c.title.replace(/'/g,"\\'")}…')">
+      <div class="card-img-wrap"><img src="${c.img}" alt="${c.title}" loading="lazy" /></div>
+      <div class="card-info"><p class="card-title">${c.title}</p><p class="card-sub">${c.sub}</p></div>
+    </div>
+  `).join('');
+}
+
+function removeAvatarPick() {
+  const pick = document.querySelector('.p-card.avatar-pick');
+  if (pick) pick.classList.remove('avatar-pick');
+}
+
+function cardHtml(c, isPromoted) {
+  const rating = c.rating || '8.5';
+  const synopsis = c.synopsis || 'A gripping story that will keep you on the edge of your seat throughout.';
+  const titleEsc = c.title.replace(/'/g, "\\'");
+  const enterAttr = isPromoted ? '' : ' onmouseenter="removeAvatarPick()"';
+  return `
+    <div class="p-card${isPromoted ? ' avatar-pick' : ''}"${enterAttr}>
+      <img class="p-card-thumb" src="${c.img}" alt="${c.title}" loading="lazy" />
+      <p class="p-card-label">${c.title}</p>
+      <div class="p-card-hover">
+        <div class="p-hover-img-wrap">
+          <img src="${c.img}" alt="${c.title}" />
+          <div class="p-hover-scanline"></div>
+          <div class="p-hover-trailer-bar">
+            <div class="p-hover-trailer-badge">▶ Trailer</div>
+            <div class="p-hover-prog-bg"><div class="p-hover-prog-fill"></div></div>
+          </div>
+        </div>
+        <div class="p-hover-info">
+          <div class="p-hover-title">${c.title}</div>
+          <div class="p-hover-meta"><span>${c.sub}</span><span class="p-hover-age">16+</span></div>
+          <div class="p-hover-stars"><span class="p-hover-star">★</span><span class="p-hover-rating">${rating}</span></div>
+          <div class="p-hover-synopsis">${synopsis}</div>
+          <div class="p-hover-btns">
+            <button class="p-hover-btn play" onclick="showToast('▶ Playing ${titleEsc}…')">▶</button>
+            <button class="p-hover-btn" onclick="showToast('Added to My List')">+</button>
+            <button class="p-hover-btn info-btn" onclick="showToast('More info…')">i</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderGridRails(data) {
+  document.getElementById('g-grid-1').innerHTML = data.slice(0, 8).map((c, i) => cardHtml(c, i === 0)).join('');
+  document.getElementById('g-grid-2').innerHTML = data.slice(8, 16).map(c => cardHtml(c, false)).join('');
+}
+
+/* Fill related content in details overlay */
+function renderDetailsMore() {
+  document.getElementById('details-more-rail').innerHTML = portraitData.slice(1).map(c => `
+    <div class="det-rel-card" onclick="showToast('Opening ${c.title}…')">
+      <img src="${c.img}" alt="${c.title}" loading="lazy" />
+      <p class="det-rel-title">${c.title}</p>
+    </div>
+  `).join('');
+}
+
+function renderLiveChannels(data, id) {
+  document.getElementById(id).innerHTML = data.map(c => `
+    <div class="card-landscape" onclick="showToast('Tuning to ${c.title.replace(/'/g,"\\'")}…')">
+      <div class="card-img-wrap">
+        <img src="${c.img}" alt="${c.title}" loading="lazy" />
+        <div class="overlay-dim"></div>
+        <div class="channel-logo"><span class="logo-badge" style="color:${c.logoColor};background:${c.logoBg};font-size:${c.logo.length>5?'11px':'17px'}">${c.logo}</span></div>
+      </div>
+      <div class="card-info"><p class="card-title">${c.title}</p><p class="card-sub">${c.sub}</p></div>
+    </div>`).join('');
+}
+function renderSimpleLandscape(data, id) {
+  document.getElementById(id).innerHTML = data.map(c => `
+    <div class="card-series" onclick="showToast('Opening ${c.title.replace(/'/g,"\\'")}…')">
+      <div class="card-img-wrap"><img src="${c.img}" alt="${c.title}" loading="lazy" /></div>
+      <div class="card-info"><p class="card-title">${c.title}</p><p class="card-sub">${c.sub}</p></div>
+    </div>`).join('');
+}
+function renderSimplePortrait(data, id) {
+  document.getElementById(id).innerHTML = data.map(c => `
+    <div class="card-portrait" onclick="showToast('Opening ${c.title.replace(/'/g,"\\'")}…')">
+      <div class="card-img-wrap"><img src="${c.img}" alt="${c.title}" loading="lazy" /></div>
+      <div class="card-info"><p class="card-title">${c.title}</p><p class="card-sub">${c.sub}</p></div>
+    </div>`).join('');
+}
+function renderPremiumApps() {
+  document.getElementById('premium-apps').innerHTML = premiumAppsData.map(a => `
+    <div class="app-circle" onclick="showToast('Opening ${a.name}…')">
+      <div class="app-circle-img" style="background:${a.bg};">${a.text}</div>
+      <span class="app-circle-name">${a.name}</span>
+    </div>`).join('');
+}
+function renderLive() {
+  renderLiveChannels(liveChannelsData, 'live-channels');
+  renderLiveChannels(liveKidsChannelsData, 'live-kids-channels');
+  renderLiveChannels(liveSportChannelsData, 'live-sport-channels');
+  renderLiveChannels(liveLocalChannelsData, 'live-local-channels');
+}
+function renderKids() {
+  renderSimpleLandscape(kidsCategoriesData, 'kids-categories');
+  renderLiveChannels(kidsChannelsData, 'kids-channels');
+  renderSimpleLandscape(kidsGemsData, 'kids-gems');
+  renderSimpleLandscape(kidsCuteData, 'kids-cute');
+}
+function renderSport() {
+  renderSimpleLandscape(sportCategoriesData, 'sport-categories');
+  renderLiveChannels(sportChannelsData, 'sport-channels');
+  renderSimpleLandscape(sportFifaData, 'sport-fifa');
+  renderSimpleLandscape(sportFootballData, 'sport-football');
+}
+function renderPremium() {
+  renderPremiumApps();
+  renderSimplePortrait(premiumNetflixData, 'premium-netflix');
+  renderSimplePortrait(premiumDisneyData, 'premium-disney');
+  renderSimplePortrait(premiumMaxData, 'premium-max');
+}
+
+/* ── AVATAR HELPERS (stubs keep existing call-sites working) ── */
+function collapseAvatarPanel() {}
+function expandAvatarPanel()   {}
+function avatarPick(key) { if (key === 'rebel') openDetailsPage(); else openGridPage(key); }
+
+let _transcriptTimer = null;
+function showVoiceTranscript(text) {
+  const el = document.getElementById('voice-transcript');
+  if (!el) return;
+  document.getElementById('voice-text').textContent = text;
+  el.style.display = 'block';
+  clearTimeout(_transcriptTimer);
+  _transcriptTimer = setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function openDetailsForTitle(title) {
+  openDetailsPage(findContent(title));
+}
+
+/* ── DETAILS OVERLAY ──────────────────────────────────────────── */
+function openDetailsPage(item) {
+  document.getElementById('grp-panel').classList.remove('visible');
+  expandAvatarPanel();
+  renderDetailsMore();
+  document.querySelectorAll('.det-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.det-tab')[0].classList.add('active');
+  document.getElementById('det-related').style.display = 'block';
+  document.getElementById('det-info-tab').style.display = 'none';
+  if (item) {
+    const ov = document.getElementById('details-overlay');
+    const hero = ov.querySelector('.det-hero');
+    const titleEl = ov.querySelector('.det-title');
+    const synEl = ov.querySelector('.det-synopsis');
+    if (hero && item.img)     hero.src = item.img;
+    if (titleEl && item.title) titleEl.textContent = item.title;
+    if (synEl && item.synopsis) synEl.textContent = item.synopsis;
+  }
+  document.getElementById('details-overlay').classList.add('visible');
+}
+
+function closeDetailsOverlay() {
+  document.getElementById('details-overlay').classList.remove('visible');
+  expandAvatarPanel();
+}
+
+function switchDetTab(btn, tabId) {
+  btn.closest('.det-panel').querySelectorAll('.det-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('det-related').style.display = 'none';
+  document.getElementById('det-info-tab').style.display = 'none';
+  document.getElementById(tabId).style.display = 'block';
+}
+
+function avatarStartPlayback() {
+  collapseAvatarPanel();
+  showToast('▶ Playing Rebel Ridge from 48:22…');
+}
+
+function goHomeFromDetails() {
+  closeDetailsOverlay();
+  showScreen('screen-home');
+}
+
+/* ── GRID PAGE ─────────────────────────────────────────────── */
+function openGridPage(key) {
+  const set = gridSets[key] || gridSets.relaxed;
+  const data = set.data || portraitData;
+
+  document.getElementById('grid-title').textContent = set.title;
+  document.getElementById('grid-sub').textContent = set.sub + ' · ' + data.length + ' titles';
+
+  document.getElementById('grp-panel').classList.remove('visible');
+  expandAvatarPanel();
+
+  renderGridRails(data);
+  showScreen('screen-grid');
+}
+
+function goHome() {
+  showScreen('screen-home');
+  expandAvatarPanel();
+}
+
+function goLive() {
+  showScreen('screen-live');
+  renderLive();
+  expandAvatarPanel();
+}
+function goKids() {
+  showScreen('screen-kids');
+  renderKids();
+  expandAvatarPanel();
+}
+function goSport() {
+  showScreen('screen-sport');
+  renderSport();
+  expandAvatarPanel();
+}
+function goPremium() {
+  showScreen('screen-premium');
+  renderPremium();
+  expandAvatarPanel();
+}
+
+function hideGridPanel() {
+  document.getElementById('grp-panel').classList.remove('visible');
+  document.getElementById('grp-bubble').classList.add('visible');
+}
+function toggleGridPanel() {
+  const panel = document.getElementById('grp-panel');
+  const bubble = document.getElementById('grp-bubble');
+  if (panel.classList.contains('visible')) {
+    panel.classList.remove('visible');
+    bubble.classList.add('visible');
+  } else {
+    panel.classList.add('visible');
+    bubble.classList.remove('visible');
+  }
+}
+
+function grpYes(key) {
+  document.getElementById('grp-pills').innerHTML =
+    '<p style="color:rgba(255,255,255,.7);font-size:14px;text-align:center;font-family:Lato,sans-serif;line-height:1.6;">🎉 Wonderful!<br>Enjoy your watch. I\'m here whenever you need more suggestions!</p>';
+  showToast('Enjoy your watch! 🎉');
+}
+function grpNo(key) {
+  document.getElementById('grp-question-text').textContent = 'What mood are you in?';
+  document.getElementById('grp-pills').innerHTML = `
+    <button class="grp-pill" onclick="openGridPage('relaxed')">😌 Show me something calm</button>
+    <button class="grp-pill" onclick="openGridPage('excited')">⚡ Thrill me now</button>
+    <button class="grp-pill" onclick="openGridPage('surprise')">🎲 Surprise me</button>
+  `;
+}
+
+/* ── SCREEN NAV ────────────────────────────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  document.querySelectorAll('.top-nav').forEach(n => n.classList.remove('nav-scrolled'));
+}
+
+window.addEventListener('scroll', function () {
+  const solid = window.scrollY > 60;
+  document.querySelectorAll('.top-nav').forEach(n => n.classList.toggle('nav-scrolled', solid));
+}, { passive: true });
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+/* ── CONTENT CATALOGUE ─────────────────────────────────────── */
+function _allContent() {
+  return [
+    ...portraitData, ...comedyData, ...thrillData, ...relaxingData,
+    ...surpriseMixData, ...myListData, ...seriesData,
+    ...kidsGemsData, ...kidsCuteData,
+    ...sportFifaData, ...sportFootballData,
+    ...continueData,
+  ].filter((item, idx, arr) => arr.findIndex(x => x.title === item.title) === idx);
+}
+
+function findContent(name) {
+  if (!name) return _allContent()[0];
+  const all = _allContent();
+  const q = name.toLowerCase().trim();
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+  const nq = norm(q);
+  let hit = all.find(item => norm(item.title) === nq);
+  if (!hit) hit = all.find(item => norm(item.title).includes(nq) || nq.includes(norm(item.title)));
+  if (!hit) {
+    const words = nq.split(/\s+/).filter(w => w.length > 3);
+    if (words.length) hit = all.find(item => words.every(w => norm(item.title).includes(w)));
+  }
+  return hit || all[0];
+}
+
+/* ── PLAYER ────────────────────────────────────────────────── */
+function openPlayer(item) {
+  if (!item) return;
+  document.getElementById('player-bg-blur').src = item.img || '';
+  document.getElementById('player-title-el').textContent = item.title || '';
+  document.getElementById('player-meta-el').textContent = item.sub || '';
+  const pct = item.progress != null ? item.progress : (Math.floor(Math.random() * 35) + 5);
+  document.getElementById('player-fill-el').style.width = pct + '%';
+  const totalSec = 6840;
+  const curSec = Math.floor(totalSec * pct / 100);
+  const hh = Math.floor(curSec / 3600);
+  const mm = Math.floor((curSec % 3600) / 60);
+  const ss = curSec % 60;
+  document.getElementById('player-cur-el').textContent =
+    hh > 0 ? `${hh}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`
+            : `${mm}:${String(ss).padStart(2,'0')}`;
+  document.getElementById('details-overlay').classList.remove('visible');
+  document.getElementById('player-overlay').classList.add('visible');
+  showToast('▶ Playing ' + item.title);
+}
+
+function closePlayer() {
+  document.getElementById('player-overlay').classList.remove('visible');
+}
+
+/* ── AVATAR SPEECH HANDLER ─────────────────────────────────── */
+function _navAfterSpeech(fn) {
+  setTimeout(fn, 1200);
+}
+
+function handleAvatarSpeech(text) {
+  if (!text || typeof text !== 'string') return;
+  const t = text.toLowerCase().trim();
+  if (t.length < 4) return;
+  console.log('[Avatar speech]', text);
+
+  /* — "I will take you to KIDS/HOME/SPORT/LIVE/PREMIUM [page]" — */
+  const pageNav = t.match(/take\s+you\s+to\s+(?:the\s+)?(\w+)/);
+  if (pageNav) {
+    const pg = pageNav[1];
+    if (/^kids?$/.test(pg))  { _navAfterSpeech(goKids);    return; }
+    if (/^home$/.test(pg))   { _navAfterSpeech(goHome);    return; }
+    if (/^sport/.test(pg))   { _navAfterSpeech(goSport);   return; }
+    if (/^live$/.test(pg))   { _navAfterSpeech(goLive);    return; }
+    if (/^premium/.test(pg)) { _navAfterSpeech(goPremium); return; }
+    /* If not a page, fall through to content matching below */
+  }
+
+  /* — "let me recommend you some content" — */
+  if (/\brecommend\b|\bsome\s+content\b|\bsuggestion\b|\bpicks?\s+for\s+you\b/.test(t)) {
+    const key = /thrill|action|excit/.test(t) ? 'excited' :
+                /relax|calm|chill/.test(t)    ? 'relaxed' :
+                /comedy/.test(t)              ? 'comedy'  : 'relaxed';
+    _navAfterSpeech(() => openGridPage(key));
+    return;
+  }
+
+  /* — "let me take you to [title]" — */
+  const takeM = t.match(/let\s+me\s+take\s+you\s+to\s+(.+)/);
+  if (takeM) {
+    const name = takeM[1].replace(/[.!?]+$/, '').trim();
+    _navAfterSpeech(() => openDetailsPage(findContent(name)));
+    return;
+  }
+
+  /* — "let me play [title]" — */
+  const playM = t.match(/let\s+me\s+play\s+(.+)/);
+  if (playM) {
+    const name = playM[1].replace(/[.!?]+$/, '').trim();
+    _navAfterSpeech(() => openPlayer(findContent(name)));
+    return;
+  }
+
+  /* Broader fallbacks */
+  if (/\bplay\b/.test(t)) {
+    const m = t.match(/\bplay\s+(.+?)(?:\s+for\s+you|\s+now\b|[.!?]|$)/);
+    if (m) { _navAfterSpeech(() => openPlayer(findContent(m[1]))); return; }
+  }
+}
+
+/* ── INIT ──────────────────────────────────────────────────── */
+renderLandscape();
+renderContinue();
+renderMyList();
+renderTop10();
+renderSeries();
+</script>
+
+<script>
+/* ── AVATAR SPEECH EVENT LISTENERS ─────────────────────────────
+   Receives navigation commands from the eself avatar via postMessage
+   and custom DOM events, then routes them to handleAvatarSpeech.
+──────────────────────────────────────────────────────────────── */
+(function () {
+  function safe(fn) { return function() { try { fn.apply(this, arguments); } catch(e){} }; }
+
+  window.addEventListener('message', safe(function (e) {
+    var d = e.data;
+    if (!d) return;
+    var text = typeof d === 'string' ? d
+             : (d.text || d.message || d.transcript || d.content || d.utterance || d.speech || '');
+    if (text && typeof text === 'string' && text.length > 4) handleAvatarSpeech(text);
+  }));
+
+  ['eselfMessage','eselfSpeech','agentMessage','agentSpeech','avatarSpeech',
+   'ttsSpeak','tts:speak','eself:message','eself:speech'].forEach(function (evName) {
+    window.addEventListener(evName, safe(function (e) {
+      var d = e.detail || {};
+      var text = typeof d === 'string' ? d : (d.text || d.message || d.transcript || '');
+      if (text) handleAvatarSpeech(text);
+    }));
+  });
+})();
+</script>
+</body>
+</html>
