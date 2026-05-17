@@ -1644,22 +1644,54 @@ const gridSets = {
 };
 
 /* ── RENDER RAILS ──────────────────────────────────────────── */
-function renderLandscape() {
-  document.getElementById('rail-landscape').innerHTML = landscapeData.map(c => `
-    <div class="card-landscape" onclick="showToast('Tuning to ${c.title}…')">
-      <div class="card-img-wrap">
-        <img src="${c.img}" alt="${c.title}" loading="lazy" />
-        <div class="overlay-dim"></div>
-        <div class="channel-logo">
-          <span class="logo-badge" style="color:${c.logoColor};background:${c.logoBg};font-size:${c.logo.length > 5 ? '13px' : '17px'}">${c.logo}</span>
-        </div>
-      </div>
-      <div class="card-info">
-        <p class="card-title">${c.title}</p>
-        <p class="card-sub">${c.sub}</p>
+function _landscapeCardHtml(c) {
+  const t = c.title.replace(/'/g, "\\'");
+  const logo = c.logo || c.title.substring(0, 6).toUpperCase();
+  const logoColor = c.logoColor || '#fff';
+  const logoBg    = c.logoBg    || 'rgba(0,0,0,.0)';
+  const fontSize  = logo.length > 5 ? '13px' : '17px';
+  return `<div class="card-landscape" onclick="showToast('Tuning to ${t}…')">
+    <div class="card-img-wrap">
+      <img src="${c.img}" alt="${c.title}" loading="lazy" />
+      <div class="overlay-dim"></div>
+      <div class="channel-logo">
+        <span class="logo-badge" style="color:${logoColor};background:${logoBg};font-size:${fontSize}">${logo}</span>
       </div>
     </div>
-  `).join('');
+    <div class="card-info">
+      <p class="card-title">${c.title}</p>
+      <p class="card-sub">${c.sub}</p>
+    </div>
+  </div>`;
+}
+function _apiToLandscapeCard(a) {
+  const imgs = a.images || [];
+  const img  = imgs.find(i => /16.9|landscape/i.test(i.ratio || '')) || imgs[0];
+  const m    = a.metas || {}, t = a.tags || {};
+  const year = (m.ReleaseYear && m.ReleaseYear.value) || '';
+  const genre = ((t.Genre || t.Genres || t.genre || [])[0]) || '';
+  return {
+    title:     a.name || 'Untitled',
+    sub:       [year, genre].filter(Boolean).join(' · ') || 'Live Channel',
+    img:       (img && img.url) || 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&q=80',
+    logo:      (a.name || '').substring(0, 6).toUpperCase(),
+    logoColor: '#fff',
+    logoBg:    'rgba(0,0,0,.0)',
+  };
+}
+function renderLandscape() {
+  const rail = document.getElementById('rail-landscape');
+  rail.innerHTML = landscapeData.map(_landscapeCardHtml).join('');
+  KAL.call('asset', 'list', {
+    filter: { objectType: 'KalturaChannelFilter', idEqual: 369679 },
+    pager:  { pageIndex: 1, pageSize: 20 },
+  }).then(res => {
+    const cards = ((res && res.objects) || []).map(_apiToLandscapeCard);
+    if (cards.length >= 2) {
+      console.log('[KAL] channels (369679):', cards.length, 'items');
+      rail.innerHTML = cards.map(_landscapeCardHtml).join('');
+    }
+  }).catch(() => {});
 }
 
 function renderSeries() {
