@@ -739,6 +739,154 @@ body { font-family: 'Poppins', sans-serif; background: #0d0d0d; color: #fff; ove
   background: #0d0d0d;
   min-height: 100vh;
 }
+
+/* ═══════════════════════════════════════════════
+   REBEL RIDGE DETAILS SCREEN
+═══════════════════════════════════════════════ */
+#screen-rebel-ridge { background: #0d0d0d; }
+.rr-page { display: flex; height: 100vh; overflow: hidden; position: relative; }
+.rr-bg-blur {
+  position: absolute; inset: 0; z-index: 0;
+  background: url('https://www.figma.com/api/mcp/asset/d87095ab-8501-41ed-9a3c-47511ffaae32') center/cover no-repeat;
+  filter: blur(28px) brightness(.22); transform: scale(1.06);
+}
+.rr-left {
+  position: relative; z-index: 2;
+  flex: 0 0 42%; padding: 110px 52px 48px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.rr-badge-row { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.rr-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px; border: 1px solid rgba(255,255,255,.45); color: #fff; letter-spacing: .4px; }
+.rr-badge.hd { background: var(--blue); border-color: var(--blue); }
+.rr-title-main { font-size: 52px; font-weight: 700; color: #fff; line-height: 1.05; margin-bottom: 14px; }
+.rr-meta-row { display: flex; align-items: center; gap: 14px; font-size: 14px; color: rgba(255,255,255,.7); margin-bottom: 22px; flex-wrap: wrap; }
+.rr-star { color: #f5a623; }
+.rr-synopsis {
+  font-size: 15px; color: rgba(255,255,255,.78); line-height: 1.65;
+  max-width: 510px; margin-bottom: 32px;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rr-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+.rr-btn-watch {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; color: #000; padding: 13px 30px; border-radius: 6px; border: none;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: background .2s;
+}
+.rr-btn-watch:hover { background: rgba(255,255,255,.85); }
+.rr-btn-outline {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12); color: #fff;
+  padding: 13px 22px; border-radius: 6px; border: 1.5px solid rgba(255,255,255,.45);
+  font-size: 15px; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px);
+  transition: background .2s, border-color .2s;
+}
+.rr-btn-outline:hover { background: rgba(255,255,255,.22); border-color: #fff; }
+.rr-cast { font-size: 13px; color: rgba(255,255,255,.45); line-height: 1.7; }
+.rr-cast strong { color: rgba(255,255,255,.65); }
+.rr-right {
+  position: relative; z-index: 2;
+  flex: 0 0 58%; background: #1c1c1c;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.rr-hero-wrap { position: relative; flex-shrink: 0; }
+.rr-hero-img { width: 100%; height: 400px; object-fit: cover; display: block; }
+.rr-close-btn {
+  position: absolute; top: 16px; right: 20px;
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,.55);
+  background: rgba(0,0,0,.55); color: #fff; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .2s; z-index: 5;
+}
+.rr-close-btn:hover { background: rgba(0,0,0,.9); }
+.rr-tabs-row {
+  display: flex; gap: 44px; padding: 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,.1); flex-shrink: 0; margin-top: 6px;
+}
+.rr-tab {
+  padding: 16px 0; font-size: 15px; font-weight: 400; color: rgba(255,255,255,.5);
+  background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color .18s; white-space: nowrap;
+}
+.rr-tab.active { color: #fff; font-weight: 600; border-bottom-color: var(--blue); }
+.rr-tab:hover:not(.active) { color: rgba(255,255,255,.8); }
+.rr-season-row {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 14px 40px 8px; flex-shrink: 0; gap: 14px;
+}
+.rr-season-dropdown {
+  display: flex; align-items: center; gap: 10px;
+  background: #1c1c1c; border: 1px solid #a2a2a2; border-radius: 100px;
+  padding: 10px 20px; cursor: pointer; color: #fff; font-size: 18px; font-weight: 700;
+}
+.rr-season-count { font-size: 12px; color: rgba(255,255,255,.55); font-weight: 400; }
+.rr-episode-list { flex: 1; overflow-y: auto; padding: 0 40px 40px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+.rr-episode {
+  display: flex; gap: 22px; padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06); cursor: pointer;
+}
+.rr-episode:hover { opacity: .82; }
+.rr-ep-thumb { position: relative; flex-shrink: 0; width: 200px; height: 112px; border-radius: 10px; overflow: hidden; }
+.rr-ep-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rr-ep-play-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.28);
+}
+.rr-ep-play-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,.22); border: 2px solid rgba(255,255,255,.7);
+  display: flex; align-items: center; justify-content: center; font-size: 15px; padding-left: 3px;
+}
+.rr-ep-progress-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: rgba(255,255,255,.18); border-radius: 0 0 10px 10px; }
+.rr-ep-progress-fill { height: 100%; border-radius: 0 0 10px 10px; }
+.rr-ep-info { display: flex; flex-direction: column; padding-top: 4px; }
+.rr-ep-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.rr-ep-dur { border: 1px solid rgba(255,255,255,.85); border-radius: 2px; padding: 2px 7px; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; }
+.rr-ep-name { font-size: 15px; color: #fff; }
+.rr-ep-name strong { font-weight: 700; }
+.rr-ep-desc { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.5; max-width: 440px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════
+   BRITISH COMEDIES GRID SCREEN
+═══════════════════════════════════════════════ */
+#screen-british-comedies { background: #0d0d0d; min-height: 100vh; }
+.bc-page { padding: 90px 60px 60px; }
+.bc-back-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 1.5px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.6); border-radius: 6px;
+  padding: 8px 18px; font-size: 14px; cursor: pointer; margin-bottom: 28px;
+  transition: color .2s, border-color .2s;
+}
+.bc-back-btn:hover { color: #fff; border-color: #fff; }
+.bc-page-title { font-size: 35px; font-weight: 500; color: #fff; margin-bottom: 32px; }
+.bc-grid-wrap { position: relative; overflow: visible; }
+.bc-row { display: flex; gap: 8px; margin-bottom: 8px; overflow: visible; position: relative; }
+.bc-card { position: relative; cursor: pointer; z-index: 1; flex-shrink: 0; width: 224px; }
+.bc-card:hover { z-index: 40; }
+.bc-card-img { width: 224px; height: 336px; border-radius: 12px; object-fit: cover; display: block; transition: opacity .18s; }
+.bc-card:hover .bc-card-img { opacity: 0; }
+.bc-card-label { margin-top: 10px; font-size: 15px; font-weight: 500; color: #fff; padding: 0 4px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-hover {
+  display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 340px; background: #383838; border-radius: 12px;
+  box-shadow: 0 6px 28px rgba(0,0,0,.85); z-index: 50; overflow: hidden;
+}
+.bc-card:hover .bc-hover { display: block; }
+.bc-row .bc-card:first-child .bc-hover { left: 0; transform: translateY(-50%); }
+.bc-row .bc-card:last-child  .bc-hover { left: auto; right: 0; transform: translateY(-50%); }
+.bc-hover-img { width: 100%; height: 204px; object-fit: cover; display: block; }
+.bc-hover-body { padding: 18px 20px; }
+.bc-hover-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+.bc-hover-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,.75); margin-bottom: 8px; flex-wrap: wrap; }
+.bc-hover-age { border: 1px solid rgba(255,255,255,.7); border-radius: 5px; padding: 2px 7px; font-size: 12px; font-weight: 700; }
+.bc-hover-stars { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.bc-hover-star { color: #f5a623; font-size: 17px; }
+.bc-hover-rating { font-size: 17px; font-weight: 600; color: #fff; }
+.bc-hover-synopsis { font-size: 12px; color: rgba(255,255,255,.72); line-height: 1.55; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.bc-hover-btns { display: flex; gap: 10px; }
+.bc-hover-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,255,255,.55); background: transparent; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+.bc-hover-btn.play { background: #fff; color: #000; border-color: #fff; font-size: 11px; padding-left: 2px; }
+.bc-hover-btn:not(.play):hover { background: rgba(255,255,255,.15); }
 </style>
 </head>
 <body>
@@ -998,6 +1146,406 @@ body { font-family: 'Poppins', sans-serif; background: #0d0d0d; color: #fff; ove
     <div class="rail-section"><p class="rail-title">Top Max Recommendations</p><div class="rail-row" id="premium-max"></div></div>
   </div>
 </div><!-- /screen-premium -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — REBEL RIDGE DETAILS
+══════════════════════════════════════ -->
+<div id="screen-rebel-ridge" class="screen">
+  <div class="rr-page">
+    <div class="rr-bg-blur"></div>
+
+    <!-- Left info column -->
+    <div class="rr-left">
+      <div class="rr-badge-row">
+        <span class="rr-badge hd">HD</span>
+        <span class="rr-badge">16+</span>
+        <span class="rr-badge">Action</span>
+        <span class="rr-badge">Thriller</span>
+      </div>
+      <h1 class="rr-title-main">Rebel Ridge</h1>
+      <div class="rr-meta-row">
+        <span>2024</span><span>·</span>
+        <span>1h 54m</span><span>·</span>
+        <span class="rr-star">★</span><span>8.8</span>
+      </div>
+      <p class="rr-synopsis">Terry Richmond's seemingly routine traffic stop by small-town cops spirals into a do-or-die standoff for justice when he goes to recover his impounded cash—money desperately needed to bail out his imprisoned cousin.</p>
+      <div class="rr-btns">
+        <button class="rr-btn-watch" onclick="avatarStartPlayback()">▶ Watch Now</button>
+        <button class="rr-btn-outline" onclick="showToast('Playing trailer…')">▷ Trailer</button>
+        <button class="rr-btn-outline" onclick="showToast('Added to My List')">+ My List</button>
+        <button class="rr-btn-outline" onclick="showToast('More info…')">⋯ More Info</button>
+      </div>
+      <div class="rr-cast">
+        <strong>Cast:</strong> Aaron Pierre, Don Johnson, Dana Lee<br>
+        <strong>Director:</strong> Jeremy Saulnier &nbsp;·&nbsp; <strong>Netflix Original</strong>
+      </div>
+    </div>
+
+    <!-- Right episode panel -->
+    <div class="rr-right">
+      <div class="rr-hero-wrap">
+        <img class="rr-hero-img"
+             src="https://www.figma.com/api/mcp/asset/d87095ab-8501-41ed-9a3c-47511ffaae32"
+             alt="Rebel Ridge" />
+        <button class="rr-close-btn" onclick="goHome()">✕</button>
+      </div>
+      <div class="rr-tabs-row">
+        <button class="rr-tab active">Episodes</button>
+        <button class="rr-tab" onclick="showToast('Related Content')">Related Content</button>
+        <button class="rr-tab" onclick="showToast('Details')">Details</button>
+      </div>
+      <div class="rr-season-row">
+        <span class="rr-season-count">100 Episodes</span>
+        <div class="rr-season-dropdown">Season 1 <span style="font-size:11px;opacity:.6;margin-left:6px">▾</span></div>
+      </div>
+      <div class="rr-episode-list">
+        <div class="rr-episode" onclick="showToast('Resuming Episode 1…')">
+          <div class="rr-ep-thumb">
+            <img src="https://www.figma.com/api/mcp/asset/eaefbc79-d5e5-433f-b238-b9fefb2b2172" alt="Ep 1" />
+            <div class="rr-ep-play-overlay"><div class="rr-ep-play-circle">▶</div></div>
+            <div class="rr-ep-progress-bar"><div class="rr-ep-progress-fill" style="width:55%;background:var(--blue)"></div></div>
+          </div>
+          <div class="rr-ep-info">
+            <div class="rr-ep-header">
+              <span class="rr-ep-dur">22m</span>
+              <span class="rr-ep-name">Episode 1 · <strong>Pilot</strong></span>
+            </div>
+            <p class="rr-ep-desc">Terry Richmond's traffic stop spirals into a standoff with small-town police as he fights to recover impounded cash to free his imprisoned cousin.</p>
+          </div>
+        </div>
+        <div class="rr-episode" onclick="showToast('Playing Episode 2…')">
+          <div class="rr-ep-thumb">
+            <img src="https://www.figma.com/api/mcp/asset/996fd2fe-3dc3-48d3-a36b-1124c8da3d64" alt="Ep 2" />
+            <div class="rr-ep-play-overlay"><div class="rr-ep-play-circle">▶</div></div>
+            <div class="rr-ep-progress-bar"><div class="rr-ep-progress-fill" style="width:0%;background:rgba(255,255,255,.3)"></div></div>
+          </div>
+          <div class="rr-ep-info">
+            <div class="rr-ep-header">
+              <span class="rr-ep-dur">22m</span>
+              <span class="rr-ep-name">Episode 2 · <strong>Deeper</strong></span>
+            </div>
+            <p class="rr-ep-desc">The standoff deepens as Richmond uncovers the web of corruption protecting the local police force and the town's dark secrets.</p>
+          </div>
+        </div>
+        <div class="rr-episode" onclick="showToast('Playing Episode 3…')">
+          <div class="rr-ep-thumb">
+            <img src="https://www.figma.com/api/mcp/asset/aa5338e0-160c-4c86-9fb7-42b893f44c59" alt="Ep 3" />
+            <div class="rr-ep-play-overlay"><div class="rr-ep-play-circle">▶</div></div>
+          </div>
+          <div class="rr-ep-info">
+            <div class="rr-ep-header">
+              <span class="rr-ep-dur">22m</span>
+              <span class="rr-ep-name">Episode 3 · <strong>Standoff</strong></span>
+            </div>
+            <p class="rr-ep-desc">With no way out and his cousin's life on the line, Richmond is forced to make an impossible choice between justice and survival.</p>
+          </div>
+        </div>
+        <div class="rr-episode" onclick="showToast('Playing Episode 4…')">
+          <div class="rr-ep-thumb">
+            <img src="https://www.figma.com/api/mcp/asset/797107a7-799f-414e-9d36-a7c9428a0dc1" alt="Ep 4" />
+            <div class="rr-ep-play-overlay"><div class="rr-ep-play-circle">▶</div></div>
+          </div>
+          <div class="rr-ep-info">
+            <div class="rr-ep-header">
+              <span class="rr-ep-dur">22m</span>
+              <span class="rr-ep-name">Episode 4 · <strong>The Decision</strong></span>
+            </div>
+            <p class="rr-ep-desc">Richmond faces the consequences of his actions as the town's officials close in and the truth about the stolen cash comes to light.</p>
+          </div>
+        </div>
+      </div><!-- /rr-episode-list -->
+    </div><!-- /rr-right -->
+  </div><!-- /rr-page -->
+</div><!-- /screen-rebel-ridge -->
+
+
+<!-- ══════════════════════════════════════
+     SCREEN — BRITISH COMEDIES GRID
+══════════════════════════════════════ -->
+<div id="screen-british-comedies" class="screen">
+  <div class="bc-page">
+    <button class="bc-back-btn" onclick="goHome()">← Back</button>
+    <h2 class="bc-page-title">British Comedies</h2>
+    <div class="bc-grid-wrap">
+      <div class="bc-row">
+        <div class="bc-card" onclick="showToast('Opening Rebel Ridge…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/22bc7ea5-34f3-44a0-b2c4-5e2491923018" alt="Rebel Ridge" />
+          <p class="bc-card-label">Rebel Ridge</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/22bc7ea5-34f3-44a0-b2c4-5e2491923018" alt="Rebel Ridge" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Rebel Ridge</p>
+              <div class="bc-hover-meta"><span>2024 · Action, Thriller</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">8.8</span></div>
+              <p class="bc-hover-synopsis">Terry Richmond's routine traffic stop spirals into a standoff for justice when small-town cops seize his cash.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play" onclick="avatarStartPlayback()">▶</button>
+                <button class="bc-hover-btn" onclick="showToast('Added to My List')">+</button>
+                <button class="bc-hover-btn" onclick="openRebelRidge()" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Fear Street…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/836ee8d6-c0e3-490d-9a76-c2346a9c4a33" alt="Fear Street: Part One 1994" />
+          <p class="bc-card-label">Fear Street: Part One 1994</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/836ee8d6-c0e3-490d-9a76-c2346a9c4a33" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Fear Street: Part One 1994</p>
+              <div class="bc-hover-meta"><span>2021 · Horror, Thriller</span><span class="bc-hover-age">18+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">6.5</span></div>
+              <p class="bc-hover-synopsis">A gang of teenagers stumble upon the terrifying connection between the massacres that have plagued their town for 300 years.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening I Am the Night…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/b46505b3-4c94-446c-aa98-c98c426bcedc" alt="I am the Night" />
+          <p class="bc-card-label">I am the Night</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/b46505b3-4c94-446c-aa98-c98c426bcedc" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">I am the Night</p>
+              <div class="bc-hover-meta"><span>2019 · Crime, Drama</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">7.2</span></div>
+              <p class="bc-hover-synopsis">A young woman searches for the truth about her origins and becomes entangled in one of Hollywood's most notorious scandals.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Jungle Cruise…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/97e8de7d-ca33-41c1-8c6a-c81dceb1b7d0" alt="Jungle Cruise" />
+          <p class="bc-card-label">Jungle Cruise</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/97e8de7d-ca33-41c1-8c6a-c81dceb1b7d0" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Jungle Cruise</p>
+              <div class="bc-hover-meta"><span>2021 · Adventure, Comedy</span><span class="bc-hover-age">PG</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">6.6</span></div>
+              <p class="bc-hover-synopsis">A riverboat captain takes a scientist on a mission to find the Tree of Life, which is believed to possess healing powers.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Black Widow…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/2182e904-9ce1-47d4-9e41-7ab2379ca5d9" alt="Black Widow" />
+          <p class="bc-card-label">Black Widow</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/53f2c2d6-b4ab-406a-b789-d4f73fd5b147" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Black Widow</p>
+              <div class="bc-hover-meta"><span>2021 · Action, Super hero</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">8.8</span></div>
+              <p class="bc-hover-synopsis">Natasha Romanoff confronts the darker parts of her ledger when a dangerous conspiracy with ties to her past arises.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening The Suicide Squad…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/e00d7b6d-087b-4c6b-9580-d5bb8e11a266" alt="The Suicide Squad" />
+          <p class="bc-card-label">The Suicide Squad</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/e00d7b6d-087b-4c6b-9580-d5bb8e11a266" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">The Suicide Squad</p>
+              <div class="bc-hover-meta"><span>2021 · Action, Comedy</span><span class="bc-hover-age">18+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">7.2</span></div>
+              <p class="bc-hover-synopsis">Supervillains Harley Quinn, Bloodsport and King Shark join the government task force that is sent to the remote island of Corto Maltese.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Space Jam…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/a44de4f8-c37e-43c7-ba16-fb7726976cf6" alt="Space Jam: A New Legacy" />
+          <p class="bc-card-label">Space Jam: A New Legacy</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/a44de4f8-c37e-43c7-ba16-fb7726976cf6" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Space Jam: A New Legacy</p>
+              <div class="bc-hover-meta"><span>2021 · Animation, Sports</span><span class="bc-hover-age">PG</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">5.4</span></div>
+              <p class="bc-hover-synopsis">LeBron James teams up with the Looney Tunes to defeat a rogue A.I. and save his son in an epic, all-star basketball showdown.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /bc-row 1 -->
+
+      <div class="bc-row">
+        <div class="bc-card" onclick="showToast('Opening The Wheel of Time…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/322bec2a-90ec-4d65-b16e-3355fe77f5a6" alt="The Wheel of Time" />
+          <p class="bc-card-label">The Wheel of Time</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/322bec2a-90ec-4d65-b16e-3355fe77f5a6" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">The Wheel of Time</p>
+              <div class="bc-hover-meta"><span>2021 · Fantasy, Drama</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">7.1</span></div>
+              <p class="bc-hover-synopsis">A powerful organisation searches for a young man or woman who will fulfill an ancient prophecy and face the Dark One.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Arcane…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/c3de658c-a57b-46d2-8564-c9bd13c6831b" alt="Arcane" />
+          <p class="bc-card-label">Arcane</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/c3de658c-a57b-46d2-8564-c9bd13c6831b" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Arcane</p>
+              <div class="bc-hover-meta"><span>2021 · Animation, Action</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">9.0</span></div>
+              <p class="bc-hover-synopsis">Set in the utopian city of Piltover and the oppressed underground of Zaun, the story follows the origins of two iconic League of Legends champions.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening The Morning Show…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/54b4266f-5976-441e-82bf-cf33a474b32c" alt="The Morning Show" />
+          <p class="bc-card-label">The Morning Show</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/54b4266f-5976-441e-82bf-cf33a474b32c" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">The Morning Show</p>
+              <div class="bc-hover-meta"><span>2019 · Drama</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">8.2</span></div>
+              <p class="bc-hover-synopsis">An inside look at the cutthroat world of morning news and the ego, ambition and desire that makes up the people at the top.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening See…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/be44b3c5-2482-40f4-8513-602122358832" alt="See" />
+          <p class="bc-card-label">See</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/be44b3c5-2482-40f4-8513-602122358832" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">See</p>
+              <div class="bc-hover-meta"><span>2019 · Sci-Fi, Drama</span><span class="bc-hover-age">18+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">7.6</span></div>
+              <p class="bc-hover-synopsis">Set far in the future after a virus decimated humankind and took away the gift of sight, a father and husband must protect his tribe.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Squid Game…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/a8d184b2-bf04-42a7-a883-7eeee08e93c0" alt="Squid Game" />
+          <p class="bc-card-label">Squid Game</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/a8d184b2-bf04-42a7-a883-7eeee08e93c0" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Squid Game</p>
+              <div class="bc-hover-meta"><span>2021 · Thriller, Drama</span><span class="bc-hover-age">18+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">8.0</span></div>
+              <p class="bc-hover-synopsis">Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a deadly game awaits.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Only Murders…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/915e41f1-1dfc-496d-b7ca-c4c39c3179b4" alt="Only Murders in the Building" />
+          <p class="bc-card-label">Only Murders in the Building</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/915e41f1-1dfc-496d-b7ca-c4c39c3179b4" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Only Murders in the Building</p>
+              <div class="bc-hover-meta"><span>2021 · Comedy, Mystery</span><span class="bc-hover-age">12+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">8.1</span></div>
+              <p class="bc-hover-synopsis">Three strangers who share an obsession with true crime podcasts find themselves suspects in a murder investigation in their building.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Nine Perfect Strangers…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/8fc2463e-5cc3-4db0-af57-dbd023e158bb" alt="Nine Perfect Strangers" />
+          <p class="bc-card-label">Nine Perfect Strangers</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/8fc2463e-5cc3-4db0-af57-dbd023e158bb" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Nine Perfect Strangers</p>
+              <div class="bc-hover-meta"><span>2021 · Drama, Thriller</span><span class="bc-hover-age">16+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">6.6</span></div>
+              <p class="bc-hover-synopsis">Nine stressed city dwellers go to a remote health-and-wellness resort and find themselves at the mercy of a charismatic director.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bc-card" onclick="showToast('Opening Midnight Mass…')">
+          <img class="bc-card-img" src="https://www.figma.com/api/mcp/asset/e2582d58-e8b0-465c-b97e-e48b02849c3d" alt="Midnight Mass" />
+          <p class="bc-card-label">Midnight Mass</p>
+          <div class="bc-hover">
+            <img class="bc-hover-img" src="https://www.figma.com/api/mcp/asset/e2582d58-e8b0-465c-b97e-e48b02849c3d" alt="" />
+            <div class="bc-hover-body">
+              <p class="bc-hover-title">Midnight Mass</p>
+              <div class="bc-hover-meta"><span>2021 · Horror, Drama</span><span class="bc-hover-age">18+</span></div>
+              <div class="bc-hover-stars"><span class="bc-hover-star">★</span><span class="bc-hover-rating">7.7</span></div>
+              <p class="bc-hover-synopsis">A small, isolated island community experiences miraculous events after the arrival of a mysterious young priest.</p>
+              <div class="bc-hover-btns">
+                <button class="bc-hover-btn play">▶</button>
+                <button class="bc-hover-btn">+</button>
+                <button class="bc-hover-btn" style="font-style:italic;font-weight:700">i</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /bc-row 2 -->
+    </div><!-- /bc-grid-wrap -->
+  </div><!-- /bc-page -->
+</div><!-- /screen-british-comedies -->
 
 
 <!-- ══════════════════════════════════════
@@ -1867,7 +2415,13 @@ function renderPremium() {
 /* ── AVATAR HELPERS (stubs keep existing call-sites working) ── */
 function collapseAvatarPanel() {}
 function expandAvatarPanel()   {}
-function avatarPick(key) { if (key === 'rebel') openDetailsPage(); else openGridPage(key); }
+function avatarPick(key) {
+  if (key === 'rebel') openRebelRidge();
+  else if (key === 'british') openBritishComedies();
+  else openGridPage(key);
+}
+function openRebelRidge() { showScreen('screen-rebel-ridge'); }
+function openBritishComedies() { showScreen('screen-british-comedies'); }
 
 let _transcriptTimer = null;
 function showVoiceTranscript(text) {
@@ -2108,6 +2662,14 @@ function handleAvatarSpeech(text) {
     if (/^live$/.test(pg))   { _navAfterSpeech(goLive);    return; }
     if (/^premium/.test(pg)) { _navAfterSpeech(goPremium); return; }
     /* If not a page, fall through to content matching below */
+  }
+
+  /* — "rebel ridge" detail page or "british comedies" grid — */
+  if (/rebel\s+ridge/.test(t) && /detail|page|info|about/.test(t)) {
+    _navAfterSpeech(openRebelRidge); return;
+  }
+  if (/british\s+com(edy|edies)/.test(t) || /\bbritish\b.*\bgrid\b/.test(t)) {
+    _navAfterSpeech(openBritishComedies); return;
   }
 
   /* — "let me recommend you some content" — */
