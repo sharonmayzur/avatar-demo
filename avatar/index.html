@@ -1185,6 +1185,101 @@ window._avatarSpeaking = false;
 <div class="toast" id="toast"></div>
 
 <script>
+/* ── KALTURA OTT API ──────────────────────────────────────────
+   Partner: 1230  |  Environment: develop
+   Calls fall back gracefully to mock data on any error.
+   Update KAL.BASE if your OTT environment URL differs.
+────────────────────────────────────────────────────────────── */
+const KAL = {
+  BASE: 'https://1230.ott.kaltura.com/api_v3',
+  PARTNER: 1230,
+  VER: '7.0.0',
+  _ks: null, _ksP: null,
+
+  async ks() {
+    if (this._ks) return this._ks;
+    if (this._ksP) return this._ksP;
+    this._ksP = fetch(this.BASE + '/service/ottUser/action/anonymousLogin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiVersion: this.VER, partnerId: this.PARTNER,
+        udid: 'avatar-demo-' + Math.random().toString(36).slice(2, 10) }),
+      signal: AbortSignal.timeout(7000),
+    }).then(r => r.json()).then(d => {
+      if (d.result && d.result.error) throw new Error(d.result.error.message);
+      this._ks = d.result.ks;
+      console.log('[KAL] session ready');
+      return this._ks;
+    });
+    return this._ksP;
+  },
+
+  async call(service, action, params) {
+    const ks = await this.ks();
+    const r = await fetch(this.BASE + '/service/' + service + '/action/' + action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ apiVersion: this.VER, partnerId: this.PARTNER, ks }, params)),
+      signal: AbortSignal.timeout(7000),
+    });
+    const d = await r.json();
+    if (d.result && d.result.error) throw new Error(d.result.error.message);
+    return d.result;
+  },
+
+  assetImg(a) {
+    const p = (a.images || []).find(i => /2.3|portrait/i.test(i.ratio || ''))
+           || (a.images || []).find(i => /1.1/.test(i.ratio || ''))
+           || (a.images || [])[0];
+    return (p && p.url) || 'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=400&q=80';
+  },
+
+  toCard(a) {
+    const m = a.metas || {}, t = a.tags || {};
+    return {
+      title:    a.name || 'Untitled',
+      sub:      [(m.ReleaseYear && m.ReleaseYear.value) || '',
+                 ((t.Genre || t.Genres || t.genre || [])[0]) || ''].filter(Boolean).join(' · '),
+      img:      this.assetImg(a),
+      rating:   String((m.Rating && m.Rating.value) || '8.5'),
+      synopsis: a.description || '',
+    };
+  },
+
+  async catalog(genreList) {
+    const kSql = '(and asset_type=\'0\' (or ' +
+      genreList.map(g => "genres='" + g + "'").join(' ') + '))';
+    const res = await this.call('asset', 'list', {
+      filter: { objectType: 'KalturaSearchAssetFilter', kSql, typeIn: '0,1' },
+      pager:  { pageIndex: 1, pageSize: 16 },
+    });
+    return ((res && res.objects) || []).map(a => this.toCard(a));
+  },
+
+  async history() {
+    const res = await this.call('bookmark', 'list', {
+      filter: { objectType: 'KalturaBookmarkFilter', assetTypeEqual: 'MEDIA' },
+      pager:  { pageIndex: 1, pageSize: 6 },
+    });
+    const items = (res && res.objects) || [];
+    if (!items.length) return [];
+    const aRes = await this.call('asset', 'list', {
+      filter: { objectType: 'KalturaSearchAssetFilter',
+                idIn: items.map(b => b.assetId).join(',') },
+      pager: { pageIndex: 1, pageSize: 6 },
+    });
+    const map = {};
+    ((aRes && aRes.objects) || []).forEach(a => { map[String(a.id)] = a; });
+    return items.map(b => {
+      const a = map[String(b.assetId)];
+      if (!a) return null;
+      const pct = (b.position && b.duration) ? Math.round(b.position / b.duration * 100) : 50;
+      return Object.assign(this.toCard(a), { progress: Math.min(95, Math.max(5, pct)) });
+    }).filter(Boolean);
+  },
+};
+KAL.ks().catch(() => {});
+
 /* ── DATA ─────────────────────────────────────────────────── */
 
 const landscapeData = [
@@ -1581,22 +1676,29 @@ function renderSeries() {
   `).join('');
 }
 
-function renderContinue() {
-  document.getElementById('rail-continue').innerHTML = continueData.map(c => `
-    <div class="card-continue" onclick="showToast('Resuming ${c.title}…')">
-      <div class="card-img-wrap">
-        <img src="${c.img}" alt="${c.title}" loading="lazy" />
-        <div class="progress-overlay">
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width:${c.progress}%"></div>
-          </div>
+function _contCardHtml(c) {
+  const t = c.title.replace(/'/g, "\\'");
+  return `<div class="card-continue" onclick="showToast('Resuming ${t}…')">
+    <div class="card-img-wrap">
+      <img src="${c.img}" alt="${c.title}" loading="lazy" />
+      <div class="progress-overlay">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${c.progress}%"></div>
         </div>
       </div>
-      <div class="card-info">
-        <p class="card-title">${c.title}</p>
-      </div>
     </div>
-  `).join('');
+    <div class="card-info"><p class="card-title">${c.title}</p></div>
+  </div>`;
+}
+function renderContinue() {
+  const rail = document.getElementById('rail-continue');
+  rail.innerHTML = continueData.map(_contCardHtml).join('');
+  KAL.history().then(cards => {
+    if (cards.length >= 2) {
+      console.log('[KAL] history:', cards.length, 'items');
+      rail.innerHTML = cards.map(_contCardHtml).join('');
+    }
+  }).catch(() => {});
 }
 
 function renderTop10() {
@@ -1794,18 +1896,34 @@ function goHomeFromDetails() {
 }
 
 /* ── GRID PAGE ─────────────────────────────────────────────── */
+const _moodGenres = {
+  comedy:   ['Comedy'],
+  funny:    ['Comedy'],
+  excited:  ['Action', 'Thriller', 'Adventure'],
+  relaxed:  ['Drama', 'Romance'],
+  surprise: ['Sci-Fi', 'Fantasy'],
+};
 function openGridPage(key) {
-  const set = gridSets[key] || gridSets.relaxed;
+  const set  = gridSets[key] || gridSets.relaxed;
   const data = set.data || portraitData;
 
   document.getElementById('grid-title').textContent = set.title;
-  document.getElementById('grid-sub').textContent = set.sub + ' · ' + data.length + ' titles';
+  document.getElementById('grid-sub').textContent   = set.sub + ' · ' + data.length + ' titles';
 
   document.getElementById('grp-panel').classList.remove('visible');
   expandAvatarPanel();
 
   renderGridRails(data);
   showScreen('screen-grid');
+
+  KAL.catalog(_moodGenres[key] || ['Drama']).then(cards => {
+    if (cards.length >= 4) {
+      console.log('[KAL] catalog:', cards.length, 'assets for', key);
+      document.getElementById('grid-sub').textContent =
+        set.sub + ' · ' + cards.length + ' titles · live';
+      renderGridRails(cards);
+    }
+  }).catch(() => {});
 }
 
 function goHome() {
