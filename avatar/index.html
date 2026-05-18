@@ -2642,8 +2642,29 @@ function closePlayer() {
 }
 
 /* ── AVATAR SPEECH HANDLER ─────────────────────────────────── */
-function _navAfterSpeech(fn) {
-  setTimeout(fn, 1200);
+let _lastNavAt = 0;
+function _navAfterSpeech(fn, delay) {
+  const now = Date.now();
+  if (now - _lastNavAt < 2500) return;   // debounce: ignore if we just navigated
+  _lastNavAt = now;
+  setTimeout(fn, delay || 1200);
+}
+
+/* Named-page helpers so we can reference them as values */
+function _dest(t) {
+  if (/rebel[\s-]*ridge/.test(t))                       return openRebelRidge;
+  if (/british/.test(t) && /com(edy|edies?|ic)|show|series|film|content/.test(t)) return openBritishComedies;
+  if (/british\s+com/.test(t))                          return openBritishComedies;
+  if (/\bkids?\b|\bchildren\b|\bcartoon/.test(t))       return goKids;
+  if (/\bsport/.test(t))                                return goSport;
+  if (/\blive\b|\bchannel/.test(t))                     return goLive;
+  if (/\bpremium/.test(t))                              return goPremium;
+  if (/\bhome\b/.test(t))                               return goHome;
+  if (/action|thrill|excit|adven/.test(t))              return () => openGridPage('excited');
+  if (/com(edy|edies?)|funny|laugh/.test(t))            return () => openGridPage('comedy');
+  if (/relax|calm|chill|drama|romance/.test(t))         return () => openGridPage('relaxed');
+  if (/sci[\s-]*fi|fantasy|surpr|wonder/.test(t))       return () => openGridPage('surprise');
+  return null;
 }
 
 function handleAvatarSpeech(text) {
@@ -2652,55 +2673,97 @@ function handleAvatarSpeech(text) {
   if (t.length < 4) return;
   console.log('[Avatar speech]', text);
 
-  /* — "I will take you to KIDS/HOME/SPORT/LIVE/PREMIUM [page]" — */
-  const pageNav = t.match(/take\s+you\s+to\s+(?:the\s+)?(\w+)/);
-  if (pageNav) {
-    const pg = pageNav[1];
-    if (/^kids?$/.test(pg))  { _navAfterSpeech(goKids);    return; }
-    if (/^home$/.test(pg))   { _navAfterSpeech(goHome);    return; }
-    if (/^sport/.test(pg))   { _navAfterSpeech(goSport);   return; }
-    if (/^live$/.test(pg))   { _navAfterSpeech(goLive);    return; }
-    if (/^premium/.test(pg)) { _navAfterSpeech(goPremium); return; }
-    /* If not a page, fall through to content matching below */
-  }
-
-  /* — "rebel ridge" detail page or "british comedies" grid — */
-  if (/rebel\s+ridge/.test(t) && /detail|page|info|about/.test(t)) {
+  /* ── 1. NAMED PAGES — always win, very liberal matching ──────
+     Rebel Ridge: any mention → open its details page
+     British Comedies: any mention of "british" near comedy context ── */
+  if (/rebel[\s-]*ridge/.test(t)) {
     _navAfterSpeech(openRebelRidge); return;
   }
-  if (/british\s+com(edy|edies)/.test(t) || /\bbritish\b.*\bgrid\b/.test(t)) {
+  if (/british/.test(t) && /com(edy|edies?|ic)|british\s+show|british\s+series|british\s+content/.test(t)) {
+    _navAfterSpeech(openBritishComedies); return;
+  }
+  if (/british\s+com/.test(t)) {
     _navAfterSpeech(openBritishComedies); return;
   }
 
-  /* — "let me recommend you some content" — */
-  if (/\brecommend\b|\bsome\s+content\b|\bsuggestion\b|\bpicks?\s+for\s+you\b/.test(t)) {
-    const key = /thrill|action|excit/.test(t) ? 'excited' :
-                /relax|calm|chill/.test(t)    ? 'relaxed' :
-                /comedy/.test(t)              ? 'comedy'  : 'relaxed';
-    _navAfterSpeech(() => openGridPage(key));
-    return;
+  /* ── 2. "show / take / bring / navigate / direct you [to] X" ─ */
+  const navVerb = /(?:show|take|bring|navigate|direct|lead)\s+you(?:\s+(?:over\s+)?to)?(?:\s+(?:the|our|some))?\s+(.+?)(?:\s+(?:page|section|screen|collection|results?|list))?[.!?]?$/;
+  const navM = t.match(navVerb);
+  if (navM) {
+    const what = navM[1].trim();
+    const fn = _dest(what);
+    if (fn) { _navAfterSpeech(fn); return; }
+    /* last resort: content title lookup */
+    const hit = findContent(what);
+    if (hit) { _navAfterSpeech(() => openDetailsPage(hit)); return; }
   }
 
-  /* — "let me take you to [title]" — */
-  const takeM = t.match(/let\s+me\s+take\s+you\s+to\s+(.+)/);
-  if (takeM) {
-    const name = takeM[1].replace(/[.!?]+$/, '').trim();
-    _navAfterSpeech(() => openDetailsPage(findContent(name)));
-    return;
+  /* ── 3. "let me / I'll / I'm going to [show|take|open|display] X" ── */
+  const letMeM = t.match(/(?:let\s+me|i(?:'ll|'m\s+going\s+to|\s+will|\s+can))\s+(?:show|take|open|display|navigate|bring|pull\s+up|present)\s+(?:you\s+)?(?:to\s+)?(?:the\s+|our\s+|some\s+)?(.+?)(?:\s+(?:page|section|screen|collection|for\s+you))?[.!?]?$/);
+  if (letMeM) {
+    const what = letMeM[1].trim();
+    const fn = _dest(what);
+    if (fn) { _navAfterSpeech(fn); return; }
+    const hit = findContent(what);
+    if (hit) { _navAfterSpeech(() => openDetailsPage(hit)); return; }
   }
 
-  /* — "let me play [title]" — */
-  const playM = t.match(/let\s+me\s+play\s+(.+)/);
+  /* ── 4. "here are [some/our] X" ─────────────────────────────── */
+  const hereM = t.match(/here\s+(?:are|is)\s+(?:some|our|a\s+few|my\s+top\s+picks?(?:\s+for)?)?\s*(.+?)(?:[.!?]|$)/);
+  if (hereM) {
+    const fn = _dest(hereM[1].trim());
+    if (fn) { _navAfterSpeech(fn); return; }
+  }
+
+  /* ── 5. "how about [some] X" ─────────────────────────────────── */
+  const howM = t.match(/how\s+about\s+(?:some\s+|checking\s+out\s+|watching\s+)?(.+?)(?:\s+today|\s+tonight|\s+now)?[.!?]?$/);
+  if (howM) {
+    const what = howM[1].trim();
+    const fn = _dest(what);
+    if (fn) { _navAfterSpeech(fn); return; }
+    const hit = findContent(what);
+    if (hit) { _navAfterSpeech(() => openDetailsPage(hit)); return; }
+  }
+
+  /* ── 6. "I recommend / I suggest / you might enjoy X" ─────────── */
+  const recM = t.match(/(?:i(?:'d)?\s+(?:recommend|suggest)|you\s+(?:might|should|would)\s+(?:enjoy|love|like)|my\s+(?:top\s+)?pick(?:s)?\s+(?:is|are))\s+(?:some\s+)?(.+?)(?:\s+for\s+you)?[.!?]?$/);
+  if (recM) {
+    const what = recM[1].trim();
+    const fn = _dest(what);
+    if (fn) { _navAfterSpeech(fn); return; }
+    const hit = findContent(what);
+    if (hit) { _navAfterSpeech(() => openDetailsPage(hit)); return; }
+  }
+
+  /* ── 7. Section navigation keywords anywhere in sentence ─────── */
+  if (/\bkids?\b|\bchildren['s]?\s+content\b/.test(t) && /page|section|take|show|go|navig|open/.test(t)) {
+    _navAfterSpeech(goKids); return;
+  }
+  if (/\bsports?\s+(?:page|section|content)\b|\bsports?\s+channel/.test(t)) {
+    _navAfterSpeech(goSport); return;
+  }
+  if (/\blive\s+(?:tv|channel|stream)\b/.test(t)) {
+    _navAfterSpeech(goLive); return;
+  }
+  if (/\bpremium(?:\+|\s+plus)?\s+(?:page|content|section)\b/.test(t)) {
+    _navAfterSpeech(goPremium); return;
+  }
+
+  /* ── 8. Genre / mood grids ───────────────────────────────────── */
+  if (/\brecommend\b|\bsuggestion\b|\bpicks?\s+for\s+you\b|\bsome\s+content\b/.test(t)) {
+    const key = /thrill|action|excit|adven/.test(t)    ? 'excited' :
+                /com(edy|edies?)|funny|laugh/.test(t)  ? 'comedy'  :
+                /relax|calm|chill|drama|romance/.test(t)? 'relaxed' :
+                /sci[\s-]*fi|fantasy|surpr/.test(t)    ? 'surprise': null;
+    if (key) { _navAfterSpeech(() => openGridPage(key)); return; }
+  }
+
+  /* ── 9. "play X" ─────────────────────────────────────────────── */
+  const playM = t.match(/(?:let\s+me\s+)?play\s+(.+?)(?:\s+for\s+you|\s+now\b|[.!?]|$)/);
   if (playM) {
-    const name = playM[1].replace(/[.!?]+$/, '').trim();
+    const name = playM[1].trim();
     _navAfterSpeech(() => openPlayer(findContent(name)));
     return;
-  }
-
-  /* Broader fallbacks */
-  if (/\bplay\b/.test(t)) {
-    const m = t.match(/\bplay\s+(.+?)(?:\s+for\s+you|\s+now\b|[.!?]|$)/);
-    if (m) { _navAfterSpeech(() => openPlayer(findContent(m[1]))); return; }
   }
 }
 
@@ -2720,22 +2783,32 @@ renderSeries();
 (function () {
   function safe(fn) { return function() { try { fn.apply(this, arguments); } catch(e){} }; }
 
+  /* postMessage from the eself iframe */
   window.addEventListener('message', safe(function (e) {
     var d = e.data;
     if (!d) return;
+    /* Handle nested structures like { type:'speech', payload:{ text:'...' } } */
+    if (d.payload) d = d.payload;
     var text = typeof d === 'string' ? d
-             : (d.text || d.message || d.transcript || d.content || d.utterance || d.speech || '');
+             : (d.text || d.message || d.transcript || d.content
+                || d.utterance || d.speech || d.response || d.answer || '');
     if (text && typeof text === 'string' && text.length > 4) handleAvatarSpeech(text);
   }));
 
+  /* DOM custom events — catch every variant eself/agents might emit */
   ['eselfMessage','eselfSpeech','agentMessage','agentSpeech','avatarSpeech',
-   'ttsSpeak','tts:speak','eself:message','eself:speech'].forEach(function (evName) {
+   'ttsSpeak','tts:speak','eself:message','eself:speech',
+   'agent:response','agent:speech','avatar:message','avatar:speak',
+   'ai:response','ai:message','ai:speech'].forEach(function (evName) {
     window.addEventListener(evName, safe(function (e) {
       var d = e.detail || {};
-      var text = typeof d === 'string' ? d : (d.text || d.message || d.transcript || '');
+      if (d.payload) d = d.payload;
+      var text = typeof d === 'string' ? d
+               : (d.text || d.message || d.transcript || d.speech || d.response || '');
       if (text) handleAvatarSpeech(text);
     }));
   });
+
 })();
 </script>
 </body>
