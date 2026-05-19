@@ -2574,6 +2574,9 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
   document.querySelectorAll('.top-nav').forEach(n => n.classList.remove('nav-scrolled'));
+  if (window.parent !== window) {
+    try { window.parent.postMessage({ type: 'avatar-navigate', screen: id }, '*'); } catch(e) {}
+  }
 }
 
 window.addEventListener('scroll', function () {
