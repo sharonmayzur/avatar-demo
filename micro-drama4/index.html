@@ -60,6 +60,7 @@ body {
   width:26px; height:26px; font-size:16px; font-weight:900; color:#fff;
   margin-right:4px; flex-shrink:0; line-height:1; letter-spacing:0;
   padding-bottom:1px;
+  text-shadow:0 0 6px rgba(255,215,0,.9), 0 0 14px rgba(255,215,0,.65), 0 0 28px rgba(255,180,0,.45);
   box-shadow:0 0 14px rgba(255,68,24,.55), 0 2px 8px rgba(0,0,0,.5);
 }
 .logo-accent { color:#FF4418; }
@@ -231,7 +232,7 @@ body {
 .carousel-track-wrap { position:relative; overflow:hidden; cursor:grab; }
 .carousel-track-wrap:active { cursor:grabbing; }
 .carousel-track {
-  display:flex; gap:10px;
+  display:flex; gap:5px;
   transition:transform .38s cubic-bezier(.4,0,.2,1);
   will-change:transform;
 }
@@ -3258,8 +3259,8 @@ let rewardsSignedIn = false;
 
 (function() {
   const CARD_W    = 240;
-  const CARD_GAP  = 10;
-  const CARD_STEP = CARD_W + CARD_GAP; // 250
+  const CARD_GAP  = 5;
+  const CARD_STEP = CARD_W + CARD_GAP; // 245
   const VIEWPORT  = 375;
   const PEEK      = (VIEWPORT - CARD_W) / 2; // 67.5
   const TOTAL     = CAROUSEL_ITEMS.length; // 9
