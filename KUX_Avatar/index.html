@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="https://pr-2634.html.kux.ott.kaltura.com/" />
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="https://3204.kprod.sf.ott.kaltura.com/3204/assets/web/favicon/favicon.ico?v=2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="theme-color" content="#000000" />
+    <title>KUX Homepage</title>
+
+    <!--
+      This file pulls the live app from:
+      https://pr-2634.html.kux.ott.kaltura.com/page/homepage
+      Source repo: https://github.com/kaltura/kux-html
+    -->
+
+    <!-- Step 1: Intercept CSS variable writes BEFORE the app JS runs -->
+    <script>
+      (function () {
+        const BLACK = '#000000';
+        const DARK_RED = '#8b0000';   // dark red for all focus/hover states
+
+        // Override setProperty so any variable the app tries to set gets our version instead
+        const nativeSetProperty = CSSStyleDeclaration.prototype.setProperty;
+        CSSStyleDeclaration.prototype.setProperty = function (name, value, priority) {
+          if (name === '--background-color' ||
+              name === '--background-color-h' ||
+              name === '--background-color-s' ||
+              name === '--background-color-l') {
+            // Force black: hsl(0, 0%, 0%)
+            if (name === '--background-color') return nativeSetProperty.call(this, name, BLACK, 'important');
+            if (name === '--background-color-h') return nativeSetProperty.call(this, name, '0', 'important');
+            if (name === '--background-color-s') return nativeSetProperty.call(this, name, '0%', 'important');
+            if (name === '--background-color-l') return nativeSetProperty.call(this, name, '0%', 'important');
+          }
+          if (name === '--focus-color' ||
+              name === '--focus-color-h' ||
+              name === '--focus-color-s' ||
+              name === '--focus-color-l') {
+            // Force dark red: hsl(0, 100%, 27%)
+            if (name === '--focus-color') return nativeSetProperty.call(this, name, DARK_RED, 'important');
+            if (name === '--focus-color-h') return nativeSetProperty.call(this, name, '0', 'important');
+            if (name === '--focus-color-s') return nativeSetProperty.call(this, name, '100%', 'important');
+            if (name === '--focus-color-l') return nativeSetProperty.call(this, name, '27%', 'important');
+          }
+          return nativeSetProperty.call(this, name, value, priority);
+        };
+
+        // Also set them immediately so they're ready before React hydrates
+        document.addEventListener('DOMContentLoaded', function () {
+          const s = document.documentElement.style;
+          nativeSetProperty.call(s, '--background-color', BLACK, 'important');
+          nativeSetProperty.call(s, '--background-color-h', '0', 'important');
+          nativeSetProperty.call(s, '--background-color-s', '0%', 'important');
+          nativeSetProperty.call(s, '--background-color-l', '0%', 'important');
+          nativeSetProperty.call(s, '--focus-color', DARK_RED, 'important');
+          nativeSetProperty.call(s, '--focus-color-h', '0', 'important');
+          nativeSetProperty.call(s, '--focus-color-s', '100%', 'important');
+          nativeSetProperty.call(s, '--focus-color-l', '27%', 'important');
+        });
+      })();
+    </script>
+
+    <!-- App CSS from live PR -->
+    <link rel="stylesheet" href="https://pr-2634.html.kux.ott.kaltura.com/assets/style-C54qlkG0.css">
+
+    <!-- Step 2: Hard CSS overrides as a safety net -->
+    <style>
+      html, body, #root,
+      .MainLayout_mainLayout__1ac13bc9,
+      .OnBoardingLayout_wrapper__74fe8cd4,
+      .VideoPage_videoPage__8b2a9013 {
+        background-color: #000000 !important;
+        background: #000000 !important;
+      }
+
+      /* Focus / hover color → dark red */
+      .ProgramCard_programCard__fb5acf27:hover,
+      .ProgramCard_programCard__fb5acf27:focus,
+      [class*="_focused"],
+      [class*="_active"],
+      [class*="_selected"] {
+        background: #8b0000 !important;
+        outline-color: #8b0000 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <!-- App JS from live PR -->
+    <script type="module" src="https://pr-2634.html.kux.ott.kaltura.com/assets/index-BGVjlvV2.js"></script>
+  </body>
+</html>
