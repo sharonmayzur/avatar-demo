@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FE Alternatives — Vendor Comparison</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; padding: 24px; min-width: 960px; }
+h1 { font-size: 1.5rem; color: #1a1a2e; margin-bottom: 4px; }
+.subtitle { color: #888; font-size: 0.85rem; margin-bottom: 20px; }
+.legend { display: flex; align-items: center; gap: 16px; padding: 10px 14px; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 16px; flex-wrap: wrap; }
+.legend-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #aaa; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.b-av { background: #e8f5e9; color: #2e7d32; }
+.b-pa { background: #fff3e0; color: #e65100; }
+.b-na { background: #ffebee; color: #c62828; }
+.b-un { background: #f5f5f5; color: #111; }
+.controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: flex-end; }
+.cg { display: flex; flex-direction: column; gap: 3px; }
+.cg label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #888; }
+select, input[type=text] { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.83rem; background: white; outline: none; }
+select:focus, input:focus { border-color: #4a90e2; }
+input[type=text] { min-width: 200px; }
+.stats { font-size: 0.78rem; color: #aaa; margin-bottom: 10px; }
+.wrap { overflow-x: auto; overflow-y: visible; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+table { width: 100%; border-collapse: collapse; background: white; font-size: 0.83rem; table-layout: fixed; }
+col.col-num  { width: 36px; }
+col.col-mod  { width: 155px; }
+col.col-feat { width: auto; }
+col.col-plat { width: 130px; }
+col.col-ven  { width: 175px; }
+col.col-prio { width: 64px; }
+thead th { background: #1a1a2e; color: white; padding: 10px 13px; text-align: left; font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+thead th.center { text-align: center; }
+.subhead th { background: #16213e; padding: 7px 13px; font-size: 0.8rem; text-transform: none; letter-spacing: 0; font-weight: 600; }
+tbody tr:hover td { background: #f0f7ff !important; }
+td { padding: 8px 13px; border-bottom: 1px solid #edf0f2; border-right: 1px solid #e8eaed; vertical-align: top; }
+td:last-child { border-right: none; }
+.td-num { color: #bbb; font-size: 0.72rem; text-align: right; white-space: nowrap; padding-right: 6px; width: 32px; }
+.td-mod { font-weight: 700; color: #1a1a2e; border-right: 3px solid #e8eaed; word-break: break-word; }
+.td-feat { color: #444; }
+.td-plat { color: #777; font-size: 0.76rem; white-space: nowrap; }
+.td-prio { text-align: center; white-space: nowrap; }
+.s-av { color: #2e7d32; font-weight: 700; }
+.s-pa { color: #e65100; font-weight: 700; }
+.s-na { color: #c62828; font-weight: 700; }
+.s-un { color: #111; font-weight: 700; }
+.cmt { display: block; color: #666; font-size: 0.71rem; font-weight: 400; margin-top: 2px; }
+.pb-hi { background: #ffebee; color: #c62828; }
+.pb-me { background: #fff8e1; color: #f57f17; }
+.pb-un { background: #f5f5f5; color: #aaa; }
+.prio-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.odd td { background: #fff; }
+.even td { background: #fafbfc; }
+.no-results { text-align: center; padding: 48px; color: #bbb; font-size: 0.9rem; }
+
+#scorecard { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.sc-card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 14px 18px; min-width: 160px; flex: 1; }
+.sc-card h3 { font-size: 0.78rem; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.sc-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 0.75rem; }
+.sc-row:last-child { margin-bottom: 0; }
+.sc-label { width: 90px; color: #555; white-space: nowrap; }
+.sc-bar-wrap { flex: 1; background: #f0f0f0; border-radius: 3px; height: 8px; overflow: hidden; }
+.sc-bar { height: 8px; border-radius: 3px; transition: width .3s; }
+.sc-pct { width: 38px; text-align: right; font-weight: 700; color: #333; font-size: 0.72rem; }
+.sc-count { color: #aaa; font-size: 0.68rem; margin-left: 2px; }
+.bar-av { background: #4caf50; }
+.bar-pa { background: #ff9800; }
+.bar-na { background: #ef5350; }
+.bar-un { background: #bbb; }
+</style>
+</head>
+<body>
+<h1>FE Alternatives — Vendor Comparison</h1>
+<p class="subtitle">Wiztivi · Applicaster · Magycal · KUX · KSP</p>
+<div class="legend">
+  <span class="legend-title">Legend</span>
+  <span class="badge b-av">Available</span>
+  <span class="badge b-pa">Partially</span>
+  <span class="badge b-na">Not Available</span>
+  <span class="badge b-un">???</span><span style="color:#bbb;font-size:.75rem;margin-left:-8px"> no data</span>
+</div>
+<div class="controls">
+  <div class="cg"><label>Module</label><select id="fMod"><option value="">All modules</option></select></div>
+  <div class="cg"><label>Vendor</label>
+    <select id="fVen">
+      <option value="">Any vendor</option>
+      <option value="wiztivi">Wiztivi</option><option value="applicaster">Applicaster</option>
+      <option value="magycal">Magycal</option><option value="kux">KUX</option>
+      <option value="ksp">KSP</option>
+    </select></div>
+  <div class="cg"><label>Status</label>
+    <select id="fSta">
+      <option value="">Any status</option>
+      <option value="av">Available</option><option value="pa">Partially</option>
+      <option value="na">Not Available</option><option value="un">???</option>
+    </select></div>
+  <div class="cg"><label>Priority</label>
+    <select id="fPri"><option value="">Any</option><option value="1">1</option><option value="2">2</option></select></div>
+  <div class="cg"><label>Search</label><input type="text" id="fSrc" placeholder="Module, feature, platform…"></div>
+</div>
+<div class="stats" id="stats"></div>
+
+<div id="scorecard"></div>
+
+<div class="wrap">
+  <table>
+    <colgroup>
+      <col class="col-num"><col class="col-mod"><col class="col-feat"><col class="col-plat">
+      <col class="col-ven"><col class="col-ven"><col class="col-ven"><col class="col-ven"><col class="col-ven">
+      <col class="col-prio">
+    </colgroup>
+    <thead>
+      <tr>
+        <th rowspan="2">#</th>
+        <th rowspan="2">Module</th>
+        <th rowspan="2">Feature</th>
+        <th rowspan="2">Platforms</th>
+        <th id="statusColspan" colspan="5" class="center" style="border-left:2px solid #0f3460">Status</th>
+        <th rowspan="2" class="center">Priority</th>
+      </tr>
+      <tr class="subhead" id="vendorHeader">
+        <th>Wiztivi</th><th>Applicaster</th><th>Magycal</th><th>KUX</th><th>KSP</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="no-results" id="noRes" style="display:none">No matching rows</div>
+</div>
+
+<script>
+function v(s,c){return{s:s,c:c||''};}
+const AV=c=>v('av',c||''), PA=c=>v('pa',c||''), NA=c=>v('na',c||''), UN=()=>v('un');
+
+const ALL='STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB, Mobile, Tablet';
+const TV='STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung)';
+const MOB='Mobile, Tablet';
+const WMT='WEB, Mobile, Tablet';
+
+const data=[
+  // 1 ── Platforms
+  {mod:'Platforms',feat:'',prio:'1',plat:ALL,
+   ksp:AV('including Fire TV'),kux:PA('missing Apple TV + Vidaa'),
+   wiztivi:AV('STB (Linux/comcast), Fire TV'),applicaster:PA('missing STB'),magycal:AV()},
+
+  // 2 ── R2L
+  {mod:'R2L',feat:'',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+
+  // 3-18 ── Login / Sign up
+  {mod:'Login / Sign up',feat:'Splash screen',prio:'2',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Intro screen (promotion)',prio:'2',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:NA(),applicaster:AV(),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Welcome pop up',prio:'2',plat:TV,
+   ksp:NA(),kux:AV('TV + WEB'),wiztivi:NA(),applicaster:AV(),magycal:UN()},
+  {mod:'Login / Sign up',feat:'On screen keyboard',prio:'1',plat:TV,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Login with credentials',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),
+   wiztivi:AV('can use the customers OAUTH or CRM system single sign on or create new account for users'),
+   applicaster:AV(),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Login with QR code',prio:'2',plat:TV,
+   ksp:NA('requires OPC and BE support'),kux:AV(),
+   wiztivi:PA('need the Kaltura back-end to provide the data'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Login OTP with SMS',prio:'2',plat:ALL,
+   ksp:PA('solution only for Reshet TVs; requires PS effort per customer; Horizon to complete UI'),
+   kux:NA(),wiztivi:NA(),
+   applicaster:AV('need BE support — does UI supported on FE?'),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Login OTP with email',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),
+   applicaster:AV('need BE support — does UI supported on FE?'),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Login with social media',prio:'1',plat:'Google, Apple, Facebook, WEB, Mobile, Tablet',
+   ksp:NA(),kux:NA(),
+   wiztivi:PA('need the Kaltura back-end to provide the data, or CRM integration'),
+   applicaster:NA(),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Anonymous Login / Guest mode',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Restore password',prio:'1',plat:ALL,
+   ksp:AV('Horizon to validate on all platforms'),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Login / Sign up',feat:'Profiles (5 users)',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:NA('Roadmap'),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Kids profile',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:NA('Roadmap'),magycal:UN()},
+  {mod:'Login / Sign up',feat:'Subscription period / free trial (APTN)',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),
+   applicaster:UN('need BE support — does UI supported on FE?'),magycal:AV()},
+
+  // 19-64 ── Content display
+  {mod:'Content display',feat:'Top menu',prio:'2',plat:TV,
+   ksp:NA('Horizon to complete UI changes'),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Left Menu',prio:'1',plat:TV,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:NA(),magycal:AV()},
+  {mod:'Content display',feat:'Home page',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Carousel / Promoted content',prio:'1',plat:ALL,
+   ksp:AV('Kaltura to plan resumed series type support'),kux:PA('WEB'),
+   wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Live page',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Corner pages (kids, sport)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Watch again rail',prio:'2',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Channel rail',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),
+   wiztivi:AV('can also define ATV channels and curate them'),
+   applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'vFast channel rail',prio:'1',plat:TV,
+   ksp:AV('for new customers — requires OPC setup based on KSP definition'),
+   kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Top 10 rail',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'CWR',prio:'1',plat:ALL,
+   ksp:AV('Support Reshet: CW for anonymous user on device level'),
+   kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Collection rail',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Category rail (direct to a grid)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Specific rail per language (APTN)',prio:'1',plat:ALL,
+   ksp:UN(),kux:UN(),wiztivi:AV(),applicaster:UN('depend on BE'),magycal:UN()},
+  {mod:'Content display',feat:'App rail',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),
+   applicaster:UN('required clarification'),magycal:UN()},
+  {mod:'Content display',feat:'3rd Party rail (deep link)',prio:'1',plat:ALL,
+   ksp:PA('(SSO) required solution for Kaltura implementation; KSP supports specific asset type — should plan to support all types'),
+   kux:AV(),wiztivi:AV(),
+   applicaster:UN('required clarification'),magycal:UN()},
+  {mod:'Content display',feat:'Autoplay Binge rail — play VOD rail in loop',prio:'1',plat:TV,
+   ksp:PA('supported on ATV; Horizon to complete support on SMTV and Apple TV'),
+   kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'View all / More button (direct to a grid)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Grid page',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Tab bars',prio:'1',plat:WMT,
+   ksp:NA(),kux:NA(),wiztivi:AV('rails + tab bars'),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Content badge',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Rail background',prio:'2',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Editor choice (manually collection)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:AV()},
+  {mod:'Content display',feat:'Trending now = most watched = most popular',prio:'1',plat:ALL,
+   ksp:AV('Horizon to validate on all platforms'),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Because you watched = according to watch history',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'Similar people like you (BE: roadmap)',prio:'2',plat:ALL,
+   ksp:NA(),kux:NA(),
+   wiztivi:PA('need the Kaltura back-end to provide the data'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Content display',feat:'TV Genie (new) — UI component for chat with chatbot',prio:'2',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB',
+   ksp:NA('old solution can be presented on ATV'),kux:PA('WEB'),
+   wiztivi:NA(),applicaster:NA(),magycal:UN()},
+  {mod:'Content display',feat:'Mood base',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:NA(),magycal:UN()},
+  {mod:'Content display',feat:'Because you watched — get recommendations to a specific content',prio:'1',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── EPG / Linear
+  {mod:'EPG / Linear',feat:'EPG Grid page',prio:'1',plat:ALL,
+   ksp:PA('TV available; WEB — need to test; Mobile/tablet — one single channel, not available; Tivo IP for GRID — validate license fees'),
+   kux:PA(),wiztivi:AV('2 presentations: table + assets'),
+   applicaster:UN('need to get feedback'),magycal:UN()},
+  {mod:'EPG / Linear',feat:'Mini EPG / Zapper',prio:'1',plat:TV,
+   ksp:AV('TVs'),kux:AV('TVs, Mobile/tablet'),wiztivi:AV('TVs'),
+   applicaster:NA(),magycal:UN()},
+  {mod:'EPG / Linear',feat:'Channel list',prio:'1',plat:TV,
+   ksp:AV(),kux:AV('vertical zapper'),wiztivi:AV('vertical zapper'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'EPG / Linear',feat:'Program selection',prio:'1',plat:ALL,
+   ksp:AV('users can browse catch-up content; Programs can be played from rails, zap banners and TV guide'),
+   kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── Playback types
+  {mod:'Playback types',feat:'VOD',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback types',feat:'Live',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback types',feat:'Time shift — SO, CU',prio:'1',plat:ALL,
+   ksp:PA('supported on TV platforms; Horizon to validate'),
+   kux:AV(),wiztivi:AV(),
+   applicaster:UN('requires clarification'),magycal:UN()},
+  {mod:'Playback types',feat:'Offline / Download to go',prio:'1',plat:MOB,
+   ksp:AV(),kux:NA(),wiztivi:NA('Roadmap spring release'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Playback types',feat:'Casting',prio:'1',plat:'Mobile, Tablet, WEB',
+   ksp:PA('mobile/tablet'),kux:NA(),wiztivi:AV(),
+   applicaster:UN('also WEB?'),magycal:UN()},
+  {mod:'Playback types',feat:'Mosaic',prio:'2',plat:ALL,
+   ksp:NA(),kux:AV(),
+   wiztivi:PA('can display a mosaic channel, but not create it from live channels'),
+   applicaster:NA(),magycal:UN()},
+
+  // ── Player
+  {mod:'Player',feat:'Play / Pause / FF / REW',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Player',feat:'Binge',prio:'1',plat:ALL,
+   ksp:AV(),kux:PA('WEB'),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Player',feat:'Multi audio',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Player',feat:'Multi subtitles',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Player',feat:'Quality selection',prio:'1',plat:WMT,
+   ksp:AV(),kux:AV(),wiztivi:PA('depending on selected player'),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Player',feat:'Volume control',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:NA(),magycal:UN()},
+  {mod:'Player',feat:'Speed control',prio:'2',plat:WMT,
+   ksp:AV(),kux:NA(),wiztivi:PA('depending on selected player'),
+   applicaster:NA('available only for Audio'),magycal:UN()},
+  {mod:'Player',feat:'Back to live button',prio:'1',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB',
+   ksp:NA(),kux:AV('TV, WEB'),wiztivi:AV(),
+   applicaster:NA('roadmap'),magycal:UN()},
+  {mod:'Player',feat:'Go to EPG page from player',prio:'2',plat:TV,
+   ksp:NA(),kux:AV('TV'),wiztivi:NA(),
+   applicaster:NA(),magycal:UN()},
+
+  // ── Playback features
+  {mod:'Playback features',feat:'Chapters',prio:'2',plat:TV,
+   ksp:NA('ATV Demo; reach support (not BE)'),kux:NA(),
+   wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Skip intro / skip credits',prio:'1',plat:ALL,
+   ksp:AV(),kux:PA('WEB'),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Skip ad',prio:'2',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),
+   applicaster:UN('based on the IMA SDK'),magycal:UN()},
+  {mod:'Playback features',feat:'Picture in Picture',prio:'1',plat:WMT,
+   ksp:AV(),kux:NA(),wiztivi:PA('only mobile and tablets'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Thumbnails while seek',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),
+   applicaster:PA('only for Roku and Apple TV; others require dev'),magycal:UN()},
+  {mod:'Playback features',feat:'Binge watching / next episode',prio:'1',plat:ALL,
+   ksp:AV('countdown note — not available; Horizon to validate on all platforms'),
+   kux:PA('WEB'),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Idle watch / "Are you still watching?"',prio:'1',
+   plat:'Android TV, Apple TV, SMTV (Vidaa, LG, Samsung)',
+   ksp:PA('SMTV; TV + Apple TV not supported — Horizon to complete'),
+   kux:PA('STB'),wiztivi:NA(),applicaster:NA(),magycal:UN()},
+  {mod:'Playback features',feat:'Concurrency enforcement (max streams reached)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),
+   wiztivi:PA('need the Kaltura back-end to provide the data; mainly as a player error'),
+   applicaster:UN('if BE is supported — do we support it on FE?'),magycal:UN()},
+  {mod:'Playback features',feat:'Resume playback',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'DRM support (HLS/FP, DASH/WV/PR)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Network error handling (user presses button to resume)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),
+   wiztivi:PA('redirects user back to Full Info Page, allowing playback to be restarted'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Live playback at bg (on focus)',prio:'1',
+   plat:'Android TV, Apple TV, SMTV (Vidaa, LG, Samsung)',
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Maxi player',prio:'2',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:NA(),applicaster:NA(),magycal:UN()},
+  {mod:'Playback features',feat:'Trailer playback at bg (on focus)',prio:'1',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB (carousel)',
+   ksp:PA('Horizon to complete Apple TV'),kux:NA(),
+   wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Trailer playback inside the asset (on focus)',prio:'1',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB (asset)',
+   ksp:PA('Horizon to complete Apple TV'),kux:NA(),
+   wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Highlight playback at bg',prio:'2',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB (carousel)',
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Playback features',feat:'Highlight playback inside the asset (on focus)',prio:'2',
+   plat:'STB, Android TV, Apple TV, SMTV (Vidaa, LG, Samsung), WEB (asset)',
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── Content details page
+  {mod:'Content details page',feat:'Details page VOD',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),
+   applicaster:UN('clarifications'),magycal:UN()},
+  {mod:'Content details page',feat:'Share',prio:'1',plat:WMT,
+   ksp:AV(),kux:NA(),wiztivi:AV(),
+   applicaster:PA('support only mobile/tablet'),magycal:UN()},
+  {mod:'Content details page',feat:'Similar content / more like this page',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),
+   wiztivi:AV('can show related content or integrate a 3rd party recommendation engine'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Content details page',feat:'Series page — sort episodes Binge (S1E1 to last)',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),
+   applicaster:UN('clarification'),magycal:UN()},
+  {mod:'Content details page',feat:'Series page — sort episodes for running series: Last to first',prio:'2',plat:ALL,
+   ksp:NA(),kux:NA(),
+   wiztivi:NA('can be implemented through rules/configuration within the XMS integration layer'),
+   applicaster:UN('clarification'),magycal:UN()},
+  {mod:'Content details page',feat:'Single episode page',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV('all episodes rail displayed below'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Content details page',feat:'My list',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Content details page',feat:'Cast page + filmography',prio:'2',plat:'',
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── Purchase
+  {mod:'Purchase',feat:'TVOD',prio:'1',plat:ALL,
+   ksp:NA('Kaltura solution should be confirmed (Tzvika)'),
+   kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Purchase',feat:'SVOD',prio:'1',plat:WMT,
+   ksp:PA('Support only Web (Stripe); external provisioning'),
+   kux:AV(),wiztivi:AV('need a 3rd party payment provider'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Purchase',feat:'PPV',prio:'1',plat:WMT,
+   ksp:NA(),kux:AV(),wiztivi:AV('need a 3rd party payment provider (Kling)'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Purchase',feat:'In App Purchase',prio:'1',plat:WMT,
+   ksp:NA(),kux:NA(),wiztivi:AV('need a 3rd party payment provider (Kling)'),
+   applicaster:AV(),magycal:UN()},
+
+  // ── Advertisements / Monetization
+  {mod:'Advertisements / Monetization',feat:'Client-side ads — integration (GAM setup required)',prio:'1',plat:TV,
+   ksp:AV(),kux:NA(),wiztivi:AV('preroll, midroll, postroll'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Advertisements / Monetization',feat:'Server-side Ads — integration (SSAI setup required)',prio:'1',plat:TV,
+   ksp:AV(),kux:PA('ATV'),wiztivi:AV('preroll, midroll, postroll'),
+   applicaster:NA('will require integration'),magycal:UN()},
+  {mod:'Advertisements / Monetization',feat:'Pause ad (Google Ad Manager)',prio:'1',plat:TV,
+   ksp:NA('requires integration with Google Ad Manager (as for Reshet)'),
+   kux:NA(),wiztivi:NA(),applicaster:NA(),magycal:UN()},
+  {mod:'Advertisements / Monetization',feat:'Prevent ad skip (Cetin)',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:UN(),applicaster:UN(),magycal:UN()},
+
+  // ── Search
+  {mod:'Search',feat:'On screen keyboard',prio:'1',plat:TV,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Search',feat:'Auto complete — assets suggestions while user fills characters',prio:'1',plat:ALL,
+   ksp:PA('WEB + mobile supported; Horizon to validate on TVs'),
+   kux:AV(),wiztivi:AV('also auto complete for text options'),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Search',feat:'Voice search',prio:'2',plat:'STB, Android TV',
+   ksp:AV(),kux:NA(),wiztivi:PA('can integrate with 3rd party'),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Search',feat:'Search history (on device level)',prio:'1',plat:ALL,
+   ksp:PA('WEB + mobile'),kux:PA('WEB + SMTV'),wiztivi:AV(),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Search',feat:'Add recommendations to search screen',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:NA(),applicaster:AV(),magycal:UN()},
+  {mod:'Search',feat:'Categories results display',prio:'1',plat:ALL,
+   ksp:AV(),kux:NA(),wiztivi:AV('including cast'),applicaster:AV(),magycal:UN()},
+  {mod:'Search',feat:'Configure a collection with the TYPE of the assets',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Search',feat:'Configure the SORT of the assets',prio:'2',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:NA(),applicaster:AV(),magycal:UN()},
+
+  // ── Settings
+  {mod:'Settings',feat:'Device management',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Language preference',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Subscription management / plan page',prio:'1',plat:WMT,
+   ksp:NA(),kux:AV(),wiztivi:AV(),applicaster:NA(),magycal:UN()},
+  {mod:'Settings',feat:'Parental control — age restriction, purchase limitation',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),
+   wiztivi:AV('title and images blocked, need PIN to open; EPG content blocked with friendly name, unlocked with parental pincode'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Pin code settings',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Feedback & help / Terms and conditions / Privacy policy',prio:'1',plat:ALL,
+   ksp:AV(),kux:PA('WEB'),
+   wiztivi:AV('my account, legal, help, credentials, master PIN code, logout'),
+   applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Version number',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Loader / spinner',prio:'1',plat:ALL,
+   ksp:AV('appears during content loading; fully managed and customised using Vivre'),
+   kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'Video settings (HD, SD, 4K)',prio:'2',plat:ALL,
+   ksp:NA(),kux:AV('TV, WEB, Mobile — data saving mode'),wiztivi:AV(),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Settings',feat:'Favorites channels',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Settings',feat:'PCL',prio:'2',plat:ALL,
+   ksp:NA(),kux:AV(),wiztivi:AV(),applicaster:NA(),magycal:UN()},
+  {mod:'Settings',feat:'Cookies policy',prio:'1',plat:'WEB, Mobile',
+   ksp:NA(),kux:AV('WEB'),wiztivi:AV('WEB, Mobile'),
+   applicaster:AV('one trust integration'),magycal:UN()},
+
+  // ── Experience manager
+  {mod:'Experience manager',feat:'Per platform',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Experience manager',feat:'Layout design — pages, rails, schedule rails',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Experience manager',feat:'Branding',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+  {mod:'Experience manager',feat:'Layout preview',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:UN(),magycal:UN()},
+  {mod:'Experience manager',feat:'Figma editor',prio:'',plat:'not required',
+   ksp:NA(),kux:NA(),wiztivi:AV('can go from Figma → Code'),
+   applicaster:UN(),magycal:UN()},
+
+  // ── Application maintenance
+  {mod:'Application maintenance',feat:'Forced upgrade',prio:'2',plat:ALL,
+   ksp:AV('DMS config; Horizon to validate on Apple TV'),kux:AV(),
+   wiztivi:PA('update through stores; specific updates strategy can be dev for private STBs; OTA coming end of year'),
+   applicaster:AV(),magycal:UN()},
+
+  // ── Analytics
+  {mod:'Analytics',feat:'Quicksight, NPAW (player SDK), Google Analytics — GTM events',prio:'1',plat:ALL,
+   ksp:AV(),kux:AV('customer does not use but KUX can support'),
+   wiztivi:PA('need integration'),applicaster:AV(),magycal:UN()},
+  {mod:'Analytics',feat:'Crash analytics',prio:'1',plat:ALL,
+   ksp:PA('Firebase Crashlytics; supported: ATV, iOS, Android Mobile, Fire Stick; not supported: Apple TV, SMTV'),
+   kux:UN(),wiztivi:PA('need integration'),
+   applicaster:AV('available internally'),magycal:UN()},
+  {mod:'Analytics',feat:'QOE — Quality of Experience (Video Analytics)',prio:'2',plat:ALL,
+   ksp:PA('QOE = NPAW (youbora) is supported'),kux:AV(),
+   wiztivi:PA('depend on player'),
+   applicaster:AV('Mux and Youbora integration'),magycal:UN()},
+  {mod:'Analytics',feat:'App analytics — Integration with Mediamelon (Kaltura 360)',prio:'2',plat:ALL,
+   ksp:NA(),kux:UN(),wiztivi:PA('need integration'),
+   applicaster:NA(),magycal:UN()},
+  {mod:'Analytics',feat:'Promoted Notifications',prio:'2',plat:ALL,
+   ksp:AV('Firebase notification from Kaltura system; Horizon to share what platforms are supported'),
+   kux:NA(),wiztivi:PA('need integration'),
+   applicaster:NA(),magycal:UN()},
+
+  // ── Footer
+  {mod:'Footer',feat:'',prio:'1',plat:'WEB',
+   ksp:AV(),kux:AV(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── In the game
+  {mod:'In the game',feat:'',prio:'2',plat:ALL,
+   ksp:PA('supported: ATV, WEB; Horizon to validate on iOS; not supported: SMTV, Apple TV, Android Mobile'),
+   kux:UN(),wiztivi:NA(),applicaster:UN(),magycal:UN()},
+
+  // ── Smart link
+  {mod:'Smart link',feat:'',prio:'2',plat:'WEB (mobile web)',
+   ksp:NA('open browser on mobile — get action button to open the store'),
+   kux:AV(),wiztivi:AV(),applicaster:UN(),magycal:UN()},
+
+  // ── Recordings
+  {mod:'Recordings',feat:'',prio:'1',plat:ALL,
+   ksp:NA(),kux:AV(),
+   wiztivi:PA('supported on TVs; missing web and mobiles'),
+   applicaster:NA(),magycal:UN()},
+
+  // ── Radio
+  {mod:'Radio',feat:'',prio:'2',plat:ALL,
+   ksp:NA(),kux:NA(),wiztivi:AV(),applicaster:AV(),magycal:UN()},
+
+  // ── Verticalization
+  {mod:'Verticalization',feat:'',prio:'2',plat:'Mobile first',
+   ksp:NA(),kux:NA(),wiztivi:NA('Roadmap'),applicaster:UN(),magycal:UN()},
+
+  // ── Micro drama / Gamification
+  {mod:'Micro drama / Gamification',feat:'',prio:'2',plat:'Mobile first',
+   ksp:NA(),kux:NA(),wiztivi:NA(),applicaster:UN(),magycal:UN()},
+
+  // ── Mobile-web
+  {mod:'Mobile-web',feat:'',prio:'2',plat:'WEB',
+   ksp:PA(),kux:NA('smart link'),wiztivi:UN(),applicaster:UN(),magycal:UN()},
+];
+
+const ALL_VENDORS=['wiztivi','applicaster','magycal','kux','ksp'];
+const VENDOR_LABELS={wiztivi:'Wiztivi',applicaster:'Applicaster',magycal:'Magycal',kux:'KUX',ksp:'KSP'};
+
+function sClass(s){return{av:'s-av',pa:'s-pa',na:'s-na',un:'s-un'}[s]||'s-un';}
+function sLabel(s){return{av:'Available',pa:'Partially',na:'Not Available',un:'???'}[s]||'???';}
+function pClass(p){return{1:'pb-hi',2:'pb-me'}[p]||'pb-un';}
+function platHtml(p){return p.split(',').map(s=>s.trim()).filter(Boolean).join('<br>');}
+
+function cell(vd){
+  if(!vd)return`<td><span class="s-un">???</span></td>`;
+  const cmt=vd.c?`<span class="cmt">${vd.c}</span>`:'';
+  return`<td><span class="${sClass(vd.s)}">${sLabel(vd.s)}</span>${cmt}</td>`;
+}
+
+function renderScorecard(activeVendors, filterStatus){
+  const allTotal = data.length;
+  const allStatuses=[
+    {key:'av',label:'Available',cls:'bar-av'},
+    {key:'pa',label:'Partially',cls:'bar-pa'},
+    {key:'na',label:'Not Available',cls:'bar-na'},
+    {key:'un',label:'???',cls:'bar-un'},
+  ];
+  // When a status is filtered, show only that status; otherwise show all
+  const toShow = filterStatus
+    ? allStatuses.filter(s=>s.key===filterStatus)
+    : allStatuses;
+
+  let html='';
+  activeVendors.forEach(v=>{
+    const counts={av:0,pa:0,na:0,un:0};
+    data.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
+    html+=`<div class="sc-card"><h3>${VENDOR_LABELS[v]}</h3>`;
+    toShow.forEach(({key,label,cls})=>{
+      const n=counts[key]||0;
+      const pct=Math.round(n/allTotal*100);
+      html+=`<div class="sc-row">
+        <span class="sc-label">${label}</span>
+        <div class="sc-bar-wrap"><div class="sc-bar ${cls}" style="width:${pct}%"></div></div>
+        <span class="sc-pct">${pct}%</span>
+        <span class="sc-count">${n}/${allTotal}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('scorecard').innerHTML=html;
+}
+
+function applyFilters(){
+  const mod=document.getElementById('fMod').value;
+  const ven=document.getElementById('fVen').value;   // single vendor key or ''
+  const sta=document.getElementById('fSta').value;   // status key or ''
+  const pri=document.getElementById('fPri').value;
+  const src=document.getElementById('fSrc').value.toLowerCase();
+
+  // Which vendor columns to show
+  const activeVendors = ven ? [ven] : ALL_VENDORS;
+
+  // Update header: vendor th visibility + colspan
+  const vendorThs = document.querySelectorAll('#vendorHeader th');
+  vendorThs.forEach(th=>{
+    const key=th.textContent.toLowerCase().replace(/ /g,'');
+    // map display name back to key
+    const match=ALL_VENDORS.find(v=>VENDOR_LABELS[v].toLowerCase()===th.textContent.toLowerCase());
+    th.style.display = (!ven || (match&&match===ven)) ? '' : 'none';
+  });
+  document.getElementById('statusColspan').colSpan = activeVendors.length;
+
+  // Filter rows
+  const moduleOrder=[...new Set(data.map(r=>r.mod))];
+  let rows=data.filter(r=>{
+    if(mod&&r.mod!==mod)return false;
+    if(pri&&r.prio!==pri)return false;
+    // Status filter: if status selected, keep row only if at least one of the active vendors has that status
+    if(sta){
+      const match=activeVendors.some(v=>{
+        const vd=r[v];
+        const s=vd?vd.s:'un';
+        return s===sta;
+      });
+      if(!match)return false;
+    }
+    if(src){
+      const hay=[r.mod,r.feat,r.plat,...ALL_VENDORS.map(v=>r[v]?sLabel(r[v].s)+' '+r[v].c:'')].join(' ').toLowerCase();
+      if(!hay.includes(src))return false;
+    }
+    return true;
+  });
+  rows.sort((a,b)=>moduleOrder.indexOf(a.mod)-moduleOrder.indexOf(b.mod));
+
+  // Always render scorecard
+  renderScorecard(activeVendors, sta);
+
+  // Render table
+  const tbody=document.getElementById('tbody');
+  const noRes=document.getElementById('noRes');
+  document.getElementById('stats').textContent=`Showing ${rows.length} of ${data.length} rows`;
+  if(!rows.length){tbody.innerHTML='';noRes.style.display='';return;}
+  noRes.style.display='none';
+
+  const rowNums=new Map();
+  data.forEach((r,i)=>rowNums.set(r,i+1));
+
+  let html='',i=0;
+  while(i<rows.length){
+    const row=rows[i];
+    let span=1;
+    while(i+span<rows.length&&rows[i+span].mod===row.mod)span++;
+    const mi=moduleOrder.indexOf(row.mod);
+    const cls=mi%2===0?'odd':'even';
+    html+=`<tr class="${cls}">
+      <td class="td-num">${rowNums.get(row)}</td>
+      <td class="td-mod" rowspan="${span}">${row.mod}</td>
+      <td class="td-feat">${row.feat||''}</td>
+      <td class="td-plat">${platHtml(row.plat)}</td>
+      ${activeVendors.map(v=>cell(row[v])).join('')}
+      <td class="td-prio"><span class="prio-badge ${pClass(row.prio)}">${row.prio||'—'}</span></td>
+    </tr>`;
+    for(let j=1;j<span;j++){
+      const r=rows[i+j];
+      html+=`<tr class="${cls}">
+        <td class="td-num">${rowNums.get(r)}</td>
+        <td class="td-feat">${r.feat||''}</td>
+        <td class="td-plat">${platHtml(r.plat)}</td>
+        ${activeVendors.map(v=>cell(r[v])).join('')}
+        <td class="td-prio"><span class="prio-badge ${pClass(r.prio)}">${r.prio||'—'}</span></td>
+      </tr>`;
+    }
+    i+=span;
+  }
+  tbody.innerHTML=html;
+}
+
+// populate module dropdown & show total count
+const sel=document.getElementById('fMod');
+[...new Set(data.map(r=>r.mod))].forEach(m=>{
+  const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);
+});
+document.getElementById('totalCount').textContent=`${data.length} features · ${[...new Set(data.map(r=>r.mod))].length} modules`;
+applyFilters();
+['fMod','fVen','fSta','fPri'].forEach(id=>document.getElementById(id).addEventListener('change',applyFilters));
+document.getElementById('fSrc').addEventListener('input',applyFilters);
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════ TRUE VISION -->
+<div style="margin-top:48px;">
+<h2 style="font-size:1.3rem;color:#1a1a2e;margin-bottom:4px;">True Vision</h2>
+
+<div class="wrap">
+<table id="tvTable">
+  <colgroup>
+    <col class="col-num"><col class="col-mod"><col class="col-feat"><col class="col-plat">
+    <col class="col-ven"><col class="col-ven"><col class="col-ven"><col class="col-ven"><col class="col-ven">
+    <col class="col-prio">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Module</th>
+      <th>Feature / Requirement</th>
+      <th>Platforms</th>
+      <th style="border-left:2px solid #0f3460">Wiztivi</th>
+      <th>Applicaster</th>
+      <th>Magycal</th>
+      <th>KUX</th>
+      <th>KSP</th>
+      <th class="center">Priority</th>
+    </tr>
+  </thead>
+  <tbody id="tvbody"></tbody>
+</table>
+</div>
+</div>
+
+<style>
+#tvTable thead th { background:#1a1a2e; color:white; padding:10px 13px; text-align:left; font-size:0.73rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; position:sticky; top:0; z-index:10; }
+.tv-mod { font-weight:700; color:#1a1a2e; border-right:3px solid #e8eaed; word-break:break-word; }
+.tv-feat { color:#444; font-size:0.8rem; }
+.tv-id { font-weight:700; color:#1a1a2e; font-size:0.75rem; display:block; margin-bottom:2px; }
+.tv-cell { vertical-align:top; }
+.tv-st { font-weight:700; }
+.tv-st.c  { color:#2e7d32; }
+.tv-st.pc { color:#e65100; }
+.tv-st.nc { color:#c62828; }
+.tv-st.rc { color:#1565c0; }
+.tv-st.na { color:#888; }
+.tv-st.be { color:#6a1b9a; }
+.tv-cmt { display:block; color:#666; font-size:0.71rem; margin-top:2px; }
+</style>
+
+<script>
+// Status normaliser: map raw text → {key, label, cls}
+function tvStatus(raw){
+  if(!raw||!raw.trim())return null;
+  const r=raw.trim().toLowerCase();
+  if(r.startsWith('compliant')&&!r.includes('not')&&!r.includes('partial'))
+    return{cls:'c',label:'Available'};
+  if(r.startsWith('partially')||r.startsWith('partial compliant')||r.startsWith('partially compliant'))
+    return{cls:'pc',label:'Partially'};
+  if(r.startsWith('roadmap'))return{cls:'nc',label:'Not Available — Roadmap / Custom'};
+  if(r.startsWith('not compliant')||r.startsWith('not available'))return{cls:'nc',label:'Not Available'};
+  if(r==='n/a')return{cls:'na',label:'N/A'};
+  if(r.startsWith('backend'))return{cls:'be',label:'Backend'};
+  return null; // treat whole string as comment only
+}
+
+function tvCell(status, comment){
+  const st = tvStatus(status);
+  const cmt = (comment||'').trim();
+  if(!st && !cmt) return `<td class="tv-cell"></td>`;
+  const stHtml = st ? `<span class="tv-st ${st.cls}">${st.label}</span>` : '';
+  const cmtHtml = cmt ? `<span class="tv-cmt">${cmt}</span>` : '';
+  return `<td class="tv-cell">${stHtml}${cmtHtml}</td>`;
+}
+
+// TV data: {mod, id, feat, prio, wiztivi:[status,comment], applicaster:[status,comment], ksp:[status,comment]}
+// magycal and kux left empty
+const tvData = [
+  // ── 4.1.1 Platforms
+  {mod:'4.1.1 Platforms & Release Readiness',id:'P0-PLAT-01',feat:'Provide iOS app (iPhone) with UX parity vs Android and Web.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.1 Platforms & Release Readiness',id:'P0-PLAT-02',feat:'Provide Android app with UX parity vs iOS and Web.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.1 Platforms & Release Readiness',id:'P0-PLAT-03',feat:'Provide responsive Web experience supporting general modern browsers.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.1 Platforms & Release Readiness',id:'P0-PLAT-04',feat:'Web DRM must support Widevine on Chrome/Edge and FairPlay on Safari.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','Dependent upon planned Verimatrix deployment']},
+  {mod:'4.1.1 Platforms & Release Readiness',id:'P0-PLAT-05',feat:'Support Chromecast from Web (device discovery + cast control during playback).',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Not Available / Requires Development','Compliant on mobile (iOS+Android). Not compliant on WEB'],ksp:['Roadmap-Custom','Compliant on mobile (iOS+Android). Custom development for WEB casting.']},
+
+  // ── 4.1.2 Store Submission
+  {mod:'4.1.2 Store Submission & Deployment',id:'P0-STORE-01',feat:'Vendor must manage end-to-end store submission, certification, and publishing for Phase 1 platforms (iOS, Android, Web).',prio:'P0',
+   wiztivi:['Partially compliant','Wiztivi supports app upload on stores, internal testing/TestFlight support, certification support. Final submission relies on end customer'],applicaster:['Not compliant','Applicaster does not provide an end to end store submission service'],ksp:['Compliant','FE responsibility']},
+  {mod:'4.1.2 Store Submission & Deployment',id:'P0-STORE-02',feat:'Vendor must handle store rejection remediation, resubmissions, staged rollouts, and hotfix releases.',prio:'P0',
+   wiztivi:['Compliant','Separate MSS offering'],applicaster:['Not compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.2 Store Submission & Deployment',id:'P0-STORE-03',feat:'Vendor must manage store listing assets and metadata updates (screenshots, descriptions, localization).',prio:'P0',
+   wiztivi:['Compliant','Separate MSS offering'],applicaster:['Not compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.2 Store Submission & Deployment',id:'P0-STORE-04',feat:'Vendor must provide release management deliverables per release (release notes, versioning, rollout plan, go/no-go checklist).',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+
+  // ── 4.1.3 White-Label & Branding
+  {mod:'4.1.3 White-Label & Branding',id:'P0-BRAND-01',feat:'Solution must be white-label, supporting brand theming and configurable branding assets (logos, colors, typography, imagery, copy).',prio:'P0',
+   wiztivi:['Compliant','Timeless front-end is extremely configurable. FIGMA to Code plugin available'],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.3 White-Label & Branding',id:'P0-BRAND-02',feat:'Provide configuration to support multiple brands/regions with controlled customization.',prio:'P0',
+   wiztivi:['Compliant','Timeless front-end is extremely configurable. FIGMA to Code plugin available'],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.3 White-Label & Branding',id:'P0-BRAND-03',feat:'Branding updates must be deployable without requiring full re-release whenever feasible (e.g., remote config/CMS-driven).',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','Current Vivre capabilities']},
+
+  // ── 4.1.4 Core Content Types
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-01',feat:'Support Live Events (sports matches, concerts, PPV events, etc.).',prio:'P0',
+   wiztivi:['Compliant','UI capability, but depends on backend'],applicaster:['Compliant',''],ksp:['Compliant','UI/X required: Sport live event — need to create a UI for a page with counter and purchase subscription button']},
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-02',feat:'Support VOD (archived live events, movies, and series).',prio:'P0',
+   wiztivi:['Compliant','UI capability, but depends on backend'],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-03',feat:'Live events must be archived and published as VOD within 30 minutes after the live event ends.',prio:'P0',
+   wiztivi:['Compliant','UI capability, but depends on backend'],applicaster:['Backend',''],ksp:['Compliant','This is BE activity. VOD content playback works whether converted from Live or linear or VOD']},
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-04',feat:'Support Start-Over for live events (start from the beginning while event is ongoing).',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Roadmap',''],ksp:['Compliant','']},
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-05',feat:'Support Pause-Live for live events.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','Time shift. BE & Kaltura player support required. App supports Pause']},
+  {mod:'4.1.4 Core Content Types & User Journeys',id:'P0-CONTENT-06',feat:'UI must clearly distinguish between Live Events and VOD experiences.',prio:'P0',
+   wiztivi:['Compliant','It can be section based, or we can place a LIVE icon on top of live assets'],applicaster:['Compliant',''],ksp:['Compliant','']},
+
+  // ── 4.1.5 Playback
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-01',feat:'Support SDR/HDR/4K; HLS, MPEG-DASH; H.264, H.265; AAC, Dolby Digital, Dolby Atmos.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','']},
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-02',feat:'Support low-latency delivery; live event latency glass-to-glass < 15 seconds.',prio:'P0',
+   wiztivi:['Compliant','Depends on player choice'],applicaster:['Backend',''],ksp:['Compliant','Assumption: CDN from TVSN']},
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-03',feat:'Playback start time target P95 < 1.5 seconds on good internet conditions.',prio:'P0',
+   wiztivi:['Compliant','Depends on player choice + CDN'],applicaster:['Backend + Kaltura player',''],ksp:['Compliant','Depends on various factors: backend API integration & FE optimization']},
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-04',feat:'Codec support: H.264 and H.265.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','As per Kaltura encoding format specification — these codecs are supported']},
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-05',feat:'Player controls: Play/Pause, Seek/Scrub, Skip ±10s, Subtitles on/off, Audio track selection, Quality selection (Auto + manual), Resume behavior.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['',''],ksp:['Compliant','Horizon to test and confirm on all platforms']},
+  {mod:'4.1.5 Playback, Latency & Player',id:'P0-PLAY-06',feat:'Error handling: user-friendly messaging, unique error codes, retry behavior, and telemetry capture.',prio:'P0',
+   wiztivi:['Compliant','Depends on player choice'],applicaster:['Compliant',''],ksp:['Compliant','Network error handling — user needs to press a button to resume playback']},
+
+  // ── 4.1.6 Subtitles & Multi-Language
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-LANG-01',feat:'App must support multi-language UI from day one.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','As its international project, UI should support multiple UI languages — e.g. Thai, Japanese & others']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-LANG-02',feat:'Content metadata and subtitles may be AI-translated.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Backend',''],ksp:['Compliant','REACH — Subtitle for Thai. Application needs to integrate if new metadata is added by AI.']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-LANG-03',feat:'AI translation for metadata must be production-grade, natural and usable without human intervention.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','Supported by OVP Reach. Automation through Agents.']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-SUB-01',feat:'AI-generated multi-language subtitles required.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','Supported by OVP Reach — Thai']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-SUB-02',feat:'WebVTT is mandatory.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant','Supported as part of the manifest, not side loaded'],ksp:['Compliant','This is a Kaltura player requirement. If WebVTT is handled by player, app will support.']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-SUB-03',feat:'Subtitle features: on/off and language selection.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.6 Subtitles, Audio & Multi-Language',id:'P0-AUD-01',feat:'Multi-language audio track selection is required when tracks are present.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+
+  // ── 4.1.7 Discovery
+  {mod:'4.1.7 Discovery, Search & Personalization',id:'P0-DISC-01',feat:'Personalized shelves required on home page.',prio:'P0',
+   wiztivi:['Compliant','Home screen fully customisable depending on backend capabilities'],applicaster:['Compliant',''],ksp:['Compliant','Rails: continue watching, my list, recommendations based on watch history — planned']},
+  {mod:'4.1.7 Discovery, Search & Personalization',id:'P0-DISC-02',feat:'Hero carousel is required (CMS-manageable).',prio:'P0',
+   wiztivi:['Compliant','Many more UI templates'],applicaster:['Compliant',''],ksp:['Compliant','Supports only single episode/movie VOD (not series)']},
+  {mod:'4.1.7 Discovery, Search & Personalization',id:'P0-DISC-03',feat:'Search must support Live events, VOD, people/cast, viewing history relevance, and metadata matching.',prio:'P0',
+   wiztivi:['Compliant','Depends on backend search capabilities'],applicaster:['Compliant',''],ksp:['Compliant','Asset type to be extended for live events. More of BE enabler than app.']},
+  {mod:'4.1.7 Discovery, Search & Personalization',id:'P0-DISC-04',feat:'Continue Watching must support cross-device sync.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+
+  // ── 4.1.8 Authentication
+  {mod:'4.1.8 Authentication & Access Control',id:'P0-AUTH-01',feat:'Support login methods: Google, Apple, Facebook, Email/Password, Phone number login.',prio:'P0',
+   wiztivi:['Partially compliant','Depends on CRM third party integration, or backend CRM capabilities'],applicaster:['Not compliant',''],ksp:['Compliant','Social Login & email/pw supported. Phone number not supported. OTP SMS solution only for Reshet TVs.']},
+  {mod:'4.1.8 Authentication & Access Control',id:'P0-AUTH-02',feat:'Guest users may browse but cannot watch; trailers may autoplay for guests.',prio:'P0',
+   wiztivi:['Compliant','Free tour'],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.8 Authentication & Access Control',id:'P0-AUTH-03',feat:'Concurrency must support up to 100,000 concurrent viewers worldwide.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','']},
+  {mod:'4.1.8 Authentication & Access Control',id:'P0-AUTH-04',feat:'Concurrent streams per profile configurable; baseline ~10, configurable by admin.',prio:'P0',
+   wiztivi:['Compliant','Mainly backend and/or CDN capability dealt with player error UI side'],applicaster:['Backend dependent',''],ksp:['Compliant','']},
+
+  // ── 4.1.9 Monetization
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-01',feat:'Primary model is SVOD subscriptions.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-02',feat:'Subscription model: one subscription for full app access.',prio:'P0',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-03',feat:'Support PPV purchases for applicable live events.',prio:'P0',
+   wiztivi:['Partially compliant','Would need a 3rd party payment provider (Cleeng for example)'],applicaster:['Compliant',''],ksp:['Roadmap-Custom','Need front development for PPV live event. KSP feature does not have PPV feature.']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-04',feat:'Support multi-currency and market-specific pricing.',prio:'P0',
+   wiztivi:['Compliant','Backend/CRM capability mainly'],applicaster:['Partially compliant','Applicaster does not provide payment processing; can integrate with existing payment providers (Adyen, Stripe, etc)'],ksp:['Compliant','This is BE activity. If BE supports multicurrency, app will present what is supported']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-05',feat:'Payment support: credit card first.',prio:'P0',
+   wiztivi:['Compliant','Backend/CRM capability mainly'],applicaster:['Partially compliant','Applicaster does not provide payment processing; can integrate with existing payment providers (Adyen, Stripe, etc)'],ksp:['Roadmap-Custom','Customer confirmed to use Stripe for now. KSP feature includes only Stripe PG.']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-07',feat:'Support promo codes with flexible rules.',prio:'P0',
+   wiztivi:['Partially compliant','Would need a 3rd party payment provider (Cleeng for example)'],applicaster:['Partially compliant','Applicaster does not provide payment processing; can integrate with existing payment providers'],ksp:['Roadmap-Custom','Supports: Amount discount, Percentage discount, First order only. Limitation: Payment cannot be 0.']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-08',feat:'Cancellation effective at end of billing cycle.',prio:'P0',
+   wiztivi:['Partially compliant','Integration from backend/CRM'],applicaster:['Backend dependent',''],ksp:['Compliant','This is BE activity. No FE involvement']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-MON-09',feat:'Tax invoice via email and accessible in-app.',prio:'P0',
+   wiztivi:['Partially compliant','Integration from backend/CRM'],applicaster:['Backend dependent',''],ksp:['Compliant','This is BE activity. No FE involvement']},
+  {mod:'4.1.9 Monetization: SVOD + PPV',id:'P0-ADS-01',feat:'No ads throughout the product.',prio:'P0',
+   wiztivi:['Not compliant','Please elaborate this request'],applicaster:['Compliant',''],ksp:['Compliant','GAM supported only for small screen']},
+
+  // ── 4.1.10 DRM / Security
+  {mod:'4.1.10 DRM, Geo-Blocking & CDN',id:'P0-SEC-01',feat:'DRM must support Widevine, FairPlay, PlayReady.',prio:'P0',
+   wiztivi:['',''],applicaster:['Compliant',''],ksp:['Compliant','Dependent upon planned Verimatrix deployment or Kaltura uDRM']},
+  {mod:'4.1.10 DRM, Geo-Blocking & CDN',id:'P0-SEC-02',feat:'Geo-blocking must support regional/country restriction.',prio:'P0',
+   wiztivi:['Compliant','Player errors from CDN or GEO database'],applicaster:['Compliant',''],ksp:['Compliant','Restriction on playback level']},
+  {mod:'4.1.10 DRM, Geo-Blocking & CDN',id:'P0-SEC-03',feat:'Vendor must provide a global CDN solution suitable for worldwide delivery and live spikes.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','']},
+  {mod:'4.1.10 DRM, Geo-Blocking & CDN',id:'P0-WM-01',feat:'Invisible forensic watermarking is required.',prio:'P0',
+   wiztivi:['Compliant','Depends on player choice (not really a UI requirement)'],applicaster:['N/A','Backend'],ksp:['Roadmap-Custom','Verimatrix client side watermarking. This is not a KSP feature. Custom CR development.']},
+  {mod:'4.1.10 DRM, Geo-Blocking & CDN',id:'P0-WM-02',feat:'Vendor must describe watermark generation, robustness, extraction workflow.',prio:'P0',
+   wiztivi:['Compliant','Depends on player choice (not really a UI requirement)'],applicaster:['N/A','Backend'],ksp:['N/A','']},
+
+  // ── 4.1.11 CMS
+  {mod:'4.1.11 CMS',id:'P0-CMS-01',feat:'Manage live events and VOD entities (titles, series, seasons/episodes, collections) + metadata and artwork.',prio:'P0',
+   wiztivi:['Partially compliant','In our CMS events/VOD can be managed but we do not support manual adjustments of metadata in our CMS'],applicaster:['N/A','Backend'],ksp:['Compliant','If BE supports types and metadata. KSP FE is compliant.']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-02',feat:'Publishing workflow: draft/review/publish, scheduling, rights windows.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','Draft/review/publish are all part of the OVP workflow.']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-03',feat:'Shelf & storefront management: hero carousel, shelves (editorial + rules-based), scheduling shelves.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','Assumption: Vivre can manage scheduling of rails.']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-04',feat:'Localization: multi-language metadata + AI translation workflow support.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','Supported by OVP Reach.']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-05',feat:'Role-based access + audit logs.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','OPC user roles + OPC user report']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-06',feat:'Bulk operations: CSV import/export and/or APIs.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','']},
+  {mod:'4.1.11 CMS',id:'P0-CMS-07',feat:'Rapid takedown/unpublish capability.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','Rapid manual delete capability through the OPC']},
+
+  // ── 4.1.12 Analytics
+  {mod:'4.1.12 Analytics & Dashboards',id:'P0-DATA-01',feat:'Analytics must include funnel behavior, viewing behavior, per-video performance, live event performance, search interactions, QoS/QoE metrics.',prio:'P0',
+   wiztivi:['Compliant','Core analytics from Timeless; player analytics depending on player choice'],applicaster:['N/A','Backend'],ksp:['Compliant','FE integration with NPAW Youbora for QOE']},
+  {mod:'4.1.12 Analytics & Dashboards',id:'P0-DATA-02',feat:'Dashboards for executives, marketing, product; near real-time where appropriate.',prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','Quicksight dashboards. NRT only for SHD if supplied. Quicksight is every 24 hours.']},
+  {mod:'4.1.12 Analytics & Dashboards',id:'P0-DATA-03',feat:"Data ownership is BriteW's; export available anytime; real-time or near real-time access.",prio:'P0',
+   wiztivi:['',''],applicaster:['',''],ksp:['N/A','Standard report exports']},
+
+  // ── 4.1.13 Customer Support
+  {mod:'4.1.13 Customer Feedback & Support',id:'P0-CS-01',feat:'In-app feedback form + periodic CSAT/NPS prompts.',prio:'P0',
+   wiztivi:['Not compliant',''],applicaster:['',''],ksp:['Roadmap-Custom','Not KSP Feature. CR custom development for 2 mobile platforms.']},
+  {mod:'4.1.13 Customer Feedback & Support',id:'P0-CS-02',feat:'In-app AppStore/PlayStore rating form.',prio:'P0',
+   wiztivi:['Not compliant',''],applicaster:['Compliant',''],ksp:['Roadmap-Custom','Not KSP Feature. CR custom development for 2 mobile platforms.']},
+  {mod:'4.1.13 Customer Feedback & Support',id:'P0-CS-03',feat:'Customer support/admin portal: user lookup, entitlement override, payment history, reset device binding.',prio:'P0',
+   wiztivi:['',''],applicaster:['N/A','Backend'],ksp:['N/A','OPC User Management']},
+  {mod:'4.1.13 Customer Feedback & Support',id:'P0-CS-04',feat:'Role-based access and audit logs for all admin actions.',prio:'P0',
+   wiztivi:['',''],applicaster:['Compliant',''],ksp:['N/A','OPC user roles + OPC user report']},
+
+  // ── 4.2 P1 Phase 2
+  {mod:'4.2 P1 Phase 2 Launch',id:'P1-PLAT-07',feat:'Provide Android TV application.',prio:'P1',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','']},
+  {mod:'4.2 P1 Phase 2 Launch',id:'P1-PLAT-08',feat:'Provide Apple TV application.',prio:'P1',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','Apple TV — Baseline available. KSP new UI/UX alignment is partially done.']},
+  {mod:'4.2 P1 Phase 2 Launch',id:'P1-PLAT-09',feat:'Provide Smart TV applications (Tizen, webOS, VIDAA, Roku OS, Fire TV OS, TiVo OS, Vizio SmartCast).',prio:'P1',
+   wiztivi:['Compliant','Roku, TiVo, Vizio not supported yet, but possible'],applicaster:['Partially compliant','VIDAA in development. See supported devices list.'],ksp:['Partially compliant','KSP support: Tizen, WebOS, Vidaa, Fire TV. Not part of KSP feature list: Roku + Tivo + Vizio.']},
+  {mod:'4.2 P1 Phase 2 Launch',id:'P1-PLAT-10',feat:'Vendor must manage submissions and releases for all required stores for Phase 2 platforms.',prio:'P1',
+   wiztivi:['Partially compliant','Same as mobile'],applicaster:['Not compliant',''],ksp:['Compliant','']},
+  {mod:'4.2 P1 Phase 2 Launch',id:'P1-MON-06',feat:'Free trial supported; enable/disable and rules must be configurable.',prio:'P1',
+   wiztivi:['Not compliant',''],applicaster:['Compliant, backend dependent',''],ksp:['Roadmap-Custom','Not KSP feature. CR custom development']},
+
+  // ── 4.3 P2 Nice-to-have
+  {mod:'4.3 P2 Nice-to-have',id:'P2-CONTENT-07',feat:'Catch-up functionality with 7-day window.',prio:'P2',
+   wiztivi:['Compliant',''],applicaster:['Compliant, backend dependent',''],ksp:['Compliant','']},
+  {mod:'4.3 P2 Nice-to-have',id:'P2-DISC-05',feat:'Multiple profiles per account.',prio:'P2',
+   wiztivi:['Compliant',''],applicaster:['Roadmap',''],ksp:['Compliant','Requirement is for multi profile. Kids profile must address parental control.']},
+  {mod:'4.3 P2 Nice-to-have',id:'P2-OFF-01',feat:'Temporary offline downloads (VOD).',prio:'P2',
+   wiztivi:['Compliant',''],applicaster:['Compliant',''],ksp:['Compliant','Download to Go']},
+  {mod:'4.3 P2 Nice-to-have',id:'P2-OFF-02',feat:'Downloaded content must expire and be removed automatically after expiration.',prio:'P2',
+   wiztivi:['Compliant',''],applicaster:['Compliant','Expiration date dependent on the backend'],ksp:['Compliant','After expiration time content is not available; clicking on expired content redirects users to an error page.']},
+];
+
+(function buildTVTable(){
+  const moduleOrder=[...new Set(tvData.map(r=>r.mod))];
+  const rowNums=new Map(); tvData.forEach((r,i)=>rowNums.set(r,i+1));
+  let html='', i=0;
+  while(i<tvData.length){
+    const row=tvData[i];
+    let span=1;
+    while(i+span<tvData.length && tvData[i+span].mod===row.mod) span++;
+    const mi=moduleOrder.indexOf(row.mod);
+    const cls=mi%2===0?'odd':'even';
+    const shiftPrio=p=>p==='P0'?'1':p==='P1'?'2':p==='P2'?'3':p;
+    const prioCls=row.prio==='P0'?'pb-hi':row.prio==='P1'?'pb-me':'pb-lo';
+    html+=`<tr class="${cls}">
+      <td class="td-num">${rowNums.get(row)}</td>
+      <td class="tv-mod" rowspan="${span}">${row.mod}</td>
+      <td class="tv-feat"><span class="tv-id">${row.id}</span>${row.feat}</td>
+      <td></td>
+      ${tvCell(row.wiztivi[0], row.wiztivi[1])}
+      ${tvCell(row.applicaster[0], row.applicaster[1])}
+      <td></td>
+      <td></td>
+      ${tvCell(row.ksp[0], row.ksp[1])}
+      <td class="td-prio"><span class="prio-badge ${prioCls}">${shiftPrio(row.prio)}</span></td>
+    </tr>`;
+    for(let j=1;j<span;j++){
+      const r=tvData[i+j];
+      const pc2=r.prio==='P0'?'pb-hi':r.prio==='P1'?'pb-me':'pb-lo';
+      html+=`<tr class="${cls}">
+        <td class="td-num">${rowNums.get(r)}</td>
+        <td class="tv-feat"><span class="tv-id">${r.id}</span>${r.feat}</td>
+        <td></td>
+        ${tvCell(r.wiztivi[0], r.wiztivi[1])}
+        ${tvCell(r.applicaster[0], r.applicaster[1])}
+        <td></td>
+        <td></td>
+        ${tvCell(r.ksp[0], r.ksp[1])}
+        <td class="td-prio"><span class="prio-badge ${pc2}">${shiftPrio(r.prio)}</span></td>
+      </tr>`;
+    }
+    i+=span;
+  }
+  document.getElementById('tvbody').innerHTML=html;
+})();
+</script>
+</body>
+</html>
