@@ -54,6 +54,10 @@ td:last-child { border-right: none; }
 .odd td { background: #fff; }
 .even td { background: #fafbfc; }
 .no-results { text-align: center; padding: 48px; color: #bbb; font-size: 0.9rem; }
+.table-title-row { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; margin-bottom: 6px; }
+.table-title-row:hover h1, .table-title-row:hover h2 { color: #4a90e2; }
+.toggle-arrow { font-size: 1rem; color: #888; transition: transform .2s; display: inline-block; width: 18px; }
+.toggle-arrow.collapsed { transform: rotate(-90deg); }
 
 #scorecard { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .sc-card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 14px 18px; min-width: 160px; flex: 1; }
@@ -72,7 +76,10 @@ td:last-child { border-right: none; }
 </style>
 </head>
 <body>
-<h1>FE Alternatives — Vendor Comparison</h1>
+<div class="table-title-row" onclick="toggleSection('section1','arrow1')">
+  <span class="toggle-arrow" id="arrow1">▼</span>
+  <h1 style="display:inline;font-size:1.5rem;color:#1a1a2e;">FE Alternatives — Vendor Comparison</h1>
+</div>
 <p class="subtitle">Wiztivi · Applicaster · Magycal · KUX · KSP</p>
 <div class="legend">
   <span class="legend-title">Legend</span>
@@ -100,10 +107,9 @@ td:last-child { border-right: none; }
     <select id="fPri"><option value="">Any</option><option value="1">1</option><option value="2">2</option></select></div>
   <div class="cg"><label>Search</label><input type="text" id="fSrc" placeholder="Module, feature, platform…"></div>
 </div>
+<div id="section1">
 <div class="stats" id="stats"></div>
-
 <div id="scorecard"></div>
-
 <div class="wrap">
   <table>
     <colgroup>
@@ -128,6 +134,7 @@ td:last-child { border-right: none; }
   </table>
   <div class="no-results" id="noRes" style="display:none">No matching rows</div>
 </div>
+</div><!-- /section1 -->
 
 <script>
 function v(s,c){return{s:s,c:c||''};}
@@ -697,16 +704,27 @@ const sel=document.getElementById('fMod');
 [...new Set(data.map(r=>r.mod))].forEach(m=>{
   const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);
 });
-document.getElementById('totalCount').textContent=`${data.length} features · ${[...new Set(data.map(r=>r.mod))].length} modules`;
+const tc=document.getElementById('totalCount'); if(tc) tc.textContent=`${data.length} features · ${[...new Set(data.map(r=>r.mod))].length} modules`;
 applyFilters();
 ['fMod','fVen','fSta','fPri'].forEach(id=>document.getElementById(id).addEventListener('change',applyFilters));
 document.getElementById('fSrc').addEventListener('input',applyFilters);
+
+function toggleSection(sectionId, arrowId){
+  const sec=document.getElementById(sectionId);
+  const arrow=document.getElementById(arrowId);
+  const collapsed=sec.style.display==='none';
+  sec.style.display=collapsed?'':'none';
+  arrow.classList.toggle('collapsed',!collapsed);
+}
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════ TRUE VISION -->
 <div style="margin-top:48px;">
-<h2 style="font-size:1.3rem;color:#1a1a2e;margin-bottom:4px;">True Vision</h2>
-
+<div class="table-title-row" onclick="toggleSection('section2','arrow2')">
+  <span class="toggle-arrow" id="arrow2">▼</span>
+  <h2 style="display:inline;font-size:1.3rem;color:#1a1a2e;">True Vision</h2>
+</div>
+<div id="section2">
 <div class="wrap">
 <table id="tvTable">
   <colgroup>
@@ -731,6 +749,7 @@ document.getElementById('fSrc').addEventListener('input',applyFilters);
   <tbody id="tvbody"></tbody>
 </table>
 </div>
+</div><!-- /section2 -->
 </div>
 
 <style>
