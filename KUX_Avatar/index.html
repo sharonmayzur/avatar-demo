@@ -66,6 +66,18 @@
 
     <!-- Step 2: Hard CSS overrides as a safety net -->
     <style>
+      /* Override CSS custom properties at the root level — loaded AFTER app CSS so it wins */
+      :root {
+        --background-color: #000000 !important;
+        --background-color-h: 0 !important;
+        --background-color-s: 0% !important;
+        --background-color-l: 0% !important;
+        --focus-color: #8b0000 !important;
+        --focus-color-h: 0 !important;
+        --focus-color-s: 100% !important;
+        --focus-color-l: 27% !important;
+      }
+
       html, body, #root,
       .MainLayout_mainLayout__1ac13bc9,
       .OnBoardingLayout_wrapper__74fe8cd4,
@@ -84,6 +96,33 @@
         outline-color: #8b0000 !important;
       }
     </style>
+
+    <!-- Step 3: Aggressive JS fallback — reapply variables after app hydration -->
+    <script>
+      (function () {
+        const BLACK = '#000000';
+        const DARK_RED = '#8b0000';
+        function forceVars() {
+          const s = document.documentElement.style;
+          const nsp = CSSStyleDeclaration.prototype.setProperty;
+          nsp.call(s, '--background-color', BLACK, 'important');
+          nsp.call(s, '--background-color-h', '0', 'important');
+          nsp.call(s, '--background-color-s', '0%', 'important');
+          nsp.call(s, '--background-color-l', '0%', 'important');
+          nsp.call(s, '--focus-color', DARK_RED, 'important');
+          nsp.call(s, '--focus-color-h', '0', 'important');
+          nsp.call(s, '--focus-color-s', '100%', 'important');
+          nsp.call(s, '--focus-color-l', '27%', 'important');
+        }
+        // Run repeatedly for first 5s to catch delayed React hydration
+        var count = 0;
+        var interval = setInterval(function () {
+          forceVars();
+          count++;
+          if (count >= 50) clearInterval(interval);
+        }, 100);
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
