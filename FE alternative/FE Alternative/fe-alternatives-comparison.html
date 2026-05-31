@@ -769,28 +769,25 @@ function toggleSection(sectionId, arrowId){
 </style>
 
 <script>
-// Status normaliser: map raw text → {key, label, cls}
-function tvStatus(raw){
+// Convert tvData status string → standard status key (av/pa/na/un)
+function tvStatusKey(raw){
   if(!raw||!raw.trim())return null;
   const r=raw.trim().toLowerCase();
-  if(r.startsWith('compliant')&&!r.includes('not')&&!r.includes('partial'))
-    return{cls:'c',label:'Available'};
-  if(r.startsWith('partially')||r.startsWith('partial compliant')||r.startsWith('partially compliant'))
-    return{cls:'pc',label:'Partially'};
-  if(r.startsWith('roadmap'))return{cls:'nc',label:'Not Available — Roadmap / Custom'};
-  if(r.startsWith('not compliant')||r.startsWith('not available'))return{cls:'nc',label:'Not Available'};
-  if(r==='n/a')return{cls:'na',label:'N/A'};
-  if(r.startsWith('backend'))return{cls:'be',label:'Backend'};
-  return null; // treat whole string as comment only
+  if(r==='n/a')return'un';
+  if(r.startsWith('compliant')&&!r.includes('not')&&!r.includes('partial'))return'av';
+  if(r.startsWith('partially')||r.startsWith('partial compliant')||r.startsWith('partially compliant'))return'pa';
+  if(r.startsWith('roadmap')||r.startsWith('not compliant')||r.startsWith('not available'))return'na';
+  if(r.startsWith('backend'))return'pa';
+  return null; // comment-only string
 }
 
 function tvCell(status, comment){
-  const st = tvStatus(status);
-  const cmt = (comment||'').trim();
-  if(!st && !cmt) return `<td class="tv-cell"></td>`;
-  const stHtml = st ? `<span class="tv-st ${st.cls}">${st.label}</span>` : '';
-  const cmtHtml = cmt ? `<span class="tv-cmt">${cmt}</span>` : '';
-  return `<td class="tv-cell">${stHtml}${cmtHtml}</td>`;
+  const key=tvStatusKey(status);
+  const cmt=(comment||'').trim();
+  if(!key&&!cmt)return`<td></td>`;
+  const html=key?`<span class="${sClass(key)}">${sLabel(key)}</span>`:'';
+  const cmtHtml=cmt?`<span class="cmt">${cmt}</span>`:'';
+  return`<td>${html}${cmtHtml}</td>`;
 }
 
 // TV data: {mod, id, feat, prio, wiztivi:[status,comment], applicaster:[status,comment], magycal:[status,comment], ksp:[status,comment]}
