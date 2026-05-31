@@ -387,7 +387,7 @@ body {
 .action-btn span { font-size:11px; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.9); }
 
 /* Gold Coin (rewards-style, used in player) */
-.coin-btn-wrap { display:flex; flex-direction:column; align-items:center; gap:0; margin-bottom:20px; cursor:pointer; }
+.coin-btn-wrap { display:flex; flex-direction:column; align-items:center; gap:0; margin-bottom:20px; cursor:pointer; position:relative; }
 .player-coin-btn { gap:3px; }
 .player-coin-svg {
   width:32px; height:32px;
@@ -1456,6 +1456,21 @@ body {
 .home-coin-chip span { font-size:12px; font-weight:800; color:#ffd700; }
 @keyframes chip-pop { 0%{transform:scale(1)} 40%{transform:scale(1.2)} 100%{transform:scale(1)} }
 .home-coin-chip.pop { animation:chip-pop .35s ease-out; }
+
+/* ── Coin gain floating "+N" label on player coin ── */
+.coin-gain-label {
+  position:absolute; top:-18px; left:50%; transform:translateX(-50%);
+  font-size:11px; font-weight:800; color:#FFD700; white-space:nowrap;
+  text-shadow:0 0 8px rgba(255,215,0,.9), 0 0 18px rgba(255,215,0,.5);
+  animation:coin-gain-fly 2s ease-out forwards;
+  pointer-events:none; z-index:20;
+}
+@keyframes coin-gain-fly {
+  0%   { opacity:0; transform:translateX(-50%) translateY(4px); }
+  18%  { opacity:1; }
+  75%  { opacity:1; transform:translateX(-50%) translateY(-16px); }
+  100% { opacity:0; transform:translateX(-50%) translateY(-22px); }
+}
 
 /* ── Progress bar scrubbing ── */
 .progress-fill-wrap { position:relative; width:100%; }
@@ -4031,9 +4046,10 @@ function closeAdPopup(andReward) {
     setCenterIcon(true);
     setOverlayVisible(true);
     if (andReward) {
-      rewardCoinsAnimated(30); // manages overlay timer internally for 3s burst
+      showCoinGainLabel(30);
+      rewardCoinsAnimated(30);
     } else {
-      startOverlayTimer();     // no reward — overlay auto-hides normally
+      startOverlayTimer();
     }
   }
 }
@@ -4588,6 +4604,19 @@ function updateCoinTimer() {
   coinTick++;
   if (coinTick >= COIN_PERIOD) coinTick = 0;
 }
+
+/* Show a floating "+N" label above the player coin counter */
+function showCoinGainLabel(n) {
+  const wrap = document.getElementById('coin-btn');
+  if (!wrap) return;
+  const existing = wrap.querySelector('.coin-gain-label');
+  if (existing) existing.remove();
+  const el = document.createElement('span');
+  el.className = 'coin-gain-label';
+  el.textContent = '+' + n;
+  wrap.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 2100);
+}
 // Passive coin timer removed — coins earned only through explicit actions
 
 /* ════════════════ MORE MENU ════════════════ */
@@ -4690,8 +4719,9 @@ document.getElementById('subscribe-popup-close').addEventListener('click', (e) =
 document.getElementById('subscribe-popup-btn').addEventListener('click', (e) => {
   e.stopPropagation();
   document.getElementById('subscribe-popup').classList.remove('open');
-  resumePlayerAfterOnboarding();  // resumes video + shows overlay
-  rewardCoinsAnimated(50);        // shows burst, overrides overlay timer for 3s
+  resumePlayerAfterOnboarding();
+  showCoinGainLabel(50);
+  rewardCoinsAnimated(50);
 });
 
 /* ════════════════ NOTIFICATIONS ONBOARDING POPUP ════════════════ */
@@ -4734,8 +4764,9 @@ document.getElementById('notif-popup-btn').addEventListener('click', (e) => {
     const rNotifBtn = document.getElementById('rewards-notif-btn');
     if (rNotifBtn) { rNotifBtn.textContent = '✓ Enabled'; rNotifBtn.classList.add('done'); }
   }
-  resumePlayerAfterOnboarding();  // resumes video + shows overlay
-  rewardCoinsAnimated(30);        // shows burst, overrides overlay timer for 3s
+  resumePlayerAfterOnboarding();
+  showCoinGainLabel(30);
+  rewardCoinsAnimated(30);
 });
 
 /* ════════════════ REWARDS SCREEN ════════════════ */
@@ -4743,8 +4774,10 @@ function openRewards(fromScreen) {
   const from = fromScreen || 'home';
   document.getElementById(from).classList.add('hidden');
   document.getElementById('rewards').classList.remove('hidden');
-  // Sync counters
-  document.getElementById('rewards-hero-num').textContent = coinCounter;
+  // Sync counters with pop animation to confirm latest value
+  const heroNum = document.getElementById('rewards-hero-num');
+  heroNum.textContent = coinCounter;
+  heroNum.classList.remove('pop'); void heroNum.offsetWidth; heroNum.classList.add('pop');
   document.getElementById('rewards-topbar-counter').textContent = coinCounter;
   // Sync button states
   if (notifEnabled) {
