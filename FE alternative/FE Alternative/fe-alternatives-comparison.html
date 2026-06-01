@@ -581,15 +581,28 @@ function cell(vd){
   return`<td><span class="${sClass(vd.s)}">${sLabel(vd.s)}</span>${cmt}</td>`;
 }
 
+// Helper: get status key from advData cell object
+function advStatusKey(vd){ return vd?vd.s:'un'; }
+// Helper: get status key from tvData [status, comment] array
+function tvStatusKeyFromArr(arr){
+  if(!arr||!arr[0])return'un';
+  return tvStatusKey(arr[0])||'un';
+}
+
 function renderScorecard(activeVendors, filterStatus){
-  const allTotal = data.length;
+  // Combine data from all three tables once advData is defined
+  const advDefined=typeof advData!=='undefined';
+  const tvDefined=typeof tvData!=='undefined';
+  const allTotal = data.length
+    + (tvDefined?tvData.length:0)
+    + (advDefined?advData.length:0);
+
   const allStatuses=[
     {key:'av',label:'Available',cls:'bar-av'},
     {key:'pa',label:'Partially',cls:'bar-pa'},
     {key:'na',label:'Not Available',cls:'bar-na'},
     {key:'un',label:'???',cls:'bar-un'},
   ];
-  // When a status is filtered, show only that status; otherwise show all
   const toShow = filterStatus
     ? allStatuses.filter(s=>s.key===filterStatus)
     : allStatuses;
@@ -597,7 +610,16 @@ function renderScorecard(activeVendors, filterStatus){
   let html='';
   activeVendors.forEach(v=>{
     const counts={av:0,pa:0,na:0,un:0};
+    // Table 1 (data)
     data.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
+    // Table 2 (tvData) — stored as [status, comment]
+    if(tvDefined) tvData.forEach(r=>{
+      const arr=r[v]; const s=tvStatusKeyFromArr(arr); counts[s]=(counts[s]||0)+1;
+    });
+    // Table 3 (advData) — stored as {s, c}
+    if(advDefined) advData.forEach(r=>{
+      const s=advStatusKey(r[v]); counts[s]=(counts[s]||0)+1;
+    });
     html+=`<div class="sc-card"><h3>${VENDOR_LABELS[v]}</h3>`;
     toShow.forEach(({key,label,cls})=>{
       const n=counts[key]||0;
