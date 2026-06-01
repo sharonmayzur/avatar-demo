@@ -591,10 +591,12 @@ function tvStatusKeyFromArr(arr){
   return tvStatusKey(arr[0])||'un';
 }
 
-function renderScorecard(activeVendors, filterStatus){
-  // Combine data from all three tables once advData is defined
+function renderScorecard(activeVendors, filterStatus, filterPrio){
   const advDefined=typeof advData!=='undefined';
-  const allTotal = data.length + (advDefined?advData.length:0);
+  // Apply priority filter to both tables for the scorecard
+  const d1 = filterPrio ? data.filter(r=>r.prio===filterPrio) : data;
+  const d2 = advDefined ? (filterPrio ? advData.filter(r=>r.prio===filterPrio) : advData) : [];
+  const allTotal = d1.length + d2.length;
 
   const allStatuses=[
     {key:'av',label:'Available',cls:'bar-av'},
@@ -609,12 +611,8 @@ function renderScorecard(activeVendors, filterStatus){
   let html='';
   activeVendors.forEach(v=>{
     const counts={av:0,pa:0,na:0,un:0};
-    // Table 1
-    data.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
-    // Advanced table
-    if(advDefined) advData.forEach(r=>{
-      const s=advStatusKey(r[v]); counts[s]=(counts[s]||0)+1;
-    });
+    d1.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
+    d2.forEach(r=>{const s=advStatusKey(r[v]); counts[s]=(counts[s]||0)+1;});
     html+=`<div class="sc-card"><h3>${VENDOR_LABELS[v]}</h3>`;
     toShow.forEach(({key,label,cls})=>{
       const n=counts[key]||0;
