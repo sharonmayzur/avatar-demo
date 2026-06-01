@@ -1101,7 +1101,7 @@ function advCell(vd){
   return`<td><span class="${sClass(vd.s)}">${sLabel(vd.s)}</span>${cmt}</td>`;
 }
 
-(function buildAdvTable(){
+function buildAdvTable(){
   const moduleOrder=[...new Set(advData.map(r=>r.mod))];
   const rowNums=new Map(); advData.forEach((r,i)=>rowNums.set(r,i+1));
   let html='', i=0;
@@ -1136,11 +1136,8 @@ function advCell(vd){
     i+=span;
   }
   document.getElementById('advbody').innerHTML=html;
-
-  // ── Update scorecard to combine all 3 tables ──────────────────────────
-  // Re-run applyFilters so the scorecard recalculates with all data combined
-  applyFilters();
-})();
+  applyFilters(); // recalculate scorecard with both tables
+}
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════ ADVANCED TABLE -->
