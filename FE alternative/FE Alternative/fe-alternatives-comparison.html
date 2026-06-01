@@ -672,7 +672,7 @@ function applyFilters(){
   rows.sort((a,b)=>moduleOrder.indexOf(a.mod)-moduleOrder.indexOf(b.mod));
 
   // Always render scorecard
-  renderScorecard(activeVendors, sta);
+  renderScorecard(activeVendors, sta, pri);
 
   // Render table
   const tbody=document.getElementById('tbody');
