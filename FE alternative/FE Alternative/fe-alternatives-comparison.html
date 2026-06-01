@@ -592,10 +592,7 @@ function tvStatusKeyFromArr(arr){
 function renderScorecard(activeVendors, filterStatus){
   // Combine data from all three tables once advData is defined
   const advDefined=typeof advData!=='undefined';
-  const tvDefined=typeof tvData!=='undefined';
-  const allTotal = data.length
-    + (tvDefined?tvData.length:0)
-    + (advDefined?advData.length:0);
+  const allTotal = data.length + (advDefined?advData.length:0);
 
   const allStatuses=[
     {key:'av',label:'Available',cls:'bar-av'},
