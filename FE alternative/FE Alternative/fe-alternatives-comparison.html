@@ -76,10 +76,7 @@ td:last-child { border-right: none; }
 </style>
 </head>
 <body>
-<div class="table-title-row" onclick="toggleSection('section1','arrow1')">
-  <span class="toggle-arrow" id="arrow1">▼</span>
-  <h1 style="display:inline;font-size:1.5rem;color:#1a1a2e;">FE Alternatives — Vendor Comparison</h1>
-</div>
+<h1 style="font-size:1.5rem;color:#1a1a2e;margin-bottom:4px;">FE Alternatives — Vendor Comparison</h1>
 <p class="subtitle">Wiztivi · Applicaster · Magycal · KUX · KSP</p>
 <div class="legend">
   <span class="legend-title">Legend</span>
@@ -107,9 +104,14 @@ td:last-child { border-right: none; }
     <select id="fPri"><option value="">Any</option><option value="1">1</option><option value="2">2</option></select></div>
   <div class="cg"><label>Search</label><input type="text" id="fSrc" placeholder="Module, feature, platform…"></div>
 </div>
-<div id="section1">
 <div class="stats" id="stats"></div>
 <div id="scorecard"></div>
+
+<div class="table-title-row" style="margin-top:16px;margin-bottom:8px;" onclick="toggleSection('section1','arrow1')">
+  <span class="toggle-arrow" id="arrow1">▼</span>
+  <span style="font-size:0.9rem;font-weight:600;color:#555;cursor:pointer;">Features</span>
+</div>
+<div id="section1">
 <div class="wrap">
   <table>
     <colgroup>
