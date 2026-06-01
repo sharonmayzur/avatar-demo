@@ -607,13 +607,9 @@ function renderScorecard(activeVendors, filterStatus){
   let html='';
   activeVendors.forEach(v=>{
     const counts={av:0,pa:0,na:0,un:0};
-    // Table 1 (data)
+    // Table 1
     data.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
-    // Table 2 (tvData) — stored as [status, comment]
-    if(tvDefined) tvData.forEach(r=>{
-      const arr=r[v]; const s=tvStatusKeyFromArr(arr); counts[s]=(counts[s]||0)+1;
-    });
-    // Table 3 (advData) — stored as {s, c}
+    // Advanced table
     if(advDefined) advData.forEach(r=>{
       const s=advStatusKey(r[v]); counts[s]=(counts[s]||0)+1;
     });
