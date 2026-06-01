@@ -925,49 +925,7 @@ const tvData = [
    wiztivi:['Compliant',''],applicaster:['Compliant','Expiration date dependent on the backend'],ksp:['Compliant','After expiration time content is not available; clicking on expired content redirects users to an error page.']},
 ];
 
-(function buildTVTable(){
-  const moduleOrder=[...new Set(tvData.map(r=>r.mod))];
-  const rowNums=new Map(); tvData.forEach((r,i)=>rowNums.set(r,i+1));
-  let html='', i=0;
-  while(i<tvData.length){
-    const row=tvData[i];
-    let span=1;
-    while(i+span<tvData.length && tvData[i+span].mod===row.mod) span++;
-    const mi=moduleOrder.indexOf(row.mod);
-    const cls=mi%2===0?'odd':'even';
-    const shiftPrio=p=>p==='P0'?'1':p==='P1'?'2':p==='P2'?'3':p;
-    const prioCls=row.prio==='P0'?'pb-hi':row.prio==='P1'?'pb-me':'pb-lo';
-    html+=`<tr class="${cls}">
-      <td class="td-num">${rowNums.get(row)}</td>
-      <td class="tv-mod" rowspan="${span}">${row.mod}</td>
-      <td class="tv-feat"><span class="tv-id">${row.id}</span>${row.feat}</td>
-      <td></td>
-      ${tvCell(row.wiztivi[0], row.wiztivi[1])}
-      ${tvCell(row.applicaster[0], row.applicaster[1])}
-      ${tvCell(row.magycal[0], row.magycal[1])}
-      <td></td>
-      ${tvCell(row.ksp[0], row.ksp[1])}
-      <td class="td-prio"><span class="prio-badge ${prioCls}">${shiftPrio(row.prio)}</span></td>
-    </tr>`;
-    for(let j=1;j<span;j++){
-      const r=tvData[i+j];
-      const pc2=r.prio==='P0'?'pb-hi':r.prio==='P1'?'pb-me':'pb-lo';
-      html+=`<tr class="${cls}">
-        <td class="td-num">${rowNums.get(r)}</td>
-        <td class="tv-feat"><span class="tv-id">${r.id}</span>${r.feat}</td>
-        <td></td>
-        ${tvCell(r.wiztivi[0], r.wiztivi[1])}
-        ${tvCell(r.applicaster[0], r.applicaster[1])}
-        ${tvCell(r.magycal[0], r.magycal[1])}
-        <td></td>
-        ${tvCell(r.ksp[0], r.ksp[1])}
-        <td class="td-prio"><span class="prio-badge ${pc2}">${shiftPrio(r.prio)}</span></td>
-      </tr>`;
-    }
-    i+=span;
-  }
-  document.getElementById('tvbody').innerHTML=html;
-})();
+// tvData kept for scorecard calculation only — table is removed
 
 // ── Advanced table data (from Confluence #Advanced section) ──────────────
 // status values: 'av'=Available, 'pa'=Partially, 'na'=Not Available, 'un'=???/empty
