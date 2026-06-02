@@ -1171,5 +1171,130 @@ function buildAdvTable(){
 <style>
 #advTable thead th { background:#1a1a2e; color:white; padding:10px 13px; text-align:left; font-size:0.73rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; position:sticky; top:0; z-index:10; }
 </style>
+<!-- ═══════════════════════════════════════════════════════════ EVALUATION CRITERIA -->
+<div style="margin-top:48px;">
+<h2 style="font-size:1.3rem;color:#1a1a2e;margin-bottom:16px;">Vendor Evaluation Criteria</h2>
+<div class="wrap">
+<table id="evalTable">
+  <colgroup>
+    <col style="width:160px"><col style="width:200px">
+    <col style="width:auto"><col style="width:auto"><col style="width:auto"><col style="width:auto"><col style="width:auto">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Details</th>
+      <th style="border-left:2px solid #0f3460">Wiztivi</th>
+      <th>Applicaster</th>
+      <th>Magycal</th>
+      <th>KUX</th>
+      <th>KSP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="odd">
+      <td class="td-mod">Pricing / Licensing</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Initial cost<br>Yearly cost<br>Hidden costs<br>Customization cost</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">BE Integration</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Integrate with BE/APIs/CMS</td>
+      <td>Vodafone (OTT)</td>
+      <td>Kan 11 (OVP)</td>
+      <td>Canal Panda (OVP)</td>
+      <td>Full support</td>
+      <td>Full support</td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">Device Support</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">STB<br>Android TV<br>Apple TV<br>SMTV (Vidaa, LG, Samsung)<br>WEB<br>Mobile<br>Tablet</td>
+      <td><span class="cmt">Support: STB (Linux/comcast), Fire TV, STB, ATV</span></td>
+      <td><span class="cmt">Not support: STB</span></td>
+      <td><span class="cmt">Support also: Fire TV, Roku</span></td>
+      <td><span class="cmt">Not support: Apple TV, Vidaa</span></td>
+      <td><span class="cmt">Support also: Fire TV</span></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">Dynamic Updates / "One Code"</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Platform flexibility — changes without app store releases:<br>UI/UX changes (rails layout, text, menu, etc.)<br>Content changes (rail composition, ordering, etc.)</td>
+      <td><span class="s-av">UI/UX</span> dynamic<br><span class="s-av">Content</span> dynamic</td>
+      <td><span class="s-av">UI/UX</span> dynamic<br><span class="s-av">Content</span> dynamic</td>
+      <td><span class="s-na">UI/UX</span> not dynamic<br><span class="s-av">Content</span> dynamic</td>
+      <td><span class="s-av">UI/UX</span> dynamic<br><span class="s-av">Content</span> dynamic</td>
+      <td><span class="s-na">UI/UX</span> not dynamic<br><span class="s-av">Content</span> dynamic</td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">Cache Policy</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Cache policy for specific rails (future plan: per device)</td>
+      <td>Cache policy for specific rails<span class="cmt">at the future plan to note the device</span></td>
+      <td></td>
+      <td>Cache policy for specific rails</td>
+      <td>Cache policy for specific rails</td>
+      <td>Not using Cache</td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">Operational Simplicity</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Ease of deployments and maintenance</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">Scalability</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Ability to grow with traffic/users<br>Load/performance validation</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">Vendor Responsiveness</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Support quality, roadmap collaboration</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">Security</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Security compliance and practices (OWASP top 10)</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">DevOps</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Version control and branching<br>CI/CD integration</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">QA</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Automated testing & coverage</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">Performance</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Application loading time<br>Playback loading time<br>EPG / Zapper display performance</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="odd">
+      <td class="td-mod">Operations & Support / SLA</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Bug fix SLA by severity<br>S&M contract scope<br>Support model<br>Rollback options<br>Monitoring per customer<br>Install base / active customers</td>
+      <td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="even">
+      <td class="td-mod">Risks / Limitations</td>
+      <td class="td-feat" style="color:#666;font-size:0.78rem;">Technical debt, dependencies, unsupported areas</td>
+      <td><span class="cmt">Feature release twice a year</span></td>
+      <td><span class="cmt">STB not supported</span></td>
+      <td></td>
+      <td><span class="cmt">Missing features</span></td>
+      <td><span class="cmt">Low quality</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<style>
+#evalTable { table-layout:fixed; width:100%; }
+#evalTable thead th { background:#1a1a2e; color:white; padding:10px 13px; text-align:left; font-size:0.73rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; position:sticky; top:0; z-index:10; }
+#evalTable td { padding:8px 13px; border-bottom:1px solid #edf0f2; border-right:1px solid #e8eaed; vertical-align:top; font-size:0.83rem; }
+#evalTable td:last-child { border-right:none; }
+#evalTable .odd td { background:#fff; }
+#evalTable .even td { background:#fafbfc; }
+#evalTable tbody tr:hover td { background:#f0f7ff !important; }
+</style>
 </body>
 </html>
