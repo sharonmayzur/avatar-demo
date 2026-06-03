@@ -1227,42 +1227,66 @@ function buildAdvTable(){
     <tr class="odd">
       <td class="td-mod">Operational Simplicity</td>
       <td class="td-feat" style="color:#666;">Ease of deployments and maintenance</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td>Apart from Linux STBs where we cannot own OTA, we can manage OTA for Android launchers and for other platforms it's through app stores process (we can also host SmartTV apps to ease update process)</td>
+      <td></td>
+      <td>Magycal OTT is an industrialised, mature product already in production across several clients, so each new project starts from a known-good baseline. Incremental effort goes into customisation, not building from scratch. Reusable templates and automated tenant provisioning keep deployments and ongoing maintenance light, with a typical kickoff-to-go-live of ~4 weeks.</td>
+      <td></td><td></td>
     </tr>
     <tr class="even">
       <td class="td-mod">Scalability</td>
       <td class="td-feat" style="color:#666;">Ability to grow with traffic/users<br>Load/performance validation</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td>We are on a serverless backend stack built for scalability with high level cache policy.</td>
+      <td></td>
+      <td>The OVP Solution Architecture is cloud-native and multi-region. CloudFront + WAF at the edge, ECS in private subnets, Aurora PostgreSQL with read replica and ElastiCache, designed to grow with traffic and users. Proven at scale on the SPORT TV Digital Hub (4M+ registered users, ~4M hours watched/month). Load and performance validation against peak-load and live-event conditions is a dedicated step in our pre-launch phase.</td>
+      <td></td><td></td>
     </tr>
     <tr class="odd">
       <td class="td-mod">Vendor Responsiveness</td>
       <td class="td-feat" style="color:#666;">Support quality, roadmap collaboration</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td>We are keen on getting feedback to improve product roadmap. We can also ease development process as customization with PS.</td>
+      <td></td>
+      <td>Regardless of OVP or Cloud TV solutions, we act as the front-end delivery partner, with daily syncs during delivery and hypercare. We serve as a single point of contact for the end customer and lead project management. Roadmap collaboration is continuous and bidirectional.</td>
+      <td></td><td></td>
     </tr>
     <tr class="even">
       <td class="td-mod">Security</td>
       <td class="td-feat" style="color:#666;">Security compliance and practices (OWASP top 10)</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td>AWS-native security posture: WAF, GuardDuty, AWS Config, ACM/TLS and AWS Backup, with a dedicated security and vulnerability validation step in the Testing &amp; Pre-Launch phase before every go-live.</td>
+      <td></td><td></td>
     </tr>
     <tr class="odd">
       <td class="td-mod">DevOps</td>
       <td class="td-feat" style="color:#666;">Version control and branching<br>CI/CD integration</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td>All code lives in Git with a defined branching model (feature, release and hotfix branches, so production fixes never wait on in-progress work), and a CI/CD pipeline backed by GitHub Actions that builds, reviews and deploys across all front-end platforms into container registries with versioning.</td>
+      <td></td><td></td>
     </tr>
     <tr class="even">
       <td class="td-mod">QA</td>
       <td class="td-feat" style="color:#666;">Automated testing & coverage</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td>QA runs against a defined devices/browsers matrix, with load testing and UAT criteria, plus pre-release testing and app-store submission checks before every launch or maintenance release.</td>
+      <td></td><td></td>
     </tr>
     <tr class="odd">
       <td class="td-mod">Performance</td>
       <td class="td-feat" style="color:#666;">Application loading time<br>Playback loading time<br>EPG / Zapper display performance</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td>Performance is validated pre-launch on the real device matrix (including lower-end devices) covering app start-up, playback start (time-to-first-frame for VOD and live), and EPG grid load and channel zapping on TV/STB. Proven in production: after the Magycal re-launch, OPTO saw a 66% viewership increase and ~50-minute average sessions.</td>
+      <td></td><td></td>
     </tr>
     <tr class="even">
       <td class="td-mod">Operations & Support / SLA</td>
       <td class="td-feat" style="color:#666;">Bug fix SLA by severity<br>S&M contract scope<br>Support model<br>Rollback options<br>Monitoring per customer<br>Install base / active customers</td>
-      <td></td><td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td>Post-launch runs as steady-state operations: tiered SLAs with bug-fix priority by severity and an aggressive hotfix SLA during hypercare; a Service &amp; Maintenance scope covering maintenance, fixes and a bi-weekly/monthly release cadence; a tiered support model with defined escalation and Magycal as single point of contact if needed; rollback and cutover windows defined in the migration plan; and per-customer production monitoring (e.g. Crashlytics).</td>
+      <td></td><td></td>
     </tr>
   </tbody>
 </table>
