@@ -1251,7 +1251,7 @@ function buildAdvTable(){
     <tr class="even">
       <td class="td-mod">Security</td>
       <td class="td-feat" style="color:#666;">Security compliance and practices (OWASP top 10)</td>
-      <td></td>
+      <td>Compliant</td>
       <td></td>
       <td>AWS-native security posture: WAF, GuardDuty, AWS Config, ACM/TLS and AWS Backup, with a dedicated security and vulnerability validation step in the Testing &amp; Pre-Launch phase before every go-live.</td>
       <td></td><td></td>
@@ -1259,7 +1259,7 @@ function buildAdvTable(){
     <tr class="odd">
       <td class="td-mod">DevOps</td>
       <td class="td-feat" style="color:#666;">Version control and branching<br>CI/CD integration</td>
-      <td></td>
+      <td>Version control and branching — Yes<br>CI/CD integration — Yes</td>
       <td></td>
       <td>All code lives in Git with a defined branching model (feature, release and hotfix branches, so production fixes never wait on in-progress work), and a CI/CD pipeline backed by GitHub Actions that builds, reviews and deploys across all front-end platforms into container registries with versioning.</td>
       <td></td><td></td>
@@ -1275,7 +1275,7 @@ function buildAdvTable(){
     <tr class="odd">
       <td class="td-mod">Performance</td>
       <td class="td-feat" style="color:#666;">Application loading time<br>Playback loading time<br>EPG / Zapper display performance</td>
-      <td></td>
+      <td>Boot to Profiles to Home: 13s (TV/Android TV), 4.4s (Desktop), 6.5s (Mobile)<br>Play: 2.43s (TV), 0.5s (Desktop), 2.5s (Mobile)<br>EPG Grid display: 6s (TV), 1.75s (Desktop), 4s (Mobile)</td>
       <td></td>
       <td>Performance is validated pre-launch on the real device matrix (including lower-end devices) covering app start-up, playback start (time-to-first-frame for VOD and live), and EPG grid load and channel zapping on TV/STB. Proven in production: after the Magycal re-launch, OPTO saw a 66% viewership increase and ~50-minute average sessions.</td>
       <td></td><td></td>
@@ -1283,7 +1283,7 @@ function buildAdvTable(){
     <tr class="even">
       <td class="td-mod">Operations & Support / SLA</td>
       <td class="td-feat" style="color:#666;">Bug fix SLA by severity<br>S&M contract scope<br>Support model<br>Rollback options<br>Monitoring per customer<br>Install base / active customers</td>
-      <td></td>
+      <td>Bug fix SLA by severity — Yes<br>S&M contract: Maintenance based on SLA including 1 Timeless product upgrade/year &amp; additional Managed Services (hosting, on-call 24/7, monitoring)<br>Support model: Break &amp; Fix Maintenance + Managed Services<br>Rollback options — Yes<br>Monitoring per customer: Possible as a Managed Service</td>
       <td></td>
       <td>Post-launch runs as steady-state operations: tiered SLAs with bug-fix priority by severity and an aggressive hotfix SLA during hypercare; a Service &amp; Maintenance scope covering maintenance, fixes and a bi-weekly/monthly release cadence; a tiered support model with defined escalation and Magycal as single point of contact if needed; rollback and cutover windows defined in the migration plan; and per-customer production monitoring (e.g. Crashlytics).</td>
       <td></td><td></td>
