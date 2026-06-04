@@ -610,7 +610,6 @@ function renderScorecard(activeVendors, filterStatus, filterPrio){
   activeVendors.forEach(v=>{
     const counts={av:0,pa:0,na:0,un:0};
     d1.forEach(r=>{const s=r[v]?r[v].s:'un'; counts[s]=(counts[s]||0)+1;});
-    d2.forEach(r=>{const s=advStatusKey(r[v]); counts[s]=(counts[s]||0)+1;});
     html+=`<div class="sc-card"><h3>${VENDOR_LABELS[v]}</h3>`;
     toShow.forEach(({key,label,cls})=>{
       const n=counts[key]||0;
