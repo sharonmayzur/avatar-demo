@@ -592,11 +592,9 @@ function tvStatusKeyFromArr(arr){
 }
 
 function renderScorecard(activeVendors, filterStatus, filterPrio){
-  const advDefined=typeof advData!=='undefined';
-  // Apply priority filter to both tables for the scorecard
+  // Scorecard uses only the first (Features) table
   const d1 = filterPrio ? data.filter(r=>r.prio===filterPrio) : data;
-  const d2 = advDefined ? (filterPrio ? advData.filter(r=>r.prio===filterPrio) : advData) : [];
-  const allTotal = d1.length + d2.length;
+  const allTotal = d1.length;
 
   const allStatuses=[
     {key:'av',label:'Available',cls:'bar-av'},
