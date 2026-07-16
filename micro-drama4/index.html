@@ -3428,7 +3428,8 @@ function switchVideo(videoUrl, thumbUrl) {
   bg.style.opacity = '1';
   requestAnimationFrame(() => { bg.style.transition = 'opacity .5s'; });
 
-  const entryId = KALTURA_ENTRIES[currentShowId];
+  let entryId = KALTURA_ENTRIES[currentShowId];
+  if (currentShowId === 8) entryId = ACV_EPISODE_ENTRIES[currentEpisode] || entryId;
   if (entryId !== undefined) {
     // Kaltura player flow
     document.getElementById('player-video').style.display = 'none';
