@@ -4316,13 +4316,14 @@ function buildEpisodesGrid(show) {
     tabsEl.appendChild(tab);
   }
 
-  // Build episodes grid: first freeEps always free, rest locked (unless VIP)
+  // Build episodes grid: first freeEps always free, rest locked unless VIP or enough coins
   const grid = document.getElementById('eps-grid');
   grid.innerHTML = '';
 
   for (let i = 1; i <= totalEps; i++) {
-    const isAlwaysFree = i <= freeEps;
-    const isLocked     = !isAlwaysFree && !vipUnlocked;
+    const isAlwaysFree      = i <= freeEps;
+    const isUnlockedByCoins = coinCounter >= (i - freeEps) * 30;
+    const isLocked          = !isAlwaysFree && !vipUnlocked && !isUnlockedByCoins;
     const isStreaming  = (panelSeason === currentSeason && i === currentEpisode);
 
     const sq = document.createElement('div');
