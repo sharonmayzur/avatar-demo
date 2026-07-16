@@ -4291,7 +4291,8 @@ document.getElementById('eps-backdrop').addEventListener('click', closeEpisodesP
 /* ════════════════ BUILD EPISODES GRID ════════════════ */
 function buildEpisodesGrid(show) {
   const totalSeasons = show.totalSeasons || show.season;
-  const totalEps = 20;
+  const totalEps = show.totalEps || 20;
+  const freeEps  = show.freeEps  || 6;
 
   document.getElementById('eps-total-label').textContent = `${totalSeasons} seasons · ${totalEps} eps`;
 
@@ -4310,12 +4311,12 @@ function buildEpisodesGrid(show) {
     tabsEl.appendChild(tab);
   }
 
-  // Build episodes grid: 20 eps, first 6 always free, 7-20 locked (unless VIP)
+  // Build episodes grid: first freeEps always free, rest locked (unless VIP)
   const grid = document.getElementById('eps-grid');
   grid.innerHTML = '';
 
   for (let i = 1; i <= totalEps; i++) {
-    const isAlwaysFree = i <= 6;
+    const isAlwaysFree = i <= freeEps;
     const isLocked     = !isAlwaysFree && !vipUnlocked;
     const isStreaming  = (panelSeason === currentSeason && i === currentEpisode);
 
